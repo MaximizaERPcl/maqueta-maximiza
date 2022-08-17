@@ -1,4 +1,4 @@
-# demo-maximiza
+# maqueta-maximiza
 
 ## Project setup
 ```

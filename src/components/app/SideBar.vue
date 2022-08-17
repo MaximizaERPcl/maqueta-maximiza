@@ -8,7 +8,7 @@
         <v-list>
           <v-list-item class="p-5">
               <v-img 
-                :src="require('../assets/inicio/logo.png')"
+                :src="require('../../assets/inicio/logo.png')"
                 aspect-ratio="2.5"
                 contain
               ></v-img>
@@ -72,7 +72,7 @@
 
 
         <template v-slot:append>
-            <v-list
+            <!--v-list
             nav
             v-for="item in finalItems"
             >
@@ -82,7 +82,7 @@
                 </v-list-item-icon>
                 <v-list-item-title>{{item.name}}</v-list-item-title>
             </v-list-item>
-            </v-list>
+            </v-list-->
             
         <div class="pa-2">
           <v-btn block color="error">
@@ -106,7 +106,7 @@
                     {name: 'Deposito a plazo'},
                     {name: 'Creditos'},
                     {name: 'Proximos Pagos'},
-                    {name: 'Firma'},
+                    {name: 'Firma Legale'},
                 ]},
             {name: 'Simulador de créditos', icon:'mdi-credit-card', to:"/maximiza/simulador-creditos", subgroup:false},
             {name: 'Simulador Dap', icon:'mdi-bank-transfer-in', to:"/maximiza/simulador-dap", subgroup:false},

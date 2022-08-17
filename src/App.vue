@@ -37,21 +37,27 @@
       </v-btn>
     </v-app-bar-->
     <app-side-bar></app-side-bar>
-
+    <app-toolbar></app-toolbar>
+4
     <v-main>
       <router-view/>
     </v-main>
+    <app-footer></app-footer>
   </v-app>
 </template>
 
 <script>
-import SideBarVue from './components/SideBar.vue';
+import SideBarVue from './components/app/SideBar.vue';
+import FooterVue from './components/app/Footer.vue';
+import ToolbarVue from './components/app/Toolbar.vue';
 
 export default {
   name: 'App',
   components: {
 
     'app-side-bar': SideBarVue,
+    'app-footer': FooterVue,
+    'app-toolbar': ToolbarVue,
 
   },
 

@@ -5,10 +5,15 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    rutaActual:'Titulo Pestaña',
   },
   getters: {
+
   },
   mutations: {
+    cambiarRuta (state, ruta){
+      state.rutaActual = ruta
+    }
   },
   actions: {
   },

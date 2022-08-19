@@ -24,7 +24,7 @@
           >
             <v-select
               v-model="formData.producto"
-              :items="items"
+              :items="productos"
               :rules="[v => !!v || 'Campo requerido']"
               dense
               label="Producto"
@@ -39,10 +39,10 @@
 
             <v-text-field
               v-model="formData.monto"
-              type="number"
               :counter="10"
               dense
               label="Monto del depósito"
+              v-mask="currencyMask"
               outlined
               required
               :rules="[v => !!v || 'Campo requerido']"
@@ -54,7 +54,7 @@
 
             <v-select
               v-model="formData.plazo"
-              :items="items"
+              :items="plazos"
               :rules="[v => !!v || 'Campo requerido']"
               dense
               label="Plazo en el que desea invertir"
@@ -201,7 +201,7 @@
             <v-btn
               color="warning"
               @click="etapa = 1"
-              class="mx-2"
+              class="mx-2 my-2"
             >
             <v-icon left>mdi-arrow-left</v-icon>
               Volver
@@ -209,7 +209,7 @@
 
             <v-btn
               color="primary"
-              class="mx-2"
+              class="mx-2 my-2"
               @click="etapa = 1"
             >
               <v-icon left>mdi-file-download</v-icon>
@@ -218,7 +218,7 @@
 
               <v-btn
                 color="info"
-                class="mx-2"
+                class="mx-2 my-2"
               @click="etapa = 1"
             >
               <v-icon left>mdi-email</v-icon>
@@ -233,27 +233,24 @@
 </template>
 
 <script>
-  import moment from 'moment'
-  import { format, parseISO } from 'date-fns'
+  import moment from 'moment';
+  import createNumberMask from "text-mask-addons/dist/createNumberMask";
 
   export default {
     data: function() {
       return {
         etapa:1,
         valid: true,
-        formData:{ producto:'', monto:'',  plazo:'',},
-        date: '',
-        vencMin: '',
         hoy: new Date(Date.now()),
-        menu1: false,
-        items:['1','2','3'],
+        formData:{ producto:'', monto:'',  plazo:'',},
+        plazos:[],
         nameRules: [
         v => !!v || 'Name is required',
         v => (v && v.length <= 10) || 'Name must be less than 10 characters',
       ],
         resultado: {
           tipo: '104 - DAP UF >360',
-          plazo: 90,
+          plazo: 30,
           moneda: 'Peso',
           valor: 100000, 
           tasa: 0.7377,
@@ -262,7 +259,14 @@
           fechaVenc: '',
           renovacion:'Automática',
 
-        }
+        },
+        currencyMask: createNumberMask({
+          prefix: "",
+          includeThousandsSeparator: true,
+          allowNegative: false,
+          thousandsSeparatorSymbol: ".",
+        }),
+        productos:['Producto 1','Producto 2',' Producto 3'],
       }
     },
 
@@ -270,8 +274,9 @@
       validate () {
         this.$refs.form.validate()
         if(this.valid){
-          this.resultado.fechaVenc = moment(this.hoy.setDate( this.hoy.getDate() + 90 )).format('YYYY-MM-DD') //- (new Date().getTimezoneOffset() * 60000).toISOString().substr(0, 10)
+          this.resultado.fechaVenc = moment(this.hoy.setDate( this.hoy.getDate() + 30 )).format('YYYY-MM-DD') //- (new Date().getTimezoneOffset() * 60000).toISOString().substr(0, 10)
           this.etapa = 2;
+          console.log(this.formData)
         }
       },
       reset () {
@@ -280,8 +285,10 @@
     },
 
     mounted () {
-      this.vencMin = moment(this.hoy.setMonth( this.hoy.getMonth() + 1 )).format('YYYY-MM-DD') //- (new Date().getTimezoneOffset() * 60000).toISOString().substr(0, 10)
-      console.log(this.vencMin)
+      for (let index = 0; index < 90; index++) {
+        let dias = index + 1;
+        dias > 1 ? this.plazos.push(dias + ' días'):this.plazos.push(dias + ' día') 
+      }
     },
     computed: {
       computedDateFormattedMomentjs () {

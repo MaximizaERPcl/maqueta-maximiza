@@ -19,7 +19,12 @@ const routes = [
     path: '/maximiza/simulador-dap',
     name: 'dap',
     component: () => import(/* webpackChunkName: "about" */ '../views/SimuladorDap.vue')
-  }
+  },
+  {
+    path: '/maximiza/productos/:product',
+    name: 'productos',
+    component: () => import(/* webpackChunkName: "about" */ '../views/Productos.vue')
+  },
 ]
 
 const router = new VueRouter({

@@ -36,9 +36,8 @@
         <v-icon>mdi-open-in-new</v-icon>
       </v-btn>
     </v-app-bar-->
-    <app-side-bar></app-side-bar>
-    <app-toolbar></app-toolbar>
-4
+    <app-side-bar v-if="rutaActual != 'login'"></app-side-bar>
+    <app-toolbar v-if="rutaActual != 'login'"></app-toolbar>
     <v-main>
       <router-view/>
     </v-main>
@@ -61,8 +60,19 @@ export default {
 
   },
 
-  data: () => ({
-    //
-  }),
+  data: function() {
+    return {
+      rutaActual:''
+    }
+  },
+  beforeMount(){
+      this.rutaActual = this.$route.name;
+    },
+  watch: {
+    "$route.name"(value) {
+      this.rutaActual = value;
+      console.log(value)
+    }
+  }
 };
 </script>

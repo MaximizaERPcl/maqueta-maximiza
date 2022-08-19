@@ -4,7 +4,11 @@ import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 
 const routes = [
- 
+  {
+    path: '/maximiza',
+    name: 'login',
+    component: () => import(/* webpackChunkName: "about" */ '../views/Login.vue')
+  },
   {
     path: '/maximiza/ingresa',
     name: 'ingresa',

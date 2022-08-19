@@ -4,7 +4,7 @@
     justify="center"
     >
       <v-col
-      cols="11"> 
+        cols="11"> 
         <v-card
           outlined
         >
@@ -13,13 +13,19 @@
             dark
             flat
             dense
+            tile
           >
-            <v-toolbar-title class="flex text-center">Próximos Pagos</v-toolbar-title>
+            <v-toolbar-title class="flex text-center">Cuotas de Crédito</v-toolbar-title>
           </v-toolbar>
-        </v-card>
-        <v-data-table 
+
+          <v-data-table 
             :headers="cabeceras1"
             :items="pagos"
+            disable-pagination
+            disable-sort
+            disable-filtering
+            hide-default-footer	
+
           >
             <template
               v-slot:item.mes1="{ item }"
@@ -53,8 +59,65 @@
               </v-tooltip>
             </template>
           </v-data-table>
-      </v-col>
-    </v-row>
+          <v-divider></v-divider>
+          <v-col cols="3">
+            <v-card
+              outlined
+            >
+              <v-simple-table>
+                <template v-slot:default>
+                  <!--thead>
+                    <tr>
+                      <th class="text-left">
+                        Name
+                      </th>
+                      <th class="text-left">
+                        Calories
+                      </th>
+                    </tr>
+                  </thead-->
+                  <tbody>
+                    <tr
+                    >
+                      <td style="background-color:#4285f4; color:white">Capital Pactado</td>
+                      <td> {{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(15000)}}</td>
+                    </tr>
+                  </tbody>
+                </template>
+              </v-simple-table>
+            </v-card>
+          </v-col> 
+          <v-col cols="3">
+            <v-card
+              outlined
+            >
+              <v-simple-table>
+                <template v-slot:default>
+                  <!--thead>
+                    <tr>
+                      <th class="text-left">
+                        Name
+                      </th>
+                      <th class="text-left">
+                        Calories
+                      </th>
+                    </tr>
+                  </thead-->
+                  <tbody>
+                    <tr
+                    >
+                      <td style="background-color:#4285f4; color:white">Ahorro Pactado</td>
+                      <td> {{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(15000)}}</td>
+                    </tr>
+                  </tbody>
+                </template>
+              </v-simple-table>
+            </v-card>
+          </v-col> 
+          
+      </v-card>
+    </v-col>
+  </v-row>
   </v-container>
 </template>
 

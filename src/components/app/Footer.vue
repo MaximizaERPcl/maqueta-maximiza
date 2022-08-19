@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <div>
     <v-footer
       color="indigo darken-1"
       padless
@@ -32,7 +32,7 @@
         </v-col>
       </v-row>
     </v-footer>
-  </v-container>
+  </div>
 </template>
 
 

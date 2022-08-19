@@ -13,6 +13,7 @@
             dark
             flat
             dense
+            tile
           >
             <v-toolbar-title  class="flex text-center">LEGALE</v-toolbar-title>
           </v-toolbar>

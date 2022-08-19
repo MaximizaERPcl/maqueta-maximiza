@@ -15,6 +15,7 @@
             flat
             class="mb-3"
             dense
+            tile
             
           >
             <v-toolbar-title class="flex text-center">Créditos</v-toolbar-title>

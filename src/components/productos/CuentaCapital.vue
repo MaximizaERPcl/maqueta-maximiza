@@ -14,6 +14,7 @@
             dark
             dense
             flat
+            tile
           >
             <v-toolbar-title class="flex text-center">Cuenta Capital</v-toolbar-title>
           </v-toolbar>

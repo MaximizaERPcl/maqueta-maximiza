@@ -13,6 +13,7 @@
             dark
             flat
             dense
+            tile
           >
             <v-toolbar-title class="flex text-center">Depósito a Plazo</v-toolbar-title>
           </v-toolbar>

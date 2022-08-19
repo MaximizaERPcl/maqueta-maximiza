@@ -12,6 +12,8 @@
       <v-toolbar
         color="primary"
         dark
+        flat
+        tile
       >
         <v-toolbar-title>Bienvenido/a</v-toolbar-title>
 
@@ -23,6 +25,8 @@
       <v-toolbar
         color="primary"
         dark
+        flat
+        tile
       >
           <v-toolbar-title>Información Personal</v-toolbar-title>
       </v-toolbar>
@@ -87,6 +91,8 @@
       <v-toolbar
         color="primary"
         dark
+        flat
+        tile
       >
       <v-icon left>{{product.icon}}</v-icon>
         <v-toolbar-title>{{product.type}}</v-toolbar-title>

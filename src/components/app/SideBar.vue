@@ -17,9 +17,9 @@
           <v-list-item link>
             <v-list-item-content>
               <v-list-item-title class="text-h6">
-                Valentina Ligueño
+                {{nombreUsuario}}
               </v-list-item-title>
-              <v-list-item-subtitle>valentina.ligueno@gmail.com</v-list-item-subtitle>
+              <v-list-item-subtitle>{{userLogged.rut}}</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -86,7 +86,7 @@
             </v-list-->
             
         <div class="pa-2">
-          <v-btn block color="error">
+          <v-btn @click="logout" block color="error">
             Cerrar Sesión
           </v-btn>
         </div>
@@ -98,6 +98,8 @@
 
 <script>
   import { mapMutations } from 'vuex'
+  import auth from "@/auth/auth";
+
   export default {
     data: () => ({
         items: [
@@ -121,10 +123,29 @@
             {name: 'Actualizar Clave', icon:'mdi-account-lock' },
         ],
     }),
+    computed:{
+      userLogged() {
+        return auth.getUserLogged();
+      },
+      nombreUsuario(){
+        let nombre = this.userLogged.nombres.split(' ')[0].charAt(0).toUpperCase() + this.userLogged.nombres.toLowerCase().slice(1);
+        let apellido = this.userLogged.apellido_paterno.split(' ')[0].charAt(0).toUpperCase() + this.userLogged.apellido_paterno.toLowerCase().slice(1);
+        return nombre + ' ' + apellido
+      }
+    },
+    mounted(){
+      let ruta = this.$route.name;
+      var indiceRuta = this.items.findIndex( item => item.to === ruta);
+      this.cambiarRuta(this.items[indiceRuta].name);
+    },
     methods:{
       ...mapMutations([
-      'cambiarRuta',
-    ]),
+        'cambiarRuta',
+      ]),
+      logout(){
+        auth.deleteUserLogged();
+        this.$router.push("/maximiza/");
+      }
     },
     watch: {
       "$route.name": {

@@ -26,19 +26,24 @@
             class="mx-4 mb-2 elevation-1"
           >
             <template
-              v-slot:item.valorCuota="{ item }"
+              v-slot:item.valor_cuota="{ item }"
             >
-              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.valorCuota) }}
+              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.valor_cuota) }}
             </template>
             <template
-              v-slot:item.saldoIns="{ item }"
+              v-slot:item.monto_otorgado="{ item }"
             >
-              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.saldoIns) }}
+              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.monto_otorgado) }}
             </template>
             <template
-              v-slot:item.montoCapOtor="{ item }"
+              v-slot:item.saldo_capital="{ item }"
             >
-              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.montoCapOtor) }}
+              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.saldo_capital) }}
+            </template>
+            <template
+              v-slot:item.tasa="{ item }"
+            >
+              {{ item.tasa + '%' }}
             </template>
 
             <template v-slot:item.actions="{ item }">
@@ -61,14 +66,14 @@
                 <td><b>TOTAL</b></td>
                 <td></td>
                 <td></td> 
-                <td><b>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(62321)}}</b></td>
+                <td><b>-</b></td>
                 <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
-                <td><b>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(121917)}}</b></td>
-                <td><b>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(1801232)}}</b></td>
+                <td><b>-</b></td>
+                <td><b>-</b></td>
               </tr>
             </template>
             <template v-slot:top>
@@ -89,9 +94,9 @@
             class="mx-4 mb-2 elevation-1"
           >
             <template
-              v-slot:item.valorCuota="{ item }"
+              v-slot:item.valor_cuota="{ item }"
             >
-              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.valorCuota) }}
+              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.valor_cuota) }}
             </template>
             <template
               v-slot:item.mora="{ item }"
@@ -99,14 +104,14 @@
               {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.mora) }}
             </template>
             <template
-              v-slot:item.gastoCobranza="{ item }"
+              v-slot:item.gasto_cobranza="{ item }"
             >
-              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.gastoCobranza) }}
+              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.gasto_cobranza) }}
             </template>
             <template
-              v-slot:item.scuota="{ item }"
+              v-slot:item.saldo_uota="{ item }"
             >
-              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.scuota) }}
+              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.saldo_uota) }}
             </template>
             <template
               v-slot:item.acumulado="{ item }"
@@ -135,13 +140,13 @@
                 <td></td>
                 <td></td> 
                 <td></td>
-                <td><b>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(62321)}}</b></td>
+                <td><b>-</b></td>
                 <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
-                <td><b>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(147680)}}</b></td>
+                <td><b>-</b></td>
               </tr>
             </template>
             <template v-slot:top>
@@ -288,6 +293,8 @@
 </template>
 
 <script>
+import auth from '@/auth/auth';
+import socio from '@/services/socio';
 export default {
     data: function() {
       return {
@@ -296,12 +303,12 @@ export default {
             text: 'N°',
             align: 'start',
             sortable: true,
-            value: 'num',
+            value: 'credito',
           },
           { text: 'Tipo de crédito',
             align: 'start',
             sortable: true, 
-            value: 'tipo' 
+            value: 'tipo_credito' 
           },
           { text: 'Cuotas',
             align: 'start',
@@ -311,17 +318,17 @@ export default {
           { text: 'Valor Cuota',
             align: 'start',
             sortable: true, 
-            value: 'valorCuota' 
+            value: 'valor_cuota' 
           },
           { text: 'Fecha de vencimiento',
             align: 'start',
             sortable: true, 
-            value: 'fechVenc' 
+            value: 'fecha_vencimiento' 
           },
           { text: 'Fecha de otorgamiento',
             align: 'start',
             sortable: true, 
-            value: 'fechOtorg' 
+            value: 'fecha_otorgamiento' 
           },
           { text: 'Estado',
             align: 'start',
@@ -336,17 +343,17 @@ export default {
           { text: 'Forma de pago',
             align: 'start',
             sortable: true, 
-            value: 'pago' 
+            value: 'forma_pago' 
           },
           { text: 'Saldo insoluto',
             align: 'start',
             sortable: true, 
-            value: 'saldoIns' 
+            value: 'saldo_capital' 
           },
           { text: 'Monto Capital Otorgado',
             align: 'start',
             sortable: true, 
-            value: 'montoCapOtor' 
+            value: 'monto_otorgado' 
           },
           { text: '', value: 'actions', sortable: false },
           ],
@@ -355,28 +362,28 @@ export default {
           { text: 'Tipo de crédito',
             align: 'start',
             sortable: true, 
-            value: 'tipo' 
+            value: 'tipo_credito' 
           },
           {
             text: 'Cuota N°',
             align: 'start',
             sortable: true,
-            value: 'numCuota',
+            value: 'cuota_n',
           },
           { text: 'Fecha de vencimiento',
             align: 'start',
             sortable: true, 
-            value: 'fechVenc' 
+            value: 'fecha_vencimiento' 
           },
           { text: 'Dias de atraso',
             align: 'start',
             sortable: true, 
-            value: 'diasAtraso' 
+            value: 'dias_atraso' 
           },
           { text: 'Valor Cuota',
             align: 'start',
             sortable: true, 
-            value: 'valorCuota' 
+            value: 'valor_cuota' 
           },
           
           { text: 'Mora',
@@ -387,12 +394,12 @@ export default {
           { text: 'Gasto Cobranza',
             align: 'start',
             sortable: true, 
-            value: 'gastoCobranza' 
+            value: 'gasto_cobranza' 
           },
           { text: 'I.Pro',
             align: 'start',
             sortable: true, 
-            value: 'ipro' 
+            value: 'i_pro' 
           },
           { text: 'Abonado',
             align: 'start',
@@ -402,7 +409,7 @@ export default {
           { text: 'S.cuota',
             align: 'start',
             sortable: true, 
-            value: 'scuota' 
+            value: 'saldo_uota' 
           },
           { text: 'Acumulado',
             align: 'start',
@@ -538,61 +545,11 @@ export default {
           },
         ],
 
-        creditos: [{
-          num: 8538,
-          tipo: '603 - Crédito de Consumo', 
-          cuotas: '47/48',
-          valorCuota: 62321,
-          fechVenc: '16/04/2022',
-          fechOtorg: '31/08/2017',
-          estado: 'Vig.',
-          tasa:'2,3',
-          pago:'DxP',
-          saldoIns: 121917,
-          montoCapOtor: 1801232
-        }],
+        creditos: [],
 
-        cuotasMorosas: [{
-          tipo: '603 - Crédito de Consumo',
-          numCuota: 47,
-          fechVenc: '16/04/2022',
-          diasAtraso: 124,
-          valorCuota: 62321,
-          mora: 6723,
-          gastoCobranza:5609,
-          ipro:'.0000',
-          abonado: 121917,
-          scuota:74653,
-          acumulado: 74653
-        },
-        {
-          tipo: '603 - Crédito de Consumo',
-          numCuota: 48,
-          fechVenc: '16/05/2022',
-          diasAtraso: 94,
-          valorCuota: 62321,
-          mora: 5097,
-          gastoCobranza:5609,
-          ipro:'.0000',
-          abonado: 121917,
-          scuota:73027,
-          acumulado: 147680
-        }],
+        cuotasMorosas: [],
 
-        creditosAvalados: [{
-          numCredito: 1234,
-          producto: '603 - Crédito de Consumo', 
-          pago: 'Efectivo',
-          estado: 'Vig.',
-          rut: '11.111.111-1',
-          nombre: 'Percy Jackson',
-          fecha: '16/04/2022',
-          cuota:'10',
-          oficina:'xxx',
-          valorCuota: 32819,
-          capital: 59201,
-          saldo: 1801232,
-        }],
+        creditosAvalados: [],
 
         /*avalesVigentes: [{
           numCredito: 1234,
@@ -610,10 +567,46 @@ export default {
         avalesVigentes:[],
       }
     },
+    methods:{
+      async getSocioCredito(){
+        await socio.getCreditos(this.userLogged.id_cliente)
+          .then(response => {
+            console.log(response.data[0]);
+            this.creditos = response.data;            
+          })
+          .catch(error => console.log(error));
+      },
+      async getDetalleCreditos(accion){
+        await socio.getDetalleCreditos(this.userLogged.id_cliente, accion)
+          .then(response => {
+            if(accion === 2)
+              this.cuotasMorosas = response.data
+            else if(accion === 3)
+              this.creditos = response.data.filter( credito => credito.credito !== "0")
+            
+          })
+          .catch(error => console.log(error));
+      },
+      calcularTotalCreditos(){
+        let valor_cuota = 0;
+        let saldo_capital = 0;
+        let monto_otorgado = 0;
+        this.creditos.forEach(credito => {
+          valor_cuota += parseInt(credito.valor_cuota.split('.').join(""));
+          saldo_capital += parseInt(credito.saldo_capital.split('.').join(""));
+          monto_otorgado += parseInt(credito.monto_otorgado.split('.').join(""));
+        });
+      }
+    },
     mounted(){
-      console.log(this.avalesVigentes)
-      console.log(this.avalesVigentes.length)
-    }
+      this.getDetalleCreditos(3);
+      this.getDetalleCreditos(2);
+    },
+    computed:{
+      userLogged() {
+          return auth.getUserLogged();
+        },
+      },
     
 }
 </script>

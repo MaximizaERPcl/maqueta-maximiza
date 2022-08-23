@@ -122,8 +122,9 @@
 </template>
 
 <script>
-import { consoleError } from 'vuetify/lib/util/console';
 import { mapState } from 'vuex';
+import auth from '@/auth/auth';
+import socio from '@/services/socio';
 
 export default {
   data: function() {
@@ -148,147 +149,63 @@ export default {
       ],
       pagos:[{mes1:0,mes2:0,mes3:0}],
       meses: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre', 'Noviembre','Diciembre'],
-      items: [
-        {
-          "credito": "10604",
-          "cuota": "20",
-          "nro_cuota": "20/51",
-          "valor_cuota": "212485",
-          "total_a_pagar": "212485",
-          "fecha_venc": "28/06/2022",
-          "pagado": ".0000",
-          "estado": "Cartera Vencida",
-          "total_prepago": "5.716.434",
-          "cuota_social": "0.0"
-        },
-        {
-          "credito": "10604",
-          "cuota": "21",
-          "nro_cuota": "21/51",
-          "valor_cuota": "207599",
-          "total_a_pagar": "207599",
-          "fecha_venc": "28/07/2022",
-          "pagado": ".0000",
-          "estado": "Cartera Vencida",
-          "total_prepago": "5.716.434",
-          "cuota_social": "0.0"
-        },
-        {
-          "credito": "10604",
-          "cuota": "22",
-          "nro_cuota": "22/51",
-          "valor_cuota": "187172",
-          "total_a_pagar": "187172",
-          "fecha_venc": "28/08/2022",
-          "pagado": ".0000",
-          "estado": "Cartera Vencida",
-          "total_prepago": "5.716.434",
-          "cuota_social": "0.0"
-        },
-        {
-          "credito": "10604",
-          "cuota": "23",
-          "nro_cuota": "23/51",
-          "valor_cuota": "187172",
-          "total_a_pagar": "187172",
-          "fecha_venc": "28/09/2022",
-          "pagado": ".0000",
-          "estado": "Cartera Vencida",
-          "total_prepago": "5.716.434",
-          "cuota_social": "0.0"
-        },
-        {
-          "credito": "10604",
-          "cuota": "24",
-          "nro_cuota": "24/51",
-          "valor_cuota": "187172",
-          "total_a_pagar": "187172",
-          "fecha_venc": "28/10/2022",
-          "pagado": ".0000",
-          "estado": "Cartera Vencida",
-          "total_prepago": "5.716.434",
-          "cuota_social": "0.0"
-        },
-      {
-          "credito": "10604",
-          "cuota": "25",
-          "nro_cuota": "25/51",
-          "valor_cuota": "187172",
-          "total_a_pagar": "187172",
-          "fecha_venc": "28/11/2022",
-          "pagado": ".0000",
-          "estado": "Cartera Vencida",
-          "total_prepago": "5.716.434",
-          "cuota_social": "0.0"
-        },
-        {
-          "credito": "10604",
-          "cuota": "26",
-          "nro_cuota": "26/51",
-          "valor_cuota": "187172",
-          "total_a_pagar": "187172",
-          "fecha_venc": "28/12/2022",
-          "pagado": ".0000",
-          "estado": "Cartera Vencida",
-          "total_prepago": "5.716.434",
-          "cuota_social": "0.0"
-        },
-        {
-          "credito": "10604",
-          "cuota": "27",
-          "nro_cuota": "27/51",
-          "valor_cuota": "187172",
-          "total_a_pagar": "187172",
-          "fecha_venc": "28/01/2023",
-          "pagado": ".0000",
-          "estado": "Cartera Vencida",
-          "total_prepago": "5.716.434",
-          "cuota_social": "0.0"
-        },
-        {
-          "credito": "10604",
-          "cuota": "28",
-          "nro_cuota": "28/51",
-          "valor_cuota": "187172",
-          "total_a_pagar": "187172",
-          "fecha_venc": "28/02/2023",
-          "pagado": ".0000",
-          "estado": "Cartera Vencida",
-          "total_prepago": "5.716.434",
-          "cuota_social": "0.0"
-        },
-      ]
+      items: []
     }
   },
-  beforeMount() {
-    const hoy = new Date(Date.now())
-    const mes1 = new Date (hoy.setMonth( hoy.getMonth() + 1 ));
-    const mes2 = new Date (hoy.setMonth( hoy.getMonth() + 1 ));
-    const mes3 = new Date (hoy.setMonth( hoy.getMonth() + 1 ));
-    
-    this.cabeceras1[0].text = this.meses[mes1.getMonth()];
-    this.cabeceras1[1].text = this.meses[mes2.getMonth()];
-    this.cabeceras1[2].text = this.meses[mes3.getMonth()];
+   methods:{
+    async getSocioCredito(){
+      await socio.getCreditos(this.userLogged.id_cliente)
+        .then(response => {
+          let credito = response.data[0];
+          this.getProximoPago(credito.credito)
+          
+        })
+        .catch(error => console.log(error));
+    },
+    async getProximoPago(id_credito){
+      await socio.getProximoPago(id_credito)
+      .then(response => {
+        this.items = response.data;
+        this.getPagosCercanos()
+      })
+      .catch(error => console.log(error));
+    },
+    getPagosCercanos() {
+      const hoy = new Date(Date.now())
+      const mes1 = new Date (hoy.setMonth( hoy.getMonth() + 1 ));
+      const mes2 = new Date (hoy.setMonth( hoy.getMonth() + 1 ));
+      const mes3 = new Date (hoy.setMonth( hoy.getMonth() + 1 ));
+      
+      this.cabeceras1[0].text = this.meses[mes1.getMonth()];
+      this.cabeceras1[1].text = this.meses[mes2.getMonth()];
+      this.cabeceras1[2].text = this.meses[mes3.getMonth()];
 
-    const start = new Date(mes1.getFullYear(), mes1.getMonth(), 1);
-    const end = new Date(mes3.getFullYear(), mes3.getMonth()+1, 0);
+      const start = new Date(mes1.getFullYear(), mes1.getMonth(), 1);
+      const end = new Date(mes3.getFullYear(), mes3.getMonth()+1, 0);
 
-    var pagosFiltrados = this.items.filter(item => {
-      var dateParts = item.fecha_venc.split("/");
-      var date = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]); 
-      return date >= start && date <= end;
-    })
-    this.pagos[0].mes1 = parseInt(pagosFiltrados[0].valor_cuota);
-    this.pagos[0].mes2 = parseInt(pagosFiltrados[1].valor_cuota);
-    this.pagos[0].mes3 = parseInt(pagosFiltrados[2].valor_cuota);
+      var pagosFiltrados = this.items.filter(item => {
+        var dateParts = item.fecha_venc.split("/");
+        var date = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]); 
+        return date >= start && date <= end;
+      })
+      this.pagos[0].mes1 = parseInt(pagosFiltrados[0].valor_cuota);
+      this.pagos[0].mes2 = parseInt(pagosFiltrados[1].valor_cuota);
+      this.pagos[0].mes3 = parseInt(pagosFiltrados[2].valor_cuota);
 
 
-  },
-  mounted() {
-     
+    },
   },
   computed:{
-    ...mapState(['rutaActual'])
-  }
+    ...mapState(['rutaActual']),
+  userLogged() {
+      return auth.getUserLogged();
+    },
+  },
+  mounted(){
+    this.getSocioCredito()
+    //this.getProximoPago()
+  },
+
+  
 }
 </script>

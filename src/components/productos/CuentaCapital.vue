@@ -28,6 +28,11 @@
             >
               {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.saldo) }}
             </template>
+            <template
+              v-slot:item.cuota_participacion="{ item }"
+            >
+              {{ Math.round(item.cuota_participacion)}}
+            </template>
 
             <template v-slot:item.actions="{ item }">
               <v-tooltip bottom>
@@ -56,6 +61,11 @@
             >
               {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.saldo) }}
             </template>
+            <template
+              v-slot:item.monto="{ item }"
+            >
+              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.monto) }}
+            </template>
 
             <template v-slot:top>
               <v-toolbar
@@ -75,6 +85,9 @@
 </template>
 
 <script>
+import socio from '@/services/socio';
+import auth from '@/auth/auth';
+
 import { mapState } from 'vuex';
 
 export default {
@@ -95,7 +108,7 @@ export default {
         { text: 'Cantidad de cuotas',
           align: 'start',
           sortable: true, 
-          value: 'cuotas' 
+          value: 'cuota_participacion' 
         },
         { text: 'Saldo',
           align: 'start',
@@ -113,7 +126,7 @@ export default {
         { text: 'Tipo de Movimiento',
           align: 'start',
           sortable: true, 
-          value: 'tipo' 
+          value: 'tipo_mov' 
         },
         { text: 'Monto',
           align: 'start',
@@ -133,33 +146,40 @@ export default {
         saldo:39783
       }],
 
-      detalleCta: [
-        { fecha: '02/05/2022',
-          tipo: 'Abono de reajustes',
-          monto:1618,
-          saldo:39783
-        },
-        { fecha: '01/01/2022',
-          tipo: 'Cargo por Remanente Negativo',
-          monto:-681,
-          saldo:37321
-        },
-        { fecha: '01/01/2022',
-          tipo: 'Ajuste Monetario Cap',
-          monto:844,
-          saldo:38165
-        },
-        { fecha: '31/12/2021',
-          tipo: 'Abono de reajustes',
-          monto:37321,
-          saldo:38002
-        }
-      ]
+      detalleCta: [],
+      cuenta_capital:{}
     }
   },
-
+  methods:{
+    async getCuentaCapital(){
+      await socio.getCuentaCapital(this.userLogged.rut)
+      .then(response => {
+        this.ctaCapital = response.data;
+        this.getCuentaCapitalDetalle()
+        console.log('cuentas',response.data[0])
+      })
+      .catch(error => console.log(error));
+    },
+    async getCuentaCapitalDetalle(){
+      await socio.getCuentaCapitalDetalle(this.ctaCapital[0].cuenta)
+      .then(response => {
+        let detalles = response.data;
+        this.detalleCta = response.data
+        console.log(detalles)
+      })
+      .catch(error => console.log(error));
+    }
+  },
   computed:{
-    ...mapState(['rutaActual'])
+    ...mapState(['rutaActual']),
+
+    userLogged() {
+        return auth.getUserLogged();
+      },
+  },
+  mounted(){
+    this.getCuentaCapital();
+    //this.getCuentaCapitalDetalle();
   }
 }
 </script>

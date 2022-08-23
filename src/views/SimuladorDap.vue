@@ -24,11 +24,14 @@
           >
             <v-select
               v-model="formData.producto"
+              placeholder="Seleccionar Producto"
               :items="productos"
               :rules="[v => !!v || 'Campo requerido']"
+              :menu-props="{offsetY: true }"
+              item-text="nombre"
+              return-object
               dense
               label="Producto"
-              placeholder="Seleccione un producto"
               required
               outlined
             >
@@ -235,6 +238,8 @@
 <script>
   import moment from 'moment';
   import createNumberMask from "text-mask-addons/dist/createNumberMask";
+  import auth from "@/auth/auth";
+  import simulador from "@/services/simulador";
 
   export default {
     data: function() {
@@ -266,7 +271,7 @@
           allowNegative: false,
           thousandsSeparatorSymbol: ".",
         }),
-        productos:['Producto 1','Producto 2',' Producto 3'],
+        productos:[],
       }
     },
 
@@ -282,9 +287,17 @@
       reset () {
         this.$refs.form.reset()
       },
+      async getProductos(){
+        await simulador.getProductosDaps(this.userLogged.rut)
+        .then( response => {
+          this.productos = response.data;
+        }).catch( error => console.log(error))
+      },
     },
+      
 
     mounted () {
+      this.getProductos()
       for (let index = 0; index < 90; index++) {
         let dias = index + 1;
         dias > 1 ? this.plazos.push(dias + ' días'):this.plazos.push(dias + ' día') 
@@ -294,6 +307,9 @@
       computedDateFormattedMomentjs () {
         moment.locale('es');
         return this.date ? moment(this.date).format('D [de] MMMM, YYYY') : ''
+      },
+      userLogged() {
+        return auth.getUserLogged();
       },
     },
     watch:{

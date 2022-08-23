@@ -20,7 +20,7 @@
 
           <v-data-table 
             :headers="cabeceras1"
-            :items="ctaCapital"
+            :items="ctaAhorro"
           >
             <template
               v-slot:item.saldo="{ item }"
@@ -52,6 +52,8 @@
 
 <script>
 import { mapState } from 'vuex';
+import auth from '@/auth/auth';
+import socio from '@/services/socio';
 
 export default {
   data: function() {
@@ -60,18 +62,18 @@ export default {
         { text: 'N° Cuenta',
           align: 'start',
           sortable: true, 
-          value: 'numCta' 
+          value: 'id_libreta' 
         },
         {
           text: 'Producto',
           align: 'start',
           sortable: true,
-          value: 'producto',
+          value: 'nombre',
         },
         { text: 'Fecha Apertura',
           align: 'start',
           sortable: true, 
-          value: 'fechAper' 
+          value: 'f_apertura' 
         },
         { text: 'Saldo',
           align: 'start',
@@ -81,21 +83,31 @@ export default {
          { text: 'Último Abono',
           align: 'start',
           sortable: true, 
-          value: 'abono' 
+          value: 'fecha_ultimo_abono' 
         },
       ],
-      ctaCapital: [{
-        numCta: '1256',
-        producto: 'Crédito xxx',
-        fechAper: '02/08/2022',
-        saldo:25511,
-        abono:'11/02/2023'
-      }],
+      ctaAhorro: [],
     }
+  },
+  methods:{
+    async getCuentaAhorro(){
+      await socio.getLibretas(this.userLogged.id_cliente)
+      .then(response => {
+        this.ctaAhorro = response.data;
+        console.log('cuentas',response.data)
+      })
+      .catch(error => console.log(error));
+    },
   },
 
   computed:{
-    ...mapState(['rutaActual'])
+    ...mapState(['rutaActual']),
+    userLogged() {
+      return auth.getUserLogged();
+    },
+  },
+  mounted(){
+    this.getCuentaAhorro()
   }
 }
 </script>

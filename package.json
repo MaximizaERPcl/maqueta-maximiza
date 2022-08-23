@@ -9,8 +9,11 @@
   "dependencies": {
     "@mdi/font": "^7.0.96",
     "@mdi/js": "^7.0.96",
+    "axios": "^0.27.2",
     "core-js": "^3.8.3",
+    "crypto-js": "^4.1.1",
     "date-fns": "^2.29.1",
+    "js-cookie": "^3.0.1",
     "mdi": "^2.2.43",
     "mdi-icons": "^1.0.1",
     "moment": "^2.29.4",

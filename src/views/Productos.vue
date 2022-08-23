@@ -43,7 +43,6 @@ export default {
     },
 
     beforeMount(){
-      console.log(this.$route.params)
       this.productoActual = this.$route.params.product;
     },
     watch: {

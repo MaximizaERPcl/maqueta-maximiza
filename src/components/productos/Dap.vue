@@ -22,9 +22,9 @@
             :items="daps"
           >
             <template
-              v-slot:item.monto="{ item }"
+              v-slot:item.monto_final="{ item }"
             >
-              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.monto) }}
+              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.monto_final) }}
             </template>
 
             <template v-slot:item.actions="{ item }">
@@ -51,6 +51,8 @@
 
 <script>
 import { mapState } from 'vuex';
+import auth from '@/auth/auth';
+import socio from '@/services/socio';
 
 export default {
   data: function() {
@@ -60,17 +62,12 @@ export default {
           text: 'N° Cuenta',
           align: 'start',
           sortable: true,
-          value: 'numCta',
+          value: 'n_cuenta',
         },
         { text: 'Producto',
           align: 'start',
           sortable: true, 
           value: 'producto' 
-        },
-        { text: 'Cuotas',
-          align: 'start',
-          sortable: true, 
-          value: 'cuotas' 
         },
         { text: 'Oficina',
           align: 'start',
@@ -85,45 +82,43 @@ export default {
         { text: 'Monto',
           align: 'start',
           sortable: true, 
-          value: 'monto' 
+          value: 'monto_final' 
         },
         { text: 'Fecha Apertura',
           align: 'start',
           sortable: true, 
-          value: 'fechAper' 
+          value: 'f_apertura' 
         },
         { text: 'Fecha Vencimiento',
           align: 'start',
           sortable: true, 
-          value: 'fechVenc' 
+          value: 'f_vencimiento' 
         },
 
         { text: '', value: 'actions', sortable: false },
       ],
 
-      daps: [
-        { numCta: 5773,
-          producto: 'DAP 90 a 366 días', 
-          oficina:'CASA MATRIZ',
-          estado: 'Renovado',
-          monto: 4243608,
-          fechAper: '05/08/2022',
-          fechVenc: '04/11/2022',
-        },
-        { numCta: 5773,
-          producto: 'DAP 30 a 89 días', 
-          oficina:'CASA MATRIZ',
-          estado: 'Renovado',
-          monto: 416031,
-          fechAper: '01/08/2022',
-          fechVenc: '05/09/2022',
-        }
-      ],
+      daps: [],
     }
   },
-
+  methods:{
+    async getDap(){
+      await socio.getDap(this.userLogged.id_cliente)
+      .then(response => {
+        if(response.data)
+          this.daps = response.data;
+      })
+      .catch(error => console.log(error));
+    },
+  },
   computed:{
-    ...mapState(['rutaActual'])
+    ...mapState(['rutaActual']),
+  userLogged() {
+      return auth.getUserLogged();
+    },
+  },
+  mounted(){
+    this.getDap()
   }
 }
 </script>

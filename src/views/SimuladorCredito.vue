@@ -24,12 +24,17 @@
           >
             <v-select
               v-model="formData.producto"
+              placeholder="Seleccionar Producto"
               :items="productos"
               :rules="[v => !!v || 'Campo requerido']"
+              :menu-props="{offsetY: true }"
+              item-text="nombre"
+              return-object
               dense
               label="Producto"
               required
               outlined
+              @change="validarMonto()"
             >
               <template v-slot:prepend>        
                 <v-icon left color="primary"> mdi-briefcase-account </v-icon> 
@@ -37,14 +42,19 @@
             </v-select>
 
             <v-text-field
+              ref="amountField"
               v-model="formData.monto"
-              :counter="10"
               dense
               label="Monto del crédito en pesos"
               outlined
               required
               v-mask="currencyMask"
-              :rules="[v => !!v || 'Campo requerido']"
+              :hint="(formData.producto !== '')? ayudaMonto : ''"
+              persistent-hint
+              :rules="[
+                v => !!v || 'Campo requerido',
+                v => !!v && revisarMonto(v),
+              ]"
             >
               <template v-slot:prepend>        
                 <v-icon left color="primary"> mdi-currency-usd </v-icon> 
@@ -56,9 +66,12 @@
               :items="plazos"
               :rules="[v => !!v || 'Campo requerido']"
               dense
+              :menu-props="{offsetY: true }"
+              no-data-text="Debe seleccionar un producto para calcular los plazos disponibles"
               label="Plazo en el que desea pagar"
               outlined
               required
+              @click="cargarPlazos()"
             >
               <template v-slot:prepend>        
                 <v-icon left color="primary"> mdi-calendar-expand-horizontal </v-icon> 
@@ -82,7 +95,7 @@
                     readonly
                     v-bind="attrs"
                     v-on="on"
-                    @click:clear="date = null"
+                    @click:clear="formData.date = null"
                     outlined
                     required
                     :rules="[v => !!v || 'Campo requerido']"
@@ -93,7 +106,7 @@
                   </v-text-field>
                 </template>
                 <v-date-picker
-                  v-model="date"
+                  v-model="formData.date"
                   @change="menu1 = false"
                   :allowed-dates="allowedDates"
                   :min="vencMin"
@@ -217,7 +230,7 @@
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-subtitle>Fecha Primer Vencimiento</v-list-item-subtitle>
-                <v-list-item-title>{{date}}</v-list-item-title>
+                <v-list-item-title>{{formData.date}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -294,24 +307,21 @@
 <script>
   import moment from 'moment';
   import createNumberMask from "text-mask-addons/dist/createNumberMask";
+  import auth from "@/auth/auth";
+  import simulador from "@/services/simulador";
 
   export default {
     data: function() {
       return {
         etapa:1,
         valid: true,
-        formData:{ producto:'', monto:'',  plazo:'', pago: 'Descuento por planilla',},
+        formData:{ producto:'', monto:'',  plazo:'', pago: 'Descuento por planilla', date:''},
         pago:'Descuento por planilla',
-        date: '',
         vencMin: '',
         hoy: new Date(Date.now()),
         menu1: false,
         plazos:[],
-        productos:['Producto 1','Producto 2',' Producto 3'],
-        nameRules: [
-          v => !!v || 'Name is required',
-          v => (v && v.length <= 10) || 'Name must be less than 10 characters',
-        ],
+        productos:[],
         resultado: {
           cuota: 34197,
           interes: 1.20,
@@ -354,7 +364,7 @@
       validate () {
         this.$refs.form.validate()
          if(this.valid){
-          console.log(this.formData)
+          this.enviarSimulacion()
           this.etapa = 2;
         }
       },
@@ -364,14 +374,71 @@
       reset () {
         this.$refs.form.reset();
       },
+      async getProductos(){
+        await simulador.getProductosCreditos(this.userLogged.rut)
+        .then( response => {
+          this.productos = response.data;
+        }).catch( error => console.log(error))
+      },
+      cargarPlazos(){
+        this.plazos = [];
+        if(this.formData.producto !== ''){
+          let inicio = parseInt(this.formData.producto.concl_n_cuota_minimo);
+          let fin = parseInt(this.formData.producto.concl_n_cuota_maximo);
+          for (let index = inicio; index <= fin; index++) {
+            let meses = index;
+            meses > 1 ? this.plazos.push(meses + ' meses'):this.plazos.push(meses + ' mes')
+          }
+        }
+      },
+      revisarMonto(value){
+        if(this.formData.producto !== ''){
+          let formatedValue = parseInt(value.split('.').join(""));
+          let min = parseInt(this.formData.producto.monto_minimo);
+          let max = parseInt(this.formData.producto.monto_maximo);
+          if (formatedValue < min)
+            return false || "El monto debe ser superior a " + Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(min);
+          else if (formatedValue > max)
+            return false || "El monto debe ser inferior a " + Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(max);
+          else
+            return true
+        }
+        return true
+      },
+      validarMonto(){
+        this.formData.date = this.formData.producto.fecha_mec;
+        if(this.formData.monto !== '')
+          this.$refs.amountField.validate();
+      },
+      enviarSimulacion(){
+        let datosFormulario = this.formData;
+        let data = {
+          procm_s_id: datosFormulario.producto.codigo,
+          rut: this.userLogged.rut,
+          accion: 1,
+          fecha_otorgamiento: this.formatDate(datosFormulario.date),
+          primer_vencimiento: this.formatDate(datosFormulario.date),
+          seguro_desgravamen: 1,
+          monto: datosFormulario.monto,
+          monto_solicitado: datosFormulario.monto,
+          cantidad_cuota: datosFormulario.plazo.split(' ')[0],
+          amortizacion: datosFormulario.producto.amortizacion 
+        }
+        console.log(data)
+        simulador.simularCredito(data)
+        .then(response => {
+          console.log(response.data)
+        })
+      },
+      formatDate(date) {
+        if (!date) return null
+        const [year, month, day] = date.split('-')
+        return `${day}/${month}/${year}`
+      },
     },
 
     mounted () {
-      for (let index = 0; index < 18; index++) {
-        let meses = index + 1;
-        meses > 1 ? this.plazos.push(meses + ' meses'):this.plazos.push(meses + ' mes')
-        
-      }
+      this.getProductos()
       var nextMes = new Date (this.hoy.setMonth( this.hoy.getMonth() + 1 ));
 
       if (nextMes.getDay() == 0 || nextMes.getDay() == 6){
@@ -382,17 +449,27 @@
     computed: {
       computedDateFormattedMomentjs () {
         moment.locale('es');
-        return this.date ? moment(this.date).format('D [de] MMMM, YYYY') : ''
+        return this.formData.date ? moment(this.formData.date).format('D [de] MMMM, YYYY') : ''
       },
+      userLogged() {
+        return auth.getUserLogged();
+      },
+      ayudaMonto(){
+        let min = parseInt(this.formData.producto.monto_minimo);
+        let max = parseInt(this.formData.producto.monto_maximo);
+        return "El monto ingresado debe ser superior a " + Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(min) 
+                + " e inferior a " + Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(max) 
+      },
+      
     },
     watch:{
       menu1: function(){
-        if(this.date === '')
-          this.date = this.vencMin;
+        if(this.formData.date === '')
+          this.formData.date = this.vencMin;
       },
-      /*'formData.monto': function(){
-        this.formData.monto = Intl.NumberFormat('es-CL',{currency: 'CLP', decimal:','}).format(this.formData.monto);
-        console.log(this.formData.monto)
+      /*'formData.producto': function(){
+        //this.formData.monto = Intl.NumberFormat('es-CL',{currency: 'CLP', decimal:','}).format(this.formData.monto);
+        this.$refs.amountField.validate();
       }*/
     }
 

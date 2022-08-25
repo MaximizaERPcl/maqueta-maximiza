@@ -85,6 +85,7 @@ export default {
           sortable: true, 
           value: 'fecha_ultimo_abono' 
         },
+        { text: '', value: 'actions', sortable: false },
       ],
       ctaAhorro: [],
     }

@@ -91,6 +91,7 @@
           <v-data-table 
             :headers="cabeceras2"
             :items="cuotasMorosas"
+            :search="search"
             class="mx-4 mb-2 elevation-1"
           >
             <template
@@ -157,6 +158,17 @@
               >
                 <v-toolbar-title class="flex text-center">Cuotas Morosas Deudor</v-toolbar-title>
               </v-toolbar>
+              <v-card-title>
+              <v-text-field
+                v-model="search"
+                append-icon="mdi-magnify"
+                label="Buscar"
+                single-line
+                hide-details
+                outlined
+                dense
+              ></v-text-field>
+              </v-card-title>
             </template>
           </v-data-table>
 
@@ -357,7 +369,7 @@ export default {
           },
           { text: '', value: 'actions', sortable: false },
           ],
-
+          search: '',
           cabeceras2: [
           { text: 'Tipo de crédito',
             align: 'start',

@@ -21,8 +21,16 @@ export default {
         })
          return axios.post(URL_API + "simulador_dap_producto", data);
     },
+    getProductosDapsDetalle(id_prod, accion){
+        let data = qs.stringify({
+            'procm_s_id': id_prod,
+            'accion':accion
+        })
+         return axios.post(URL_API + "simulador_dap_producto_condicion", data);
+    },
     simularDap(data){
         let formattedData = qs.stringify(data)
-        return axios.post(URL_API + "simulador_credito_calculo", formattedData);
+        return axios.post(URL_API + "simulador_dap_producto_simular", formattedData);
     },
+    
 }

@@ -19,7 +19,7 @@
           </v-toolbar>
 
           <v-data-table 
-            :headers="cabeceras1"
+            :headers="cabeceras"
             :items="pagos"
             disable-pagination
             disable-sort
@@ -60,54 +60,18 @@
             </template>
           </v-data-table>
           <v-divider></v-divider>
-          <v-col cols="3">
+          <v-col cols="3" v-for="item in pactado">
             <v-card
               outlined
+              
             >
-              <v-simple-table>
+              <v-simple-table >
                 <template v-slot:default>
-                  <!--thead>
-                    <tr>
-                      <th class="text-left">
-                        Name
-                      </th>
-                      <th class="text-left">
-                        Calories
-                      </th>
-                    </tr>
-                  </thead-->
                   <tbody>
                     <tr
                     >
-                      <td style="background-color:#4285f4; color:white">Capital Pactado</td>
-                      <td> {{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(15000)}}</td>
-                    </tr>
-                  </tbody>
-                </template>
-              </v-simple-table>
-            </v-card>
-          </v-col> 
-          <v-col cols="3">
-            <v-card
-              outlined
-            >
-              <v-simple-table>
-                <template v-slot:default>
-                  <!--thead>
-                    <tr>
-                      <th class="text-left">
-                        Name
-                      </th>
-                      <th class="text-left">
-                        Calories
-                      </th>
-                    </tr>
-                  </thead-->
-                  <tbody>
-                    <tr
-                    >
-                      <td style="background-color:#4285f4; color:white">Ahorro Pactado</td>
-                      <td> {{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(15000)}}</td>
+                      <td style="background-color:#4285f4; color:white">{{item.nombre}}</td>
+                      <td> {{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.monto)}}</td>
                     </tr>
                   </tbody>
                 </template>
@@ -129,7 +93,7 @@ import socio from '@/services/socio';
 export default {
   data: function() {
     return {
-      cabeceras1: [
+      cabeceras: [
         { text: '',
           align: 'start',
           sortable: true, 
@@ -148,37 +112,41 @@ export default {
         },
       ],
       pagos:[{mes1:0,mes2:0,mes3:0}],
-      meses: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre', 'Noviembre','Diciembre'],
-      items: []
+      items: [],
+      pactado: []
     }
   },
    methods:{
-    async getSocioCredito(){
-      await socio.getCreditos(this.userLogged.id_cliente)
-        .then(response => {
-          let credito = response.data[0];
-          this.getProximoPago(credito.credito)
-          
-        })
-        .catch(error => console.log(error));
-    },
-    async getProximoPago(id_credito){
-      await socio.getProximoPago(id_credito)
+    async getProximosPagos(){
+      await socio.getProximosPagos(this.userLogged.id_cliente,2)
       .then(response => {
-        this.items = response.data;
-        this.getPagosCercanos()
+        let items = response.data[0];
+        var i = 0;
+        for (const property in items) {
+          if(i<3){
+            this.cabeceras[i].text = property;
+            let mes = 'mes'+(i+1)
+            this.pagos[0][mes] = parseInt(items[property]);
+          }
+          else{
+            let monto = parseInt(parseFloat(items[property]));
+            this.pactado.push({nombre:property, monto:monto});
+          }
+          i++;
+        }
       })
       .catch(error => console.log(error));
     },
-    getPagosCercanos() {
+    getPagosCercanos() { //No se usa, pero la dejo porque le puse empeño :(, filtra por un rango de fechas
       const hoy = new Date(Date.now())
+      const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre', 'Noviembre','Diciembre']; 
       const mes1 = new Date (hoy.setMonth( hoy.getMonth() + 1 ));
       const mes2 = new Date (hoy.setMonth( hoy.getMonth() + 1 ));
       const mes3 = new Date (hoy.setMonth( hoy.getMonth() + 1 ));
       
-      this.cabeceras1[0].text = this.meses[mes1.getMonth()];
-      this.cabeceras1[1].text = this.meses[mes2.getMonth()];
-      this.cabeceras1[2].text = this.meses[mes3.getMonth()];
+      this.cabeceras[0].text = meses[mes1.getMonth()];
+      this.cabeceras[1].text = meses[mes2.getMonth()];
+      this.cabeceras[2].text = meses[mes3.getMonth()];
 
       const start = new Date(mes1.getFullYear(), mes1.getMonth(), 1);
       const end = new Date(mes3.getFullYear(), mes3.getMonth()+1, 0);
@@ -202,8 +170,8 @@ export default {
     },
   },
   mounted(){
-    this.getSocioCredito()
-    //this.getProximoPago()
+    //this.getSocioCredito()
+    this.getProximosPagos()
   },
 
   

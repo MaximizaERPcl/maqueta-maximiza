@@ -34,6 +34,7 @@
               label="Producto"
               required
               outlined
+              @change="validarMonto()"
             >
               <template v-slot:prepend>        
                 <v-icon left color="primary"> mdi-briefcase-account </v-icon> 
@@ -46,9 +47,14 @@
               dense
               label="Monto del depósito"
               v-mask="currencyMask"
+              :hint="(formData.producto !== '')? ayudaMonto : ''"
+              persistent-hint
               outlined
               required
-              :rules="[v => !!v || 'Campo requerido']"
+              :rules="[
+                v => !!v || 'Campo requerido',
+                v => !!v && revisarMonto(v),
+              ]"
             >
               <template v-slot:prepend>        
                 <v-icon left color="primary"> mdi-currency-usd </v-icon> 
@@ -59,10 +65,13 @@
               v-model="formData.plazo"
               :items="plazos"
               :rules="[v => !!v || 'Campo requerido']"
+              :menu-props="{offsetY: true }"
               dense
+              no-data-text="Debe seleccionar un producto para calcular los plazos disponibles"
               label="Plazo en el que desea invertir"
               outlined
               required
+              @click="cargarPlazos()"
             >
               <template v-slot:prepend>        
                 <v-icon left color="primary"> mdi-calendar-expand-horizontal </v-icon> 
@@ -101,7 +110,7 @@
               </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-subtitle>Tipo de depósito</v-list-item-subtitle>
-                  <v-list-item-title>{{resultado.tipo}}</v-list-item-title>
+                  <v-list-item-title>{{formData.producto.nombre}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
 
@@ -113,7 +122,7 @@
               </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-subtitle>Días Plazo</v-list-item-subtitle>
-                  <v-list-item-title>{{resultado.plazo + ' días'}}</v-list-item-title>
+                  <v-list-item-title>{{resultado.dias_plazo_real + ' días'}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
 
@@ -125,7 +134,7 @@
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-subtitle>Moneda</v-list-item-subtitle>
-                  <v-list-item-title>{{resultado.moneda}}</v-list-item-title>
+                  <v-list-item-title>{{resultado.nombre_moneda}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
 
@@ -137,7 +146,7 @@
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-subtitle>Valor del Depósito</v-list-item-subtitle>
-                  <v-list-item-title>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(resultado.valor)}}</v-list-item-title>
+                  <v-list-item-title>${{formData.monto}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
 
@@ -149,7 +158,7 @@
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-subtitle>Tasa</v-list-item-subtitle>
-                  <v-list-item-title>{{resultado.tasa +' %'}}</v-list-item-title>
+                  <v-list-item-title>{{resultado.tasa_base +' %'}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
 
@@ -161,7 +170,7 @@
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-subtitle>Interés</v-list-item-subtitle>
-                  <v-list-item-title>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(resultado.interes)}}</v-list-item-title>
+                  <v-list-item-title>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(resultado.interes_pactado)}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
 
@@ -173,7 +182,7 @@
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-subtitle>Monto Final</v-list-item-subtitle>
-                  <v-list-item-title>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(resultado.montoFinal)}}</v-list-item-title>
+                  <v-list-item-title>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(resultado.monto_total)}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
 
@@ -185,7 +194,7 @@
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-subtitle>Fecha Vencimiento</v-list-item-subtitle>
-                  <v-list-item-title>{{resultado.fechaVenc}}</v-list-item-title>
+                  <v-list-item-title>{{resultado.fecha_vencimiento}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
 
@@ -197,7 +206,7 @@
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-subtitle>Tipo de renovación</v-list-item-subtitle>
-                  <v-list-item-title>{{resultado.renovacion}}</v-list-item-title>
+                  <v-list-item-title>{{'Automatica'}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
             </v-list>
@@ -253,18 +262,7 @@
         v => !!v || 'Name is required',
         v => (v && v.length <= 10) || 'Name must be less than 10 characters',
       ],
-        resultado: {
-          tipo: '104 - DAP UF >360',
-          plazo: 30,
-          moneda: 'Peso',
-          valor: 100000, 
-          tasa: 0.7377,
-          interes: 738,
-          montoFinal: 100738,
-          fechaVenc: '',
-          renovacion:'Automática',
-
-        },
+        resultado: {},
         currencyMask: createNumberMask({
           prefix: "",
           includeThousandsSeparator: true,
@@ -279,9 +277,8 @@
       validate () {
         this.$refs.form.validate()
         if(this.valid){
-          this.resultado.fechaVenc = moment(this.hoy.setDate( this.hoy.getDate() + 30 )).format('YYYY-MM-DD') //- (new Date().getTimezoneOffset() * 60000).toISOString().substr(0, 10)
+          this.enviarSimulacion();
           this.etapa = 2;
-          console.log(this.formData)
         }
       },
       reset () {
@@ -290,18 +287,67 @@
       async getProductos(){
         await simulador.getProductosDaps(this.userLogged.rut)
         .then( response => {
-          this.productos = response.data;
+          let productos = response.data;
+          productos.forEach(async producto => {
+            await simulador.getProductosDapsDetalle(producto.codigo, 2)
+            .then(response => {
+              var productoCompleto = Object.assign({}, producto, response.data[0]);
+              this.productos.push(productoCompleto)
+            })
+          });
         }).catch( error => console.log(error))
+      },
+      cargarPlazos(){
+        this.plazos = [];
+        if(this.formData.producto !== ''){
+          let inicio = parseInt(this.formData.producto.dia_plazo_minimo);
+          let fin = parseInt(this.formData.producto.dia_plazo_maximo);
+          for (let index = inicio; index <= fin; index++) {
+            let dias = index;
+            dias > 1 ? this.plazos.push(dias + ' días'):this.plazos.push(dias + ' día')
+          }
+        }
+      },
+      revisarMonto(value){
+        if(this.formData.producto !== ''){
+          let formatedValue = parseInt(value.split('.').join(""));
+          let min = parseInt(this.formData.producto.monto_minimo);
+          let max = parseInt(this.formData.producto.monto_maximo);
+          if (formatedValue < min)
+            return false || "El monto debe ser superior a " + Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(min);
+          else if (formatedValue > max)
+            return false || "El monto debe ser inferior a " + Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(max);
+          else
+            return true
+        }
+        return true
+      },
+      validarMonto(){
+        this.formData.date = this.formData.producto.fecha_mec;
+        if(this.formData.monto !== '')
+          this.$refs.amountField.validate();
+      },
+
+      enviarSimulacion(){
+        let datosFormulario = this.formData;
+        let data = {
+          procm_s_id: datosFormulario.producto.codigo,
+          dias_plazo: datosFormulario.plazo.split(' ')[0],
+          monto_deposito: parseInt(datosFormulario.monto.split('.').join("")),
+        }
+        console.log(data)
+        simulador.simularDap(data)
+        .then(response => {
+          console.log(response.data[0])
+          this.resultado = response.data[0];
+        })
+        .catch(error => console.log(error))
       },
     },
       
 
     mounted () {
       this.getProductos()
-      for (let index = 0; index < 90; index++) {
-        let dias = index + 1;
-        dias > 1 ? this.plazos.push(dias + ' días'):this.plazos.push(dias + ' día') 
-      }
     },
     computed: {
       computedDateFormattedMomentjs () {
@@ -311,17 +357,20 @@
       userLogged() {
         return auth.getUserLogged();
       },
+      ayudaMonto(){
+        let min = parseInt(this.formData.producto.monto_minimo);
+        let max = parseInt(this.formData.producto.monto_maximo);
+        return "El monto ingresado debe ser superior a " + Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(min) 
+                + " e inferior a " + Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(max) 
+      },
     },
     watch:{
       menu1: function(){
         if(this.date === '')
           this.date = this.vencMin;
       },
-      /*'formData.monto': function(){
-        this.formData.monto = Intl.NumberFormat('es-CL',{currency: 'CLP', decimal:','}).format(this.formData.monto);
-        console.log(this.formData.monto)
-      }*/
     }
+    
 
   }
 </script>

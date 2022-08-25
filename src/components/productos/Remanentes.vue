@@ -19,13 +19,13 @@
           </v-toolbar>
 
           <v-data-table 
-            :headers="cabeceras1"
-            :items="ctaCapital"
+            :headers="cabeceras"
+            :items="remanentes"
           >
             <template
               v-slot:item.saldo="{ item }"
             >
-              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.saldo) }}
+              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.vistd_m_monto) }}
             </template>
 
             <template v-slot:item.actions="{ item }">
@@ -53,21 +53,23 @@
 
 <script>
 import { mapState } from 'vuex';
+import auth from '@/auth/auth';
+import socio from '@/services/socio';
 
 export default {
   data: function() {
     return {
-      cabeceras1: [
+      cabeceras: [
         { text: 'N° Cuenta',
           align: 'start',
           sortable: true, 
-          value: 'numCta' 
+          value: 'Cuenta' 
         },
         {
           text: 'Producto',
           align: 'start',
           sortable: true,
-          value: 'producto',
+          value: 'Producto',
         },
         { text: 'Saldo',
           align: 'start',
@@ -77,21 +79,31 @@ export default {
          { text: 'Último Abono',
           align: 'start',
           sortable: true, 
-          value: 'abono' 
+          value: 'ult_abono' 
         },
         { text: '', value: 'actions', sortable: false },
       ],
-      ctaCapital: [{
-        numCta: '379',
-        producto: 'SALDO A FAVOR DXP',
-        saldo:197172,
-        abono:'05/08/2022'
-      }],
+      remanentes: [],
     }
   },
 
   computed:{
-    ...mapState(['rutaActual'])
+    userLogged() {
+        return auth.getUserLogged();
+      },
+  },
+  
+  methods: {
+    getRemanentes(){
+      socio.getRemanentes(this.userLogged.id_cliente)
+      .then( response => {
+        this.remanentes = response.data;
+      })
+      .catch( error => console.log(error))
+    },
+  },
+  mounted() {
+    this.getRemanentes()
   }
 }
 </script>

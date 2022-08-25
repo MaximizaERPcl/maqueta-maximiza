@@ -44,5 +44,13 @@ export default {
      })
      //const user = { rut, password };
      return axios.post(URL_API + "info_cliente", data);
+  },
+  generarClave(rut,correo,telefono){
+    let data = qs.stringify({
+      'usuario': rut,
+      'mail': correo,
+      'telefono': telefono 
+     })
+     return axios.post(URL_API + "info_cliente", data);
   }
 };

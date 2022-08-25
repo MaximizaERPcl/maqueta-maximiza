@@ -14,7 +14,7 @@
               ></v-img>
           </v-list-item>
 
-          <v-list-item link>
+          <v-list-item>
             <v-list-item-content>
               <v-list-item-title class="text-h6">
                 {{nombreUsuario}}
@@ -144,6 +144,7 @@
       ]),
       logout(){
         auth.deleteUserLogged();
+        //window.location.href = "http://www.w3schools.com";
         this.$router.push("/maximiza/");
       }
     },

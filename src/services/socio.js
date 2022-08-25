@@ -54,6 +54,20 @@ export default {
          })
          return axios.post(URL_API + "proximo_pago", data);
     },
+    getProximosPagos(id_cliente,accion){
+        let data = qs.stringify({
+            'clien_s_id': id_cliente,
+            'accion':accion
+         })
+         return axios.post(URL_API + "proximos_pagos", data);
+    },
+
+    getRemanentes(id_cliente){
+        let data = qs.stringify({
+            'clien_s_id': id_cliente,
+         })
+         return axios.post(URL_API + "saldo_a_favor", data);
+    },
 
     
 }

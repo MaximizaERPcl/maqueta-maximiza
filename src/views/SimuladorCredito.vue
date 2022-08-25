@@ -158,7 +158,7 @@
              </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-subtitle>Cuota</v-list-item-subtitle>
-                <v-list-item-title>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(resultado.cuota)}}</v-list-item-title>
+                <v-list-item-title>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(resultado.valor_cuota)}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -170,7 +170,7 @@
              </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-subtitle>Interés</v-list-item-subtitle>
-                <v-list-item-title>{{resultado.interes}}%</v-list-item-title>
+                <v-list-item-title>{{parseFloat(resultado.tasa_visible)*100}}%</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -182,7 +182,7 @@
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-subtitle>Monto Solicitado</v-list-item-subtitle>
-                <v-list-item-title>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(resultado.montoSolicitado)}}</v-list-item-title>
+                <v-list-item-title>${{formData.monto}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -194,7 +194,7 @@
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-subtitle>Monto Bruto del Crédito</v-list-item-subtitle>
-                <v-list-item-title>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(resultado.montoBruto)}}</v-list-item-title>
+                <v-list-item-title>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(resultado.monto_bruto)}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -206,7 +206,7 @@
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-subtitle>Plazo del Crédito</v-list-item-subtitle>
-                <v-list-item-title>{{resultado.plazo +' meses'}}</v-list-item-title>
+                <v-list-item-title>{{resultado.cuota +' meses'}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -218,7 +218,7 @@
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-subtitle>Costo Total del Crédito</v-list-item-subtitle>
-                <v-list-item-title>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(resultado.costoTotal)}}</v-list-item-title>
+                <v-list-item-title>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(resultado.valor_total)}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -230,7 +230,7 @@
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-subtitle>Fecha Primer Vencimiento</v-list-item-subtitle>
-                <v-list-item-title>{{formData.date}}</v-list-item-title>
+                <v-list-item-title>{{resultado.fprimervencimiento}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -242,31 +242,34 @@
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-subtitle>CAE</v-list-item-subtitle>
-                <v-list-item-title>{{resultado.cae}}%</v-list-item-title>
+                <v-list-item-title>{{parseFloat(resultado.tasa_cae)*100}}%</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
-            <v-list-item>
-               <v-list-item-icon>
-                <v-icon color="primary">
-                  mdi-currency-usd
-                </v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-subtitle>Detalle Gastos:</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
           </v-list>
           <v-data-table 
             :headers="cabeceras"
-            :items="resultado.gastos"
-            class="mx-4 mb-2 elevation-1"
+            :items="gastos"
+            class="mx-2 mb-2 elevation-1"
           >
           <template
-            v-slot:item.monto="{ item }"
+            v-slot:item.gascr_m_valor="{ item }"
           >
-            {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.monto) }}
+            ${{item.gascr_m_valor}}
           </template>
+          <template v-slot:top>
+              <v-toolbar
+                flat
+                outlined
+                dense
+                tile           
+              >
+                    <v-icon left color="primary">
+                    mdi-currency-usd
+                  </v-icon>
+                <v-list-item-title class="ml-2">Detalle gastos</v-list-item-title>
+              </v-toolbar>
+            </template>
           </v-data-table>
 
             <v-btn
@@ -322,20 +325,8 @@
         menu1: false,
         plazos:[],
         productos:[],
-        resultado: {
-          cuota: 34197,
-          interes: 1.20,
-          montoSolicitado: 100000,
-          montoBruto: 100000,
-          plazo: 3, 
-          costoTotal: 102408,
-          vencimiento: '',
-          cae: 15.80,
-          gastos: [
-            { nombre: 'Seguro Desgravamen', monto: 0 },
-            { nombre: 'Notaría', monto: 0 }
-          ]
-        },
+        resultado: {},
+        gastos: [],
 
         currencyMask: createNumberMask({
           prefix: "",
@@ -350,12 +341,12 @@
             text: 'Nombre',
             align: 'start',
             sortable: true,
-            value: 'nombre',
+            value: 'gascr_c_nombre',
           },
           { text: 'Monto',
             align: 'start',
             sortable: true, 
-            value: 'monto' },
+            value: 'gascr_m_valor' },
         ],
       }
     },
@@ -364,7 +355,7 @@
       validate () {
         this.$refs.form.validate()
          if(this.valid){
-          this.enviarSimulacion()
+          this.enviarSimulacion(1);
           this.etapa = 2;
         }
       },
@@ -410,25 +401,38 @@
         if(this.formData.monto !== '')
           this.$refs.amountField.validate();
       },
-      enviarSimulacion(){
+      enviarSimulacion(accion){
         let datosFormulario = this.formData;
+        let f_otorgamiento = moment(new Date(Date.now())).format('DD/MM/YYYY');
         let data = {
           procm_s_id: datosFormulario.producto.codigo,
           rut: this.userLogged.rut,
-          accion: 1,
-          fecha_otorgamiento: this.formatDate(datosFormulario.date),
+          accion: accion,
+          fecha_otorgamiento: f_otorgamiento, //cuando se hizo la simulacion
           primer_vencimiento: this.formatDate(datosFormulario.date),
           seguro_desgravamen: 1,
-          monto: datosFormulario.monto,
-          monto_solicitado: datosFormulario.monto,
+          monto:  parseInt(datosFormulario.monto.split('.').join("")),
+          monto_solicitado:  parseInt(datosFormulario.monto.split('.').join("")),
           cantidad_cuota: datosFormulario.plazo.split(' ')[0],
-          amortizacion: datosFormulario.producto.amortizacion 
+          amortizacion: datosFormulario.producto.amortizacion //se ignora 
         }
-        console.log(data)
         simulador.simularCredito(data)
         .then(response => {
-          console.log(response.data)
+          let result = response.data;
+          if(accion == 1){
+            this.resultado = result[0];
+            this.enviarSimulacion(2);
+          }
+          else{
+            let value = parseInt(result[result.length - 1].gascr_m_valor_or);
+            let seg = parseInt(this.resultado.valor_seguro);
+            let seg_desg = Intl.NumberFormat('es-CL',{currency: 'CLP'}).format( seg - value);
+            this.gastos = response.data;
+            this.gastos.unshift({gascr_c_nombre:'Seguro Desgravamen', gascr_m_valor: seg_desg});
+          }
+
         })
+        .catch(error => console.log(error))
       },
       formatDate(date) {
         if (!date) return null
@@ -444,7 +448,7 @@
       if (nextMes.getDay() == 0 || nextMes.getDay() == 6){
         nextMes.setDate(nextMes.getDate() + ((7 - nextMes.getDay()) % 7 + 1) % 7);
       }
-      this.vencMin = moment(nextMes).format('YYYY-MM-DD')
+      this.vencMin = moment(nextMes).format('YYYY-MM-DD');
     },
     computed: {
       computedDateFormattedMomentjs () {

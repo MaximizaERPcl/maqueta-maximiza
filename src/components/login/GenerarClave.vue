@@ -19,7 +19,11 @@
             required
             outlined
             :rules="[reglas.required]"
-        ></v-text-field>
+        >
+        <template v-slot:prepend>        
+          <v-icon left color="primary"> mdi-account </v-icon> 
+        </template>
+        </v-text-field>
         </v-col>
         <v-col
         cols="12"
@@ -33,7 +37,11 @@
           required
           outlined
           :rules="[reglas.required, reglas.email]"
-        ></v-text-field>
+        >
+        <template v-slot:prepend>        
+          <v-icon left color="primary"> mdi-lock </v-icon> 
+        </template>
+        </v-text-field>
         </v-col>
         <v-col
         cols="12"
@@ -47,7 +55,11 @@
           required
           outlined
           :rules="[reglas.required]"
-        ></v-text-field>
+        >
+          <template v-slot:prepend>        
+            <v-icon left color="primary"> mdi-phone </v-icon> 
+          </template>
+        </v-text-field>
         </v-col>
         <v-col
         cols="12"
@@ -63,7 +75,7 @@
         <v-icon left >mdi-send</v-icon>
             Enviar
         </v-btn>
-        </v-col>
+      </v-col>
     </v-row>
     </v-form>
 </v-container>

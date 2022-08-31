@@ -7,6 +7,7 @@
         cols="11"> 
         <v-card
           outlined
+          
         >
           <v-toolbar
             color="primary"
@@ -14,71 +15,97 @@
             flat
             dense
             tile
+            class="mb-4"
+
           >
-            <v-toolbar-title class="flex text-center">Cuotas de Crédito</v-toolbar-title>
+            <v-toolbar-title class="flex text-center titulo">Cuotas de Crédito</v-toolbar-title>
           </v-toolbar>
-
-          <v-data-table 
-            :headers="cabeceras"
-            :items="pagos"
-            disable-pagination
-            disable-sort
-            disable-filtering
-            hide-default-footer	
-
+          <v-row
+            class="fill-height mb-4"
+            align-content="center"
+            justify="center"
+            v-if="loading"
           >
-            <template
-              v-slot:item.mes1="{ item }"
+            <v-col
+              class="text-subtitle-1 text-center"
+              cols="12"
             >
-              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.mes1) }}
-            </template>
-            <template
-              v-slot:item.mes2="{ item }"
-            >
-              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.mes2) }}
-            </template>
-            <template
-              v-slot:item.mes3="{ item }"
-            >
-              {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.mes3) }}
-            </template>
+              Cargando Datos
+            </v-col>
+            <v-col cols="6">
+              <v-progress-linear
+                color="primary"
+                indeterminate
+                rounded
+                height="10"
+              ></v-progress-linear>
+            </v-col>
+          </v-row>
+          <div v-else>
+          <app-no-datos v-if="noDatos" v-bind:msg="msg"></app-no-datos>
+          <v-container v-else>            
+            <v-data-table 
+              :headers="cabeceras"
+              :items="pagos"
+              disable-pagination
+              disable-sort
+              disable-filtering
+              hide-default-footer	
 
-            <template v-slot:item.actions="{ item }">
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn icon>
-                    <v-icon
-                      v-bind="attrs"
-                      v-on="on"
-                      >
-                      mdi-magnify-expand
-                    </v-icon>
-                  </v-btn>
-                </template>
-                <span>Ver Detalle</span>
-              </v-tooltip>
-            </template>
-          </v-data-table>
-          <v-divider></v-divider>
-          <v-col cols="3" v-for="item in pactado">
-            <v-card
-              outlined
-              
             >
-              <v-simple-table >
-                <template v-slot:default>
-                  <tbody>
-                    <tr
-                    >
-                      <td style="background-color:#4285f4; color:white">{{item.nombre}}</td>
-                      <td> {{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.monto)}}</td>
-                    </tr>
-                  </tbody>
-                </template>
-              </v-simple-table>
-            </v-card>
-          </v-col> 
-          
+              <template
+                v-slot:item.mes1="{ item }"
+              >
+                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.mes1) }}
+              </template>
+              <template
+                v-slot:item.mes2="{ item }"
+              >
+                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.mes2) }}
+              </template>
+              <template
+                v-slot:item.mes3="{ item }"
+              >
+                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.mes3) }}
+              </template>
+
+              <template v-slot:item.actions="{ item }">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn icon>
+                      <v-icon
+                        v-bind="attrs"
+                        v-on="on"
+                        >
+                        mdi-magnify-expand
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Ver Detalle</span>
+                </v-tooltip>
+              </template>
+            </v-data-table>
+            <v-divider></v-divider>
+            <v-col cols="3" v-for="item in pactado">
+              <v-card
+                outlined
+                
+              >
+                <v-simple-table >
+                  <template v-slot:default>
+                    <tbody>
+                      <tr
+                      >
+                        <td style="background-color:#4285f4; color:white">{{item.nombre}}</td>
+                        <td> {{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.monto)}}</td>
+                      </tr>
+                    </tbody>
+                  </template>
+                </v-simple-table>
+              </v-card>
+            </v-col> 
+          </v-container>
+        </div>    
       </v-card>
     </v-col>
   </v-row>
@@ -86,11 +113,14 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
 import auth from '@/auth/auth';
 import socio from '@/services/socio';
+import NoDataVue from '../app/NoData.vue';
 
 export default {
+  components: {
+      'app-no-datos': NoDataVue,
+  },
   data: function() {
     return {
       cabeceras: [
@@ -113,27 +143,38 @@ export default {
       ],
       pagos:[{mes1:0,mes2:0,mes3:0}],
       items: [],
-      pactado: []
+      pactado: [],
+      noDatos: false,
+      msg:'NO SE ENCONTRARON PRÓXIMOS PAGOS',
+      loading: true
     }
   },
    methods:{
     async getProximosPagos(){
       await socio.getProximosPagos(this.userLogged.id_cliente,2)
       .then(response => {
-        let items = response.data[0];
-        var i = 0;
-        for (const property in items) {
-          if(i<3){
-            this.cabeceras[i].text = property;
-            let mes = 'mes'+(i+1)
-            this.pagos[0][mes] = parseInt(items[property]);
+          let items = response.data[0];
+          let suma = 0;
+          var i = 0;
+
+          for (const property in items) {
+            if(i<3){
+              this.cabeceras[i].text = property;
+              let mes = 'mes'+(i+1)
+              let valor = parseInt(parseFloat(items[property]));
+              this.pagos[0][mes] = valor;
+              suma =+ valor;
+            }
+            else{
+              let monto = parseInt(parseFloat(items[property]));
+              this.pactado.push({nombre:property, monto:monto});
+            }
+            i++;
           }
-          else{
-            let monto = parseInt(parseFloat(items[property]));
-            this.pactado.push({nombre:property, monto:monto});
-          }
-          i++;
-        }
+          if(suma == 0)
+            this.noDatos = true;
+          else
+            this.noDatos = false;
       })
       .catch(error => console.log(error));
     },
@@ -164,16 +205,32 @@ export default {
     },
   },
   computed:{
-    ...mapState(['rutaActual']),
   userLogged() {
       return auth.getUserLogged();
     },
   },
-  mounted(){
+  async mounted(){
     //this.getSocioCredito()
-    this.getProximosPagos()
+    this.loading = true;
+    await this.getProximosPagos();
+    this.loading = false;
   },
 
   
 }
 </script>
+<style scoped lang="css">
+  .titulo { 
+      font-size:30px;
+      line-height : 30px;
+      word-break:normal;
+      font-weight: 300;
+    }
+  .cabecera {
+    color: white;
+    font-weight: 300;
+    font-size:  22px;
+    line-height : 22px;
+  
+  }
+  </style>

@@ -36,13 +36,18 @@
       md="8"
       >
       <v-text-field
-      v-model="rut"
-      label="Rut"
-      placeholder="11111111-1"
-      required
-      outlined
-      :rules="[value => !!value || 'Campo Requerido.']"
-      ></v-text-field>
+        v-model="rut"
+        label="Rut"
+        placeholder="Ingrese su rut"
+        :rules="[v => !!v || 'Campo es requerido', v => ValidaRut(v) || 'El rut no es válido']"
+        v-mask="formatRut"
+        required
+        outlined
+        >
+        <template v-slot:prepend>        
+          <v-icon left color="primary"> mdi-account </v-icon> 
+        </template>
+      </v-text-field>
     </v-col>
     <v-col
       cols="12"
@@ -50,17 +55,20 @@
       md="8"
     >
       <v-text-field
-      v-model="password"
-      label="Clave"
-      placeholder="Ingrese"
-      required
-      outlined
-      :rules="[value => !!value || 'Campo Requerido.']"
-      :append-icon="mostrar ? 'mdi-eye' : 'mdi-eye-off'"
-      :type="mostrar ? 'text' : 'password'"
-      @click:append="mostrar = !mostrar"
-      
-        ></v-text-field>
+        v-model="password"
+        label="Clave"
+        placeholder="Ingrese"
+        required
+        outlined
+        :rules="[value => !!value || 'Campo Requerido.']"
+        :append-icon="mostrar ? 'mdi-eye' : 'mdi-eye-off'"
+        :type="mostrar ? 'text' : 'password'"
+        @click:append="mostrar = !mostrar"
+      >
+        <template v-slot:prepend>        
+          <v-icon left color="primary"> mdi-lock </v-icon> 
+        </template>
+        </v-text-field>
       </v-col>
       <v-col
           cols="12"
@@ -86,6 +94,11 @@
 import auth from "@/auth/auth";
 
 import { mapState } from 'vuex';
+import { formatterRut, cleanRut } from 'chilean-formatter';
+
+export function formatRut(value) {
+  return [...formatterRut(value)]
+}
 
 export default {
     components: {
@@ -93,6 +106,7 @@ export default {
     },
     data: function () {
         return {
+          formatRut,
           alert:false,
           alertMsg:"",
           rut: "",
@@ -113,7 +127,7 @@ export default {
         
       },
       async login(){
-        await auth.login(this.rut, this.password)
+        await auth.login(cleanRut(this.rut,true), this.password)
         .then(response => {
           let data = response.data[0];
           if(data.codigo == 1){
@@ -127,7 +141,43 @@ export default {
         .catch(error => {
           console.log(error)
         })
-      }
+      },
+      ValidaRut(cRut) {
+        if (typeof(cRut) != "undefined") {
+          cRut = cRut.replace(/[\.-]/g, "");
+          cRut = cRut.toUpperCase();
+          var patt = /^\d{1,8}[0-9K]$/;
+          var ok = patt.test(cRut);
+          var cStr = cRut.slice(0, -1);
+          var cDig = cRut.slice(-1);
+          var nSum = 0;
+          var nVal = 0;
+          var cVal = "";
+          var nMul = 0;
+          if (ok) {
+            for (nMul = 2; cStr != ""; nMul = (nMul == 7) ? 2 : nMul + 1) {
+              nSum += Number(cStr.slice(-1)) * nMul;
+              cStr = cStr.slice(0, -1);
+            }
+            nVal = 11 - (nSum % 11);
+            switch (nVal) {
+              case 11:
+                cVal = "0";
+                break;
+              case 10:
+                cVal = "K";
+                break;
+              default:
+                cVal = nVal.toString();
+              }
+            ok = cVal == cDig;
+          }
+          return ok;
+        }
+      },
+      /*formatRut(value){
+        return formatterRut(value)
+      }*/
     },
 }
 </script>

@@ -4,6 +4,8 @@
       permanent
       app
       v-if="$route.name != 'home'"
+      width="300px"
+      min-width="300px"
     >
         <v-list>
           <v-list-item class="p-5">
@@ -14,14 +16,38 @@
               ></v-img>
           </v-list-item>
 
-          <v-list-item>
+          <v-list-group 
+            link 
+            color="primary" 
+            no-action 
+            append-icon="mdi-menu-up"
+            >
+           <template v-slot:activator>
+            <v-list-item-icon >
+              <v-icon color="primary">mdi-account-cog</v-icon>
+            </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title class="text-h6">
-                {{nombreUsuario}}
-              </v-list-item-title>
-              <v-list-item-subtitle>{{userLogged.rut}}</v-list-item-subtitle>
+              <v-list-item-title class="text-h6">{{nombreUsuario}}</v-list-item-title>
+              <v-list-item-subtitle>{{userRut}}</v-list-item-subtitle>
             </v-list-item-content>
-          </v-list-item>
+
+            </template>
+
+            <v-list-item
+              v-for="child in ajustesCuenta"
+              :key="child.name"
+              link
+              :to="{ name: 'cuenta', params:{ajuste:child.to}}"
+
+            >
+              <v-list-item-content>
+                <v-list-item-title v-text="child.name"></v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-icon >
+              <v-icon small color="primary">{{child.icon}}</v-icon>
+            </v-list-item-icon>
+            </v-list-item>
+          </v-list-group>
         </v-list>
 
         <v-divider></v-divider>
@@ -36,7 +62,7 @@
             <v-list-item-title>{{items[0].name}}</v-list-item-title>
           </v-list-item>
   
-          <v-list-group link :to="{name:items[1].to}" color="primary" no-action>
+          <v-list-group link :to="{name:items[1].to}" color="primary" no-action append-icon="mdi-menu-up">
            <template v-slot:activator>
               <v-list-item-icon >
                 <v-icon color="primary">{{items[1].icon}}</v-icon>
@@ -86,7 +112,7 @@
             </v-list-->
             
         <div class="pa-2">
-          <v-btn @click="logout" block color="error">
+          <v-btn large @click="logout" block color="error">
             Cerrar Sesión
           </v-btn>
         </div>
@@ -99,6 +125,7 @@
 <script>
   import { mapMutations } from 'vuex'
   import auth from "@/auth/auth";
+  import { formatterRut } from 'chilean-formatter';
 
   export default {
     data: () => ({
@@ -116,7 +143,11 @@
                 ]},
             {name: 'Simulador de créditos', icon:'mdi-credit-card', to:"creditos", subgroup:false},
             {name: 'Simulador Dap', icon:'mdi-bank-transfer-in', to:"dap", subgroup:false},
-
+            {name: 'Ajustes Cuenta', icon:'mdi-account-cog', to:"cuenta", subgroup:false},
+        ],
+        ajustesCuenta:[
+          {name: 'Actualizar Datos', to:'actualizar-datos', icon: 'mdi-account-details'}, //
+          {name: 'Cambiar Clave', to:'cambiar-clave', icon:'mdi-account-lock'}, //
         ],
         finalItems: [
             {name: 'Atención Socios', icon:'mdi-phone'},
@@ -127,6 +158,9 @@
       userLogged() {
         return auth.getUserLogged();
       },
+      userRut(){
+        return formatterRut(this.userLogged.rut)
+      },
       nombreUsuario(){
         let nombre = this.userLogged.nombres.split(' ')[0].charAt(0).toUpperCase() + this.userLogged.nombres.toLowerCase().slice(1);
         let apellido = this.userLogged.apellido_paterno.split(' ')[0].charAt(0).toUpperCase() + this.userLogged.apellido_paterno.toLowerCase().slice(1);
@@ -134,9 +168,12 @@
       }
     },
     mounted(){
-      let ruta = this.$route.name;
-      var indiceRuta = this.items.findIndex( item => item.to === ruta);
-      this.cambiarRuta(this.items[indiceRuta].name);
+      if(this.$route.name){
+        let ruta = this.$route.name;
+        var indiceRuta = this.items.findIndex( item => item.to === ruta);
+        this.cambiarRuta(this.items[indiceRuta].name);
+      }
+      
     },
     methods:{
       ...mapMutations([
@@ -153,7 +190,6 @@
         handler(value){
           var indiceRuta = this.items.findIndex( item => item.to === value);
           this.cambiarRuta(this.items[indiceRuta].name);
-          
         },
         deep: true
       }

@@ -19,12 +19,17 @@ export default {
         })
          return axios.post(URL_API + "socio_creditos", data);
     },
-
     getDap(id_cliente){
         let data = qs.stringify({
             'clien_s_id': id_cliente,
          })
          return axios.post(URL_API + "socio_depositos", data);
+    },
+    getDetalleDap(id_producto){
+        let data = qs.stringify({
+            'daple_s_id': id_producto,
+         })
+         return axios.post(URL_API + "socio_deposito_detalle", data);
     },
 
     getLibretas(id_cliente){
@@ -32,6 +37,12 @@ export default {
             'clien_s_id': id_cliente,
          })
          return axios.post(URL_API + "socio_libreta", data);
+    },
+    getDetalleLibreta(id_producto){
+        let data = qs.stringify({
+            'libre_s_id': id_producto,
+         })
+         return axios.post(URL_API + "socio_libreta_detalle", data);
     },
 
     getCuentaCapital(rut){
@@ -67,6 +78,12 @@ export default {
             'clien_s_id': id_cliente,
          })
          return axios.post(URL_API + "saldo_a_favor", data);
+    },
+    getDetalleRemanente(id_producto){
+        let data = qs.stringify({
+            'viste_s_id': id_producto,
+         })
+         return axios.post(URL_API + "saldo_a_favor_detalle", data);
     },
 
     

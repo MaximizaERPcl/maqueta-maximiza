@@ -47,6 +47,14 @@ const routes = [
     }
   },
   {
+    path: '/maximiza/cuenta/:ajuste',
+    name: 'cuenta',
+    component: () => import(/* webpackChunkName: "about" */ '../views/Cuenta.vue'),
+    meta:{
+      requiresAuth:true
+    }
+  },
+  {
     path: '/',
     redirect: '/maximiza/'
   },

@@ -19,7 +19,11 @@
           required
           outlined
           :rules="[value => !!value || 'Campo Requerido.']"
-        ></v-text-field>
+        >
+        <template v-slot:prepend>        
+          <v-icon left color="primary"> mdi-account </v-icon> 
+        </template>
+        </v-text-field>
       </v-col>
       <v-col
         cols="12"

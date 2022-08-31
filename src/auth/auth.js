@@ -45,6 +45,35 @@ export default {
      //const user = { rut, password };
      return axios.post(URL_API + "info_cliente", data);
   },
+  guardarDatosPersonales(rut, direc_s_id, form){
+    form.rut = rut;
+    form.direc_s_id = direc_s_id;
+    form.accion = 10;
+    let data = qs.stringify(form)
+    console.log(data);
+    return axios.post(URL_API + "datos_cliente_actualizar", data);
+  },
+  guardarDatosBancarios(rut, direc_s_id, form){
+    let data= qs.stringify({
+        'rut': rut,
+        'direc_s_id':direc_s_id,
+        'accion':11,
+     })
+     return axios.post(URL_API + "datos_cliente_actualizar_bancario", data);
+  },
+
+  datosCliente(rut, direc_s_id, accion, add){
+    let data = qs.stringify({
+        'rut': rut,
+        'direc_s_id':direc_s_id,
+        'accion':accion,
+        'adicional':add
+
+     })
+     //const user = { rut, password };
+     return axios.post(URL_API + "datos_cliente", data);
+  },
+
   generarClave(rut,correo,telefono){
     let data = qs.stringify({
       'usuario': rut,
@@ -52,5 +81,13 @@ export default {
       'telefono': telefono 
      })
      return axios.post(URL_API + "info_cliente", data);
+  },
+  cambiarClave(rut, cl_actual,cl_nueva){
+    let data = qs.stringify({
+      'usuario': rut,
+      'clave_old': cl_actual,
+      'clave': cl_nueva 
+     })
+     return axios.post(URL_API + "cambiar_clave", data);
   }
 };

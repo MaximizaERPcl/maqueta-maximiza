@@ -14,10 +14,10 @@
         <v-icon color="primary" left>mdi-phone</v-icon>
         Atención Socios
       </v-btn>
-      <v-btn text>
+      <!--v-btn text>
         <v-icon color="primary" left>mdi-account-lock</v-icon>
         Actualizar Clave
-      </v-btn>
+      </v-btn-->
     </v-app-bar>
   </div>
 </template> 
@@ -34,6 +34,8 @@ export default {
 
   computed:{
     ...mapState(['rutaActual'])
+  },
+  mounted(){
   }
 }
 </script>

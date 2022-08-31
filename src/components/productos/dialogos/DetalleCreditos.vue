@@ -8,6 +8,7 @@
       <v-card
         tile
         flat
+        v-if="credito != null"
       >
         <v-toolbar
           color="primary"
@@ -75,7 +76,7 @@
 
                 <v-list-item-content>
                   <v-list-item-subtitle>Valor cuota</v-list-item-subtitle>
-                  <v-list-item-title>{{formatMonto(credito.valor_cuota)}}</v-list-item-title>
+                  <v-list-item-title>{{conv.formatMonto(credito.valor_cuota, true)}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-divider></v-divider>
@@ -89,7 +90,7 @@
 
                 <v-list-item-content>
                   <v-list-item-subtitle>Tasa de Interés</v-list-item-subtitle>
-                  <v-list-item-title>{{formatPorcentaje(credito.tasa)}}</v-list-item-title>
+                  <v-list-item-title>{{conv.formatPorcentaje(credito.tasa)}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-divider></v-divider>
@@ -103,7 +104,7 @@
 
                 <v-list-item-content>
                   <v-list-item-subtitle>Total prepago</v-list-item-subtitle>
-                  <v-list-item-title>{{formatMonto(credito.saldo)}}</v-list-item-title>
+                  <v-list-item-title>{{conv.formatMonto(credito.saldo, true)}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
             </v-list>
@@ -150,7 +151,7 @@
 
                 <v-list-item-content>
                   <v-list-item-subtitle>Monto Solicitado</v-list-item-subtitle>
-                  <v-list-item-title>{{formatMonto(credito.capital)}}</v-list-item-title>
+                  <v-list-item-title>{{conv.formatMonto(credito.capital, true)}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-divider></v-divider>
@@ -192,7 +193,7 @@
 
                 <v-list-item-content>
                   <v-list-item-subtitle>CAE</v-list-item-subtitle>
-                  <v-list-item-title>{{formatPorcentaje(credito.cae)}}</v-list-item-title>
+                  <v-list-item-title>{{conv.formatPorcentaje(credito.cae)}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
             </v-list>
@@ -225,19 +226,19 @@
          <template
             v-slot:item.valor_cuota="{ item }"
           >
-            {{ formatMonto(item.valor_cuota) }}
+            {{ conv.formatMonto(item.valor_cuota, true) }}
           </template>
 
           <template
             v-slot:item.pagado="{ item }"
           >
-            {{ formatMonto(item.pagado) }}
+            {{ conv.formatMonto(item.pagado, true) }}
           </template>
 
           <template
             v-slot:item.total_a_pagar="{ item }"
           >
-            {{ formatMonto(item.total_a_pagar) }}
+            {{ conv.formatMonto(item.total_a_pagar, true) }}
           </template>
         </v-data-table>
 
@@ -266,6 +267,8 @@
 
 <script>
 import socio from '@/services/socio';
+import conv from '@/services/conversores';
+import { formatterRut } from 'chilean-formatter';
 export default {
   props: ['dialog'],
   data () {
@@ -304,7 +307,7 @@ export default {
         },
         { text: '', value: 'actions', sortable: false },
       ],
-      credito:{},
+      credito:null,
       detalles:[],
       noData:false,
       cargandoTabla:false,
@@ -312,10 +315,9 @@ export default {
     }
   },
   computed:{
-    monto(){
-      let monto = parseInt(parseFloat(this.dialog.data.vistd_m_monto));
-      return Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(monto);
-    },
+    conv(){
+      return conv;
+    }
   },
   methods: {
     cerrar(){
@@ -343,23 +345,11 @@ export default {
       })
       .catch( error => console.log(error))
     },
-    formatMonto(monto){
-      let intMonto = parseInt(parseFloat(monto));
-      return Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(Math.abs(intMonto));
-    },
-    formatPorcentaje(valor){
-      return parseFloat(valor)+'%';
-    },
-    formatDias(valor){
-      return valor === "1"? valor +' día': valor+' días';
-    }
   },
-  mounted(){
-    console.log('Montado')
-    console.log(this.dialog.data)
-    this.getSocioCredito();
-    this.getDetalle();
-
+  async mounted(){
+    this.dialog.user.rut = formatterRut(this.dialog.user.rut);
+    await this.getSocioCredito();
+    await this.getDetalle();
   }
 }
 </script>

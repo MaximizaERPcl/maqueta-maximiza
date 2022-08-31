@@ -52,7 +52,7 @@
               <template
                 v-slot:item.saldo="{ item }"
               >
-                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.saldo) }}
+                {{ conv.formatMonto(item.saldo, true) }}
               </template>
               <template
                 v-slot:item.cuota_participacion="{ item }"
@@ -85,12 +85,12 @@
               <template
                 v-slot:item.saldo="{ item }"
               >
-                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.saldo) }}
+                {{ conv.formatMonto(item.saldo,true) }}
               </template>
               <template
                 v-slot:item.monto="{ item }"
               >
-                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.monto) }}
+                {{ conv.formatMonto(item.monto,true) }}
               </template>
 
               <template v-slot:top>
@@ -117,6 +117,7 @@
 import socio from '@/services/socio';
 import auth from '@/auth/auth';
 import NoDataVue from '../app/NoData.vue';
+import conv from '@/services/conversores';
 
 export default {
   components: {
@@ -209,6 +210,9 @@ export default {
     userLogged() {
         return auth.getUserLogged();
       },
+    conv(){
+      return conv;
+    }
   },
   async mounted(){
     this.loading = true;

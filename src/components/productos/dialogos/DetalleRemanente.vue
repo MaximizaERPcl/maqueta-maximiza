@@ -76,7 +76,7 @@
 
                 <v-list-item-content>
                   <v-list-item-subtitle>Saldo Disponible</v-list-item-subtitle>
-                  <v-list-item-title>{{monto}}</v-list-item-title>
+                  <v-list-item-title>{{conv.formatMonto(this.dialog.data.vistd_m_monto,true)}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
             </v-list>
@@ -142,12 +142,12 @@
          <template
             v-slot:item.monto="{ item }"
           >
-            {{ formatMonto(item.monto) }}
+            {{ conv.formatMonto(item.monto, true) }}
           </template>
           <template
             v-slot:item.saldo="{ item }"
           >
-            {{ formatMonto(item.saldo) }}
+            {{ conv.formatMonto(item.saldo, true) }}
           </template>
         </v-data-table>
 
@@ -176,6 +176,8 @@
 
 <script>
 import socio from '@/services/socio';
+import conv from '@/services/conversores';
+
 export default {
   props: ['dialog'],
   data () {
@@ -209,10 +211,9 @@ export default {
     }
   },
   computed:{
-    monto(){
-      let monto = parseInt(parseFloat(this.dialog.data.vistd_m_monto));
-      return Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(monto);
-    },
+    conv(){
+      return conv;
+    }
   },
   methods: {
     cerrar(){
@@ -231,10 +232,6 @@ export default {
       })
       .catch( error => console.log(error))
     },
-    formatMonto(monto){
-      let intMonto = parseInt(parseFloat(monto));
-      return Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(Math.abs(intMonto));
-    }
   },
   mounted(){
     this.getDetalle();

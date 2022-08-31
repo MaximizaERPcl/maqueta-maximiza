@@ -56,17 +56,17 @@
               <template
                 v-slot:item.mes1="{ item }"
               >
-                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.mes1) }}
+                {{ conv.formatMonto(item.mes1,true) }}
               </template>
               <template
                 v-slot:item.mes2="{ item }"
               >
-                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.mes2) }}
+                {{ conv.formatMonto(item.mes2,true) }}
               </template>
               <template
                 v-slot:item.mes3="{ item }"
               >
-                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.mes3) }}
+                {{ conv.formatMonto(item.mes3,true) }}
               </template>
 
               <template v-slot:item.actions="{ item }">
@@ -97,7 +97,7 @@
                       <tr
                       >
                         <td style="background-color:#4285f4; color:white">{{item.nombre}}</td>
-                        <td> {{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.monto)}}</td>
+                        <td> {{conv.formatMonto(item.monto, true)}}</td>
                       </tr>
                     </tbody>
                   </template>
@@ -116,6 +116,7 @@
 import auth from '@/auth/auth';
 import socio from '@/services/socio';
 import NoDataVue from '../app/NoData.vue';
+import conv from '@/services/conversores';
 
 export default {
   components: {
@@ -205,9 +206,12 @@ export default {
     },
   },
   computed:{
-  userLogged() {
-      return auth.getUserLogged();
-    },
+    userLogged() {
+        return auth.getUserLogged();
+      },
+    conv(){
+      return conv;
+    }
   },
   async mounted(){
     //this.getSocioCredito()

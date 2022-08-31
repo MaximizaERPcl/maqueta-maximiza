@@ -23,7 +23,8 @@
         <v-divider></v-divider>
         <v-row no-gutters>
           <v-col cols="5">
-            <v-list two-line id="element-to-convert">
+            <div>
+            <v-list two-line>
               <v-list-item>
                 <v-list-item-icon>
                   <v-icon color="primary">
@@ -103,7 +104,7 @@
 
                 <v-list-item-content>
                   <v-list-item-subtitle>Monto interés pactado</v-list-item-subtitle>
-                  <v-list-item-title>{{formatMonto(dialog.data.monto_interes)}}</v-list-item-title>
+                  <v-list-item-title>{{conv.formatMonto(dialog.data.monto_interes,true)}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-divider></v-divider>
@@ -122,6 +123,7 @@
               </v-list-item>
 
             </v-list>
+          </div>
           </v-col>
 
 
@@ -165,7 +167,7 @@
 
                 <v-list-item-content>
                   <v-list-item-subtitle>Plazo</v-list-item-subtitle>
-                  <v-list-item-title>{{formatDias(dialog.data.daple_n_dia_plazo)}}</v-list-item-title>
+                  <v-list-item-title>{{conv.formatDias(dialog.data.daple_n_dia_plazo)}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-divider></v-divider>
@@ -179,7 +181,7 @@
 
                 <v-list-item-content>
                   <v-list-item-subtitle>Tasa interés</v-list-item-subtitle>
-                  <v-list-item-title>{{formatPorcentaje(dialog.data.tasa_base)}}</v-list-item-title>
+                  <v-list-item-title>{{conv.formatPorcentaje(dialog.data.tasa_base)}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-divider></v-divider>
@@ -193,7 +195,7 @@
 
                 <v-list-item-content>
                   <v-list-item-subtitle>Monto inicial</v-list-item-subtitle>
-                  <v-list-item-title>{{formatMonto(dialog.data.monto_inicial)}}</v-list-item-title>
+                  <v-list-item-title>{{conv.formatMonto(dialog.data.monto_inicial, true)}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-divider></v-divider>
@@ -207,7 +209,7 @@
 
                 <v-list-item-content>
                   <v-list-item-subtitle>Monto final</v-list-item-subtitle>
-                  <v-list-item-title>{{formatMonto(dialog.data.monto_final)}}</v-list-item-title>
+                  <v-list-item-title>{{conv.formatMonto(dialog.data.monto_final, true)}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-divider></v-divider>
@@ -226,7 +228,9 @@
               </v-list-item>
             </v-list>
           </v-col>
+          
         </v-row>
+        
 
         <v-card-title class="mt-4">
           <span class="cabecera">Detalles de renovaciones:</span>
@@ -239,15 +243,28 @@
           :items-per-page="5"
           :loading="cargandoTabla"
         >
-         <template
-            v-slot:item.monto="{ item }"
+        <template
+            v-slot:item.monto_total="{ item }"
           >
-            {{ formatMonto(item.monto) }}
+            ${{item.monto_total }}
           </template>
+
           <template
-            v-slot:item.saldo="{ item }"
+            v-slot:item.t_interes_r="{ item }"
           >
-            {{ formatMonto(item.saldo) }}
+            {{conv.formatPorcentaje(item.t_interes_r) }}
+          </template>
+
+          <template
+            v-slot:item.m_int_pactado="{ item }"
+          >
+            ${{item.m_int_pactado }}
+          </template>
+
+          <template
+            v-slot:item.v_renovacion="{ item }"
+          >
+            ${{item.v_renovacion}}
           </template>
         </v-data-table>
 
@@ -276,10 +293,8 @@
 
 <script>
 import socio from '@/services/socio';
-import moment from 'moment';
-import { jsPDF, autoTable} from "jspdf";
-import "jspdf-autotable";
-import html2pdf from "html2pdf.js";
+import pdf from '@/services/pdfGenerator';
+import conv from "@/services/conversores";
 
 export default {
   props: ['dialog'],
@@ -327,7 +342,6 @@ export default {
           sortable: true, 
           value: 'vigente' 
         },
-        { text: '', value: 'actions', sortable: false },
       ],
       detalles:[],
       noData:false,
@@ -340,6 +354,9 @@ export default {
       let monto = parseInt(parseFloat(this.dialog.data.vistd_m_monto));
       return Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(monto);
     },
+    conv(){
+      return conv;
+    }
   },
   methods: {
     cerrar(){
@@ -360,68 +377,8 @@ export default {
       })
       .catch( error => console.log(error))
     },
-    formatMonto(monto){
-      let intMonto = parseInt(parseFloat(monto));
-      return Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(Math.abs(intMonto));
-    },
-    formatPorcentaje(valor){
-      return parseFloat(valor)+'%';
-    },
-    formatDias(valor){
-      return valor === "1"? valor +' día': valor+' días';
-    },
-    generarPdf(){
-      let templateCode = 'pdf::dap';
-      let data = {
-        nombre: this.dialog.user.nombre,
-        rut: this.dialog.user.rut,
-        fecha: moment(new Date(Date.now())).format('DD/MM/YYYY'),
-        //Datos de pago
-        producto: this.dialog.data.producto,
-        tipo_renovacion: this.dialog.data.desc_estado,
-        estado:this.dialog.data.estado,
-        plazo:this.dialog.data.daple_n_dia_plazo,
-        fecha_apertura:this.dialog.data.f_apertura,
-        tasa_interes:this.dialog.data.tasa_base,
-        custodia: this.dialog.data.custodia_digital,
-        monto_inicial:this.dialog.data.monto_inicial,
-        monto_final: this.dialog.data.monto_final,
-        fecha_vencimiento: this.dialog.data.f_vencimiento,
-        fecha_renovacion: this.dialog.data.f_renovacion_aut,
-        monto_interes: this.dialog.data.monto_interes,
-        dap_id: this.dialog.data.f_renovacion_aut,
-        detalles:this.datalles
-      };
-
-      let nombre_archivo = this.urlPDF + moment(new Date(Date.now())).format('DDMMYYHHmmss')+'.pdf';
-      let pathToFile = window.location.origin + nombre_archivo;
-      let archivo_pdf = '0'
-      let link = 'http://'+window.location.host+nombre_archivo;
-      console.log(window.location.hostname)
-      return link; 
-    },
     exportPDF() {
-      var doc = new jsPDF('p', 'pt');
-      var columns = [];
-      var img = new Image()
-      img.src = require('@/assets/inicio/logo.png')
-      console.log(img)
-      doc.addImage(img, 'png', 0, 0, 193, 75)
-
-      this.cabeceras.forEach( item => {
-        columns.push({title: item.text, dataKey: item.value},)
-      })
-      doc.text('Depósito a plazo N°' + this.dialog.data.n_cuenta, 200, 75);
-      doc.autoTable(columns, this.detalles, {
-        margin: {top: 100},
-      });
-      doc.save('todos.pdf');
-    },
-    exportToPDF() {
-      html2pdf(document.getElementById("element-to-convert"), {
-				margin: 1,
-  			filename: "i-was-html.pdf",
-			});
+      pdf.exportToPdfDAP(this.cabeceras,this.detalles,this.dialog,'Depósito a plazo N°' + this.dialog.data.n_cuenta)
     },
   },
   mounted(){

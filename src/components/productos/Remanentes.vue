@@ -50,7 +50,7 @@
               <template
                 v-slot:item.vistd_m_monto="{ item }"
               >
-                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.vistd_m_monto) }}
+                {{ conv.formatMonto(item.vistd_m_monto, true) }}
               </template>
 
               <template v-slot:item.actions="{ item }">
@@ -83,6 +83,7 @@ import auth from '@/auth/auth';
 import socio from '@/services/socio';
 import NoDataVue from '../app/NoData.vue';
 import DetalleRemanenteVue from './dialogos/DetalleRemanente.vue';
+import conv from '@/services/conversores';
 
 export default {
   components: {
@@ -127,6 +128,9 @@ export default {
     userLogged() {
         return auth.getUserLogged();
       },
+    conv(){
+      return conv;
+    }
   },
   
   methods: {

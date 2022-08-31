@@ -8,7 +8,7 @@
         cols="11"> 
         <v-card
           outlined
-          
+          v-if="creditos != null"
         >
           <v-toolbar
             color="primary"
@@ -52,17 +52,17 @@
               <template
                 v-slot:item.valor_cuota="{ item }"
               >
-                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.valor_cuota) }}
+                {{ conv.formatMonto(item.valor_cuota, true) }}
               </template>
               <template
                 v-slot:item.monto_otorgado="{ item }"
               >
-                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.monto_otorgado) }}
+                {{ conv.formatMonto(item.monto_otorgado, true) }}
               </template>
               <template
                 v-slot:item.saldo_capital="{ item }"
               >
-                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.saldo_capital) }}
+                {{ conv.formatMonto(item.saldo_capital, true) }}
               </template>
               <template
                 v-slot:item.tasa="{ item }"
@@ -211,17 +211,17 @@
               <template
                 v-slot:item.valorCuota="{ item }"
               >
-                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.valorCuota) }}
+                {{ formatMonto(item.valorCuota, true) }}
               </template>
               <template
                 v-slot:item.capital="{ item }"
               >
-                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.capital) }}
+                {{ formatMonto(item.capital, true) }}
               </template>
               <template
                 v-slot:item.saldo="{ item }"
               >
-                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.saldo) }}
+                {{ formatMonto(item.saldo, true) }}
               </template>
 
               <template v-slot:item.actions="{ item }">
@@ -262,17 +262,17 @@
               <template
                 v-slot:item.valorCuota="{ item }"
               >
-                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.valorCuota) }}
+                {{ formatMonto(item.valorCuota, true) }}
               </template>
               <template
                 v-slot:item.capital="{ item }"
               >
-                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.capital) }}
+                {{ formatMonto(item.capital, true) }}
               </template>
               <template
                 v-slot:item.saldo="{ item }"
               >
-                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.saldo) }}
+                {{ formatMonto(item.saldo, true) }}
               </template>
 
               <template v-slot:item.actions="{ item }">
@@ -316,6 +316,7 @@ import NoDataVue from '../app/NoData.vue';
 import auth from '@/auth/auth';
 import socio from '@/services/socio';
 import DetalleCreditosVue from './dialogos/DetalleCreditos.vue';
+import conv from '@/services/conversores';
 
 export default {
   components: {
@@ -572,7 +573,7 @@ export default {
       
       colorCabeceras: 'indigo darken-1',
       search: '',
-      creditos: [],
+      creditos: null,
       cuotasMorosas: [],
       creditosAvalados: [],
       avalesVigentes:[],
@@ -635,9 +636,9 @@ export default {
         this.dialog.user = this.userLogged;
         this.dialog.state = true;
       },
-      formatMonto(monto){
-      let intMonto = parseInt(parseFloat(monto));
-      return Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(Math.abs(intMonto));
+        formatMonto(monto){
+        let intMonto = parseInt(parseFloat(monto));
+        return Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(Math.abs(intMonto));
     },
     },
     async mounted(){
@@ -652,7 +653,11 @@ export default {
       userLogged() {
           return auth.getUserLogged();
         },
+        conv(){
+        return conv;
+      }
       },
+      
     
 }
 </script>

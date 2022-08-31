@@ -49,7 +49,7 @@
               <template
                 v-slot:item.saldo="{ item }"
               >
-                {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.saldo) }}
+                {{ conv.formatMonto(item.saldo, true) }}
               </template>
               <template v-slot:item.actions="{ item }">
                 <v-tooltip bottom>
@@ -81,6 +81,7 @@ import NoDataVue from '../app/NoData.vue';
 import auth from '@/auth/auth';
 import socio from '@/services/socio';
 import DetalleCtaAhorroVue from './dialogos/DetalleCtaAhorro.vue';
+import conv from '@/services/conversores';
 
 export default {
   components: {
@@ -153,6 +154,9 @@ export default {
     userLogged() {
       return auth.getUserLogged();
     },
+    conv(){
+      return conv;
+    }
   },
   async mounted(){
     this.loading = true;

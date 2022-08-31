@@ -120,7 +120,7 @@
 
                 <v-list-item-content>
                   <v-list-item-subtitle>Saldo Disponible</v-list-item-subtitle>
-                  <v-list-item-title>{{formatMonto(dialog.data.saldo)}}</v-list-item-title>
+                  <v-list-item-title>{{conv.formatMonto(dialog.data.saldo, true)}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-divider></v-divider>
@@ -157,7 +157,7 @@
 
             <v-list-item-content>
               <v-list-item-subtitle>Monto abono pactado</v-list-item-subtitle>
-              <v-list-item-title>{{formatMonto(dialog.data.abono_pactado)}}</v-list-item-title>
+              <v-list-item-title>{{conv.formatMonto(dialog.data.abono_pactado, true)}}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -186,12 +186,12 @@
          <template
             v-slot:item.monto="{ item }"
           >
-            {{ formatMonto(item.monto) }}
+            {{ conv.formatMonto(item.monto, true) }}
           </template>
           <template
             v-slot:item.saldo="{ item }"
           >
-            {{ formatMonto(item.saldo) }}
+            {{ conv.formatMonto(item.saldo, true) }}
           </template>
         </v-data-table>
 
@@ -220,7 +220,7 @@
 
 <script>
 import socio from '@/services/socio';
-import App from '@/App.vue';
+import conv from '@/services/conversores';
 export default {
     props: ["dialog"],
     data() {
@@ -246,10 +246,9 @@ export default {
         };
     },
     computed: {
-        monto() {
-            let monto = parseInt(parseFloat(this.dialog.data.vistd_m_monto));
-            return Intl.NumberFormat("es-CL", { currency: "CLP", style: "currency" }).format(monto);
-        },
+      conv(){
+        return conv;
+      }
     },
     methods: {
         cerrar() {
@@ -267,19 +266,10 @@ export default {
             })
                 .catch(error => console.log(error));
         },
-        formatMonto(monto) {
-            let intMonto = parseInt(parseFloat(monto));
-            return Intl.NumberFormat("es-CL", { currency: "CLP", style: "currency" }).format(Math.abs(intMonto));
-        },
-        formatPorcentaje(valor) {
-            let porcentaje = parseFloat(valor)+100;
-            return porcentaje+'%'
-        }
     },
     mounted() {
         this.getDetalleLibreta();
     },
-    components: { App }
 }
 </script>
 

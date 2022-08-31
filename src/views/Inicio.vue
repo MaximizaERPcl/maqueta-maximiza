@@ -145,7 +145,7 @@
 
       </v-toolbar>
       <v-card-title class="productos">
-        <span class="flex text-center">{{(product.status !== "0")? Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(product.amount) : "No posee"}}</span>
+        <span class="flex text-center">{{(product.status !== "0")? conv.formatMonto(product.amount,true) : "No posee"}}</span>
       </v-card-title>
       <v-card-subtitle class="flex text-center mt-1" v-if="product.status !== '0' && product.type === 'Créditos'">
         Total Adeudado
@@ -164,6 +164,7 @@
 
 import auth from "@/auth/auth";
 import socio from "@/services/socio";
+import conv from "@/services/conversores";
 export default {
   name: 'App',
   data: function () {
@@ -268,6 +269,9 @@ export default {
   computed:{
     userLogged() {
       return auth.getUserLogged();
+    },
+    conv(){
+      return conv;
     }
   },
   mounted(){

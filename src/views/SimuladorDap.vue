@@ -100,7 +100,7 @@
 
           <v-stepper-content step="2">
           
-          <v-card outlined>
+          <v-card outlined v-if="resultado != null">
             <v-list>
               <v-list-item>
                 <v-list-item-icon>
@@ -158,7 +158,7 @@
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-subtitle>Tasa</v-list-item-subtitle>
-                  <v-list-item-title>{{resultado.tasa_base +' %'}}</v-list-item-title>
+                  <v-list-item-title>{{conv.formatPorcentaje(resultado.tasa_base)}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
 
@@ -170,7 +170,7 @@
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-subtitle>Interés</v-list-item-subtitle>
-                  <v-list-item-title>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(resultado.interes_pactado)}}</v-list-item-title>
+                  <v-list-item-title>{{conv.formatMonto(resultado.interes_pactado,true)}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
 
@@ -182,7 +182,7 @@
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-subtitle>Monto Final</v-list-item-subtitle>
-                  <v-list-item-title>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(resultado.monto_total)}}</v-list-item-title>
+                  <v-list-item-title>{{conv.formatMonto(resultado.monto_total,true)}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
 
@@ -249,6 +249,7 @@
   import createNumberMask from "text-mask-addons/dist/createNumberMask";
   import auth from "@/auth/auth";
   import simulador from "@/services/simulador";
+  import conv from '@/services/conversores';
 
   export default {
     data: function() {
@@ -262,7 +263,7 @@
         v => !!v || 'Name is required',
         v => (v && v.length <= 10) || 'Name must be less than 10 characters',
       ],
-        resultado: {},
+        resultado: null,
         currencyMask: createNumberMask({
           prefix: "",
           includeThousandsSeparator: true,
@@ -314,9 +315,9 @@
           let min = parseInt(this.formData.producto.monto_minimo);
           let max = parseInt(this.formData.producto.monto_maximo);
           if (formatedValue < min)
-            return false || "El monto debe ser superior a " + Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(min);
+            return false || "El monto debe ser superior a " + conv.formatMonto(min,true);
           else if (formatedValue > max)
-            return false || "El monto debe ser inferior a " + Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(max);
+            return false || "El monto debe ser inferior a " + conv.formatMonto(max,true);
           else
             return true
         }
@@ -335,10 +336,8 @@
           dias_plazo: datosFormulario.plazo.split(' ')[0],
           monto_deposito: parseInt(datosFormulario.monto.split('.').join("")),
         }
-        console.log(data)
         simulador.simularDap(data)
         .then(response => {
-          console.log(response.data[0])
           this.resultado = response.data[0];
         })
         .catch(error => console.log(error))
@@ -360,9 +359,12 @@
       ayudaMonto(){
         let min = parseInt(this.formData.producto.monto_minimo);
         let max = parseInt(this.formData.producto.monto_maximo);
-        return "El monto ingresado debe ser superior a " + Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(min) 
-                + " e inferior a " + Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(max) 
+        return "El monto ingresado debe ser superior a " + conv.formatMonto(min,true) 
+                + " e inferior a " + conv.formatMonto(max,true) 
       },
+      conv(){
+        return conv;
+      }
     },
     watch:{
       menu1: function(){

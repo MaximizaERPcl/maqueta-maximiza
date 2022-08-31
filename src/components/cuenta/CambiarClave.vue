@@ -195,10 +195,10 @@ export default {
 
 <style scoped lang="css">
 .titulo { 
-    font-size:30px;
-    line-height : 30px;
-    word-break:normal;
-    font-weight: 300;
+  font-size:30px;
+  line-height : 30px;
+  word-break:normal;
+  font-weight: 300;
   }
 .cabecera {
   color: white;

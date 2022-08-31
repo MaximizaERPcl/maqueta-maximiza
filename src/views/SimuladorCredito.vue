@@ -148,7 +148,7 @@
           Resultados
           </v-stepper-step>
           <v-stepper-content step="2">
-          <v-card outlined>
+          <v-card outlined v-if="resultado != null">
           <v-list>
             <v-list-item>
               <v-list-item-icon>
@@ -158,7 +158,7 @@
              </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-subtitle>Cuota</v-list-item-subtitle>
-                <v-list-item-title>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(resultado.valor_cuota)}}</v-list-item-title>
+                <v-list-item-title>{{conv.formatMonto(resultado.valor_cuota, true)}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -170,7 +170,7 @@
              </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-subtitle>Interés</v-list-item-subtitle>
-                <v-list-item-title>{{parseFloat(resultado.tasa_visible)*100}}%</v-list-item-title>
+                <v-list-item-title>{{conv.formatPorcentaje(resultado.tasa_visible)}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -194,7 +194,7 @@
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-subtitle>Monto Bruto del Crédito</v-list-item-subtitle>
-                <v-list-item-title>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(resultado.monto_bruto)}}</v-list-item-title>
+                <v-list-item-title>{{conv.formatMonto(resultado.monto_bruto,true)}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -218,7 +218,7 @@
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-subtitle>Costo Total del Crédito</v-list-item-subtitle>
-                <v-list-item-title>{{Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(resultado.valor_total)}}</v-list-item-title>
+                <v-list-item-title>{{conv.formatMonto(resultado.valor_total, true)}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -242,7 +242,7 @@
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-subtitle>CAE</v-list-item-subtitle>
-                <v-list-item-title>{{parseFloat(resultado.tasa_cae)*100}}%</v-list-item-title>
+                <v-list-item-title>{{conv.formatPorcentaje(resultado.tasa_cae)}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -312,6 +312,7 @@
   import createNumberMask from "text-mask-addons/dist/createNumberMask";
   import auth from "@/auth/auth";
   import simulador from "@/services/simulador";
+  import conv from '@/services/conversores';
 
   export default {
     data: function() {
@@ -325,7 +326,7 @@
         menu1: false,
         plazos:[],
         productos:[],
-        resultado: {},
+        resultado: null,
         gastos: [],
 
         currencyMask: createNumberMask({
@@ -388,9 +389,9 @@
           let min = parseInt(this.formData.producto.monto_minimo);
           let max = parseInt(this.formData.producto.monto_maximo);
           if (formatedValue < min)
-            return false || "El monto debe ser superior a " + Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(min);
+            return false || "El monto debe ser superior a " + conv.formatMonto(min, true);
           else if (formatedValue > max)
-            return false || "El monto debe ser inferior a " + Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(max);
+            return false || "El monto debe ser inferior a " + conv.formatMonto(max, true);
           else
             return true
         }
@@ -461,9 +462,12 @@
       ayudaMonto(){
         let min = parseInt(this.formData.producto.monto_minimo);
         let max = parseInt(this.formData.producto.monto_maximo);
-        return "El monto ingresado debe ser superior a " + Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(min) 
-                + " e inferior a " + Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(max) 
+        return "El monto ingresado debe ser superior a " + conv.formatMonto(min, true) 
+                + " e inferior a " + conv.formatMonto(max, true) 
       },
+      conv(){
+        return conv;
+      }
       
     },
     watch:{

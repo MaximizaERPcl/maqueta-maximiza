@@ -25,6 +25,7 @@
     "moment": "^2.29.4",
     "roboto-fontface": "*",
     "text-mask-addons": "^3.8.0",
+    "v-idle": "^0.2.1",
     "v-mask": "^2.3.0",
     "vue": "^2.6.14",
     "vue-router": "^3.5.1",

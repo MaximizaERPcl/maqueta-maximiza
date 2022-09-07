@@ -1,26 +1,5 @@
 <template>
 <v-container>
-  <v-snackbar
-      :timeout="4000"
-      :value="alert"
-      absolute
-      centered
-      top
-      color="error"
-      elevation="20"
-    >
-    <v-icon left>mdi-alert-circle</v-icon>
-      {{alertMsg}}
-    <template v-slot:action="{ attrs }">
-        <v-btn
-          icon
-          v-bind="attrs"
-          @click="alert = false"
-        >
-          <v-icon>mdi-close-circle-outline</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
   <v-form
     ref="form"
     v-model="valid"
@@ -93,7 +72,7 @@
 <script>
 import auth from "@/auth/auth";
 
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 import { formatterRut, cleanRut } from 'chilean-formatter';
 
 export function formatRut(value) {
@@ -116,9 +95,11 @@ export default {
         };
     },
     computed: {
-      ...mapState(["rutaActual"]),
+      ...mapState(["rutaActual","snackbar"]),
     },
     methods:{
+      ...mapActions(["mostrarAlerta","cerrarAlerta"]),
+      
       validate () {
         this.$refs.form.validate()
         if(this.valid){
@@ -134,8 +115,12 @@ export default {
             auth.setUserLogged(data);
             this.$router.push("/maximiza/ingresa");
           }else{
-            this.alert = true
-            this.alertMsg = data.msg
+            let payload = {
+              mensaje: data.msg,
+              color: 'error',
+              mostrar: true,
+            }
+          this.mostrarAlerta(payload)
           }
         })
         .catch(error => {
@@ -175,9 +160,6 @@ export default {
           return ok;
         }
       },
-      /*formatRut(value){
-        return formatterRut(value)
-      }*/
     },
 }
 </script>

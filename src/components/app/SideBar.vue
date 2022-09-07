@@ -180,8 +180,7 @@
         'cambiarRuta',
       ]),
       logout(){
-        auth.deleteUserLogged();
-        //window.location.href = "http://www.w3schools.com";
+        auth.cerrarSesion();
         this.$router.push("/maximiza/");
       }
     },

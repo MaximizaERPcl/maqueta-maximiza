@@ -156,7 +156,7 @@
           <v-btn
               color="primary"
               class="mx-2 my-2"
-              @click="etapa = 1"
+              @click="exportPDF()"
             >
               <v-icon left>mdi-download</v-icon>
                 Descargar PDF
@@ -177,6 +177,7 @@
 <script>
 import socio from '@/services/socio';
 import conv from '@/services/conversores';
+import pdf from '../../../services/pdfGenerator';
 
 export default {
   props: ['dialog'],
@@ -204,7 +205,6 @@ export default {
           sortable: true, 
           value: 'saldo' 
         },
-        { text: '', value: 'actions', sortable: false },
       ],
       detalles:[],
       noData:false
@@ -231,6 +231,9 @@ export default {
         }
       })
       .catch( error => console.log(error))
+    },
+    exportPDF() {
+      pdf.exportToPdfRemanente(this.cabeceras,this.detalles,this.dialog,'Saldo a favor - Cuenta N° ' + this.dialog.data.Cuenta)
     },
   },
   mounted(){

@@ -31,7 +31,7 @@ export default {
     return JSON.parse(usuario);
   },
 
-  deleteUserLogged() {
+  cerrarSesion() {
     Cookies.remove('userLogged');
   },
   isAuthenticated(){

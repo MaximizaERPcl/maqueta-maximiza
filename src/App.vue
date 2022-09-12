@@ -16,11 +16,15 @@
       elevation="10"
       style="z-index: 99 !important;"
     >
-      <v-row align="center">
-        <v-col cols="1"><v-icon left>{{snackbar.icon}}</v-icon></v-col>
-        <v-col cols="11"><h6 class="alerta" >
-          {{snackbar.mensaje}} 
-        </h6></v-col>
+      <v-row align="center" justify="space-around">
+        <v-col cols="1">
+          <v-icon left>{{snackbar.icon}}</v-icon>
+        </v-col>
+        <v-col cols="11">
+          <h6 class="alerta">
+            {{snackbar.mensaje}} 
+          </h6>
+        </v-col>
         
       </v-row>
    

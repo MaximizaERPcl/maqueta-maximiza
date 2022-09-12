@@ -6,13 +6,14 @@
       <v-col
         cols="11"> 
         <v-card
-          outlined
-        >
+      elevation="10"
+      >
           <v-toolbar
             color="primary"
             dark
             flat
             dense
+            class="mb-4 primaryGradient"
             tile
           >
             <v-toolbar-title  class="flex text-center">LEGALE</v-toolbar-title>

@@ -3,7 +3,7 @@
   <v-form
     class="mt-5"
     ref="form"
-    v-model="valid3"
+    v-model="valid"
   >
     <v-row justify="center" no-gutters>
     
@@ -14,13 +14,18 @@
         >
         <v-text-field
           v-model="rut"
+          v-mask="formatRut"
           label="Rut"
+          ref="rut"
           placeholder="11111111-1"
           required
-          outlined
-          :rules="[value => !!value || 'Campo Requerido.']"
+          filled
+          background-color="rgba(255, 255, 255, 0.6)"
+          rounded
+          :rules="[v => !!v || 'Campo es requerido', 
+                  v =>(!!v && validarRut(v)) || 'El rut no es válido']"
         >
-        <template v-slot:prepend>        
+        <template v-slot:prepend-inner>        
           <v-icon left color="primary"> mdi-account </v-icon> 
         </template>
         </v-text-field>
@@ -33,7 +38,8 @@
       >
         <v-btn
           color="primary"
-          @click="validate(3)"
+          @click="validate()"
+          :loading="loading"
           large
         >
         <v-icon left >mdi-send</v-icon>
@@ -47,44 +53,65 @@
 
 <script>
 import auth from "@/auth/auth";
+import { formatterRut, cleanRut,validateRut } from 'chilean-formatter';
+import { mapActions } from "vuex";
 
+/*export function formatRut(value) {
+  return [...formatterRut(value)]
+}*/
 export default {
-    components: {
-    },
     data: function () {
         return {
-          alert:false,
-          alertMsg:"",
           rut: "",
           mostrar: false,
           valid: true,
-          tab: 0,
+          loading: false,
         };
     },
     computed: {
+      formatRut(){
+        if(this.rut)
+          return formatterRut(this.rut)
+      }
     },
     methods:{
-      validate (num) {
-        this.$refs.form.validate()
+      ...mapActions(["mostrarAlerta"]),
+      validate () {
+        this.$refs.form.validate();
         if(this.valid){
-          //this.login()
+          this.recuperarClave();
         }
       },        
-      async login(){
-        await auth.login(this.rut, this.password)
+      async recuperarClave(){
+        await auth.generarClave(cleanRut(this.rut),'','')
         .then(response => {
           let data = response.data[0];
-          if(data.codigo == 1){
-            auth.setUserLogged(data);
-            this.$router.push("/maximiza/ingresa");
+          let payload = {};
+          this.loading = true;
+
+          if(data.error_codigo == 0){
+            payload = {
+              mensaje: data.msg,
+              color: 'success',
+              mostrar: true,
+            }
           }else{
-            this.alert = true
-            this.alertMsg = data.msg
+            payload = {
+              mensaje: data.msg,
+              color: 'error',
+              mostrar: true,
+            }
           }
+          this.loading = false;
+          this.mostrarAlerta(payload);
+          this.$refs.form.reset();
         })
         .catch(error => {
           console.log(error)
         })
+      },
+      validarRut(rut){
+        return validateRut(rut);
       }
     },
 }

@@ -11,10 +11,13 @@ export default new Vuex.Store({
       mensaje: '',
       color:'',
       icon:'',
-    }
+    },
+    drawer:true,
   },
   getters: {
-
+    drawer: (state) => {
+        return state.drawer;
+    }
   },
   mutations: {
     cambiarRuta (state, ruta){
@@ -25,7 +28,10 @@ export default new Vuex.Store({
     },
     CLOSE_SNACKBAR(state){
       state.snackbar.mostrar = false;
-    }
+    },
+    SET_DRAWER (state, value){
+      state.drawer = value;
+    },
   },
   actions: {
     mostrarAlerta({ commit }, payload) {
@@ -52,6 +58,10 @@ export default new Vuex.Store({
     cerrarAlerta({ commit }) {
       
       commit("CLOSE_SNACKBAR");
+    },
+
+    switchDrawer({ commit }, value) {
+      commit("SET_DRAWER", value);
     }
   },
   modules: {

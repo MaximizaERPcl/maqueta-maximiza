@@ -6,16 +6,16 @@
     >
       <v-col
       cols="11"> 
-        <v-card
-          outlined
-        >
+      <v-card
+        elevation="10"
+      >
           <v-toolbar
             color="primary"
             dark
             
             flat
             tile
-            class="mb-4"
+            class="mb-4 primaryGradient"
           >
             <v-toolbar-title class="flex text-center titulo">Cuenta Capital</v-toolbar-title>
           </v-toolbar>
@@ -171,7 +171,7 @@ export default {
           value: 'saldo' 
         },
       ],
-      colorCabeceras:'indigo darken-1',
+      colorCabeceras:'secondary',
       ctaCapital: [],
 
       detalleCta: [],
@@ -179,20 +179,31 @@ export default {
       noDatos: false,
       msg:'NO POSEE CUENTAS CAPITALES ASOCIADAS',
       loading: true,
+      userLogged:null
     }
   },
   methods:{
+    async getUserLogged() {
+        await auth.getCryptKey()
+        .then(response => {
+          let key  = response.data[0].crypt_key;
+          this.userLogged = auth.getUserLogged(key);
+        })
+      },
     async getCuentaCapital(){
       await socio.getCuentaCapital(this.userLogged.rut)
       .then(response => {
-        if(response.data[0].length == 0)
-          this.noDatos = true;
-        
-        else{
-          this.noDatos = false;
-          this.ctaCapital = response.data;
-          this.getCuentaCapitalDetalle();
-        }       
+        if(response.data !== ""){
+          if(response.data.length == 0 || response.data[0].vigente === "NO")
+            this.noDatos = true;
+          
+          else{
+            this.noDatos = false;
+            this.ctaCapital = response.data;
+            this.getCuentaCapitalDetalle();
+          }
+        }else
+          this.noDatos = true;       
       })
       .catch(error => console.log(error));
     },
@@ -203,20 +214,23 @@ export default {
         this.detalleCta = response.data
       })
       .catch(error => console.log(error));
-    }
+    },
   },
   computed:{
-
-    userLogged() {
-        return auth.getUserLogged();
-      },
     conv(){
       return conv;
     }
   },
   async mounted(){
+    await this.getUserLogged()
     this.loading = true;
-    await this.getCuentaCapital();
+    if(this.userLogged.info.cuenta_capital != "0"){
+      this.noDatos = false;
+      await this.getCuentaCapital();
+    }
+    else
+      this.noDatos = true;
+
     this.loading = false;
   }
 }

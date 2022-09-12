@@ -6,15 +6,14 @@
       <v-col
         cols="11"> 
         <v-card
-          outlined
-          
+          elevation="10"
         >
           <v-toolbar
             color="primary"
             dark
             flat
             tile
-            class="mb-4"
+            class="mb-4 primaryGradient"
           >
             <v-toolbar-title class="flex text-center titulo">Remanentes</v-toolbar-title>
           </v-toolbar>
@@ -121,23 +120,27 @@ export default {
       msg:'NO POSEE REMANENTES ASOCIADOS',
       dialog: {state:false, data:{}, user:{}},
       loading:true,
+      userLogged:null
     }
   },
 
   computed:{
-    userLogged() {
-        return auth.getUserLogged();
-      },
     conv(){
       return conv;
     }
   },
   
   methods: {
+    async getUserLogged() {
+      await auth.getCryptKey()
+      .then(response => {
+        let key  = response.data[0].crypt_key;
+        this.userLogged = auth.getUserLogged(key);
+      })
+    },
     getRemanentes(){
       socio.getRemanentes(this.userLogged.id_cliente)
       .then( response => {
-        console.log(response.data)
         if((response.data.length == 1 &&  response.data[0].Cuenta == 0) || response.data.length == 0)
           this.noDatos = true;
         else{
@@ -155,6 +158,7 @@ export default {
     }
   },
   async mounted() {
+    await this.getUserLogged();
     this.loading = true;
     await this.getRemanentes();
     this.loading = false;

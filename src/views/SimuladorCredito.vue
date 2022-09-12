@@ -3,7 +3,7 @@
     <v-row
       justify="center">
       <v-col
-        cols="10"
+        cols="12" sm="11" md="10"
       >
         <v-stepper
           v-model="etapa"
@@ -349,10 +349,17 @@
             sortable: true, 
             value: 'gascr_m_valor' },
         ],
+        userLogged:null
       }
     },
-
-    methods: {
+    methods:{
+      async getUserLogged() {
+        await auth.getCryptKey()
+        .then(response => {
+          let key  = response.data[0].crypt_key;
+          this.userLogged = auth.getUserLogged(key);
+        })
+      },
       validate () {
         this.$refs.form.validate()
          if(this.valid){
@@ -442,7 +449,8 @@
       },
     },
 
-    mounted () {
+    async mounted () {
+      await this.getUserLogged();
       this.getProductos()
       var nextMes = new Date (this.hoy.setMonth( this.hoy.getMonth() + 1 ));
 
@@ -455,9 +463,6 @@
       computedDateFormattedMomentjs () {
         moment.locale('es');
         return this.formData.date ? moment(this.formData.date).format('D [de] MMMM, YYYY') : ''
-      },
-      userLogged() {
-        return auth.getUserLogged();
       },
       ayudaMonto(){
         let min = parseInt(this.formData.producto.monto_minimo);

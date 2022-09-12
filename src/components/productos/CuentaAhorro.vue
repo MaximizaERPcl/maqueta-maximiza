@@ -6,15 +6,14 @@
       <v-col
         cols="11"> 
         <v-card
-          outlined
-          
+          elevation="10"
         >
           <v-toolbar
             color="primary"
             dark
             flat
             tile
-            class="mb-4"
+            class="mb-4 primaryGradient"
           >
             <v-toolbar-title class="flex text-center titulo">Cuenta de Ahorro</v-toolbar-title>
           </v-toolbar>
@@ -49,7 +48,7 @@
               <template
                 v-slot:item.saldo="{ item }"
               >
-                {{ conv.formatMonto(item.saldo, true) }}
+                ${{item.saldo }}
               </template>
               <template v-slot:item.actions="{ item }">
                 <v-tooltip bottom>
@@ -125,20 +124,21 @@ export default {
       noDatos: false,
       dialog: {state:false, data:{}, user:{}},
       loading:true,
+      userLogged:null
     }
   },
   methods:{
+    async getUserLogged() {
+        await auth.getCryptKey()
+        .then(response => {
+          let key  = response.data[0].crypt_key;
+          this.userLogged = auth.getUserLogged(key);
+        })
+      },
     async getCuentaAhorro(){
       await socio.getLibretas(this.userLogged.id_cliente)
       .then(response => {
-        console.log(response.data)
-        if(response.data.length == 0){
-          this.noDatos = true;
-        }
-        else{
           this.ctaAhorro = response.data;
-          this.noDatos = false;
-        }
       })
       .catch(error => console.log(error));
     },
@@ -151,16 +151,20 @@ export default {
   },
 
   computed:{
-    userLogged() {
-      return auth.getUserLogged();
-    },
     conv(){
       return conv;
     }
   },
   async mounted(){
+    await this.getUserLogged();
     this.loading = true;
-    await this.getCuentaAhorro();
+    if(this.userLogged.info.libretas != "0"){
+      this.noDatos = false;
+      await this.getCuentaAhorro();
+    }
+    else
+      this.noDatos = true;
+
     this.loading = false;
 
   }

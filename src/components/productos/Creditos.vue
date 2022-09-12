@@ -7,14 +7,13 @@
       <v-col
         cols="11"> 
         <v-card
-          outlined
-          v-if="creditos != null"
+          elevation="10"
         >
           <v-toolbar
             color="primary"
             dark
             flat
-            class="mb-4"
+            class="mb-4 primaryGradient"
             tile
             
           >
@@ -86,7 +85,11 @@
                 </v-tooltip>
               </template>
               <template v-if="creditos.length > 0 " v-slot:body.append>
-                <tr>
+                <tr class="hidden-sm-and-up">
+                  <td><b>TOTAL</b></td>
+                  <td><b>{{formatMonto(totalCreditos.monto_otorgado)}}</b></td>
+                </tr>
+                <tr class="hidden-xs-only">
                   <td><b>TOTAL</b></td>
                   <td></td>
                   <td></td> 
@@ -145,24 +148,23 @@
               >
                 {{ Intl.NumberFormat('es-CL',{currency: 'CLP', style: 'currency'}).format(item.acumulado) }}
               </template>
-
-              <template v-slot:item.actions="{ item }">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn icon>
-                      <v-icon
-                        v-bind="attrs"
-                        v-on="on"
-                        >
-                        mdi-magnify-expand
-                      </v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Ver Más</span>
-                </v-tooltip>
+              <template
+                v-slot:item.abonado="{ item }"
+              >
+                {{ formatMonto(item.abonado, true) }}
               </template>
+              <template
+                v-slot:item.i_pro="{ item }"
+              >
+                {{ formatMonto(item.i_pro, true) }}
+              </template>
+
               <template v-if="cuotasMorosas.length > 0 " v-slot:body.append>
-                <tr>
+                <tr class="hidden-sm-and-up">
+                  <td><b>TOTAL</b></td>
+                 <td><b>{{formatMonto(totalCuotasMorosas.saldo_uota)}}</b></td>
+                </tr>
+                <tr class="hidden-xs-only">
                    <td><b>TOTAL</b></td>
                   <td></td>
                   <td></td> 
@@ -208,37 +210,33 @@
               class="mx-4 mb-2 elevation-1"
               no-data-text="No se encontraron créditos avalados"
             >
-              <template
-                v-slot:item.valorCuota="{ item }"
-              >
-                {{ formatMonto(item.valorCuota, true) }}
-              </template>
-              <template
-                v-slot:item.capital="{ item }"
-              >
-                {{ formatMonto(item.capital, true) }}
-              </template>
-              <template
-                v-slot:item.saldo="{ item }"
-              >
-                {{ formatMonto(item.saldo, true) }}
-              </template>
+            <template
+            v-slot:item.rut="{ item }"
+            >
+              {{ formatRut(item.rut) }}
+            </template>
+            <template
+              v-slot:item.creme_f_otorgamiento="{ item }"
+            >
+              {{ conv.formatFecha(item.creme_f_otorgamiento) }}
+            </template>
+            <template
+              v-slot:item.creme_m_valor_cuota="{ item }"
+            >
+              {{ conv.formatMonto(item.creme_m_valor_cuota, true) }}
+            </template>
+            <template
+              v-slot:item.monto="{ item }"
+            >
+              ${{item.monto }}
+            </template>
+            <template
+              v-slot:item.saldo_credito="{ item }"
+            >
+              ${{item.saldo_credito }}
+            </template>
 
-              <template v-slot:item.actions="{ item }">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn icon>
-                      <v-icon
-                        v-bind="attrs"
-                        v-on="on"
-                        >
-                        mdi-magnify-expand
-                      </v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Ver Más</span>
-                </v-tooltip>
-              </template>
+              
               <template v-slot:top>
                 <v-system-bar
                 flat
@@ -260,36 +258,31 @@
               no-data-text="No se encontraron avales para el socio"         
             >
               <template
-                v-slot:item.valorCuota="{ item }"
+                v-slot:item.rut_aval="{ item }"
               >
-                {{ formatMonto(item.valorCuota, true) }}
+                {{ formatRut(item.rut_aval) }}
               </template>
               <template
-                v-slot:item.capital="{ item }"
+                v-slot:item.creme_f_otorgamiento="{ item }"
               >
-                {{ formatMonto(item.capital, true) }}
+                {{ conv.formatFecha(item.creme_f_otorgamiento) }}
               </template>
               <template
-                v-slot:item.saldo="{ item }"
+                v-slot:item.creme_m_valor_cuota="{ item }"
               >
-                {{ formatMonto(item.saldo, true) }}
+                {{ conv.formatMonto(item.creme_m_valor_cuota, true) }}
+              </template>
+              <template
+                v-slot:item.monto="{ item }"
+              >
+                ${{item.monto }}
+              </template>
+              <template
+                v-slot:item.saldo_credito="{ item }"
+              >
+                ${{item.saldo_credito }}
               </template>
 
-              <template v-slot:item.actions="{ item }">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn icon>
-                      <v-icon
-                        v-bind="attrs"
-                        v-on="on"
-                        >
-                        mdi-magnify-expand
-                      </v-icon>
-                    </v-btn>
-                  </template>
-                  <span>Ver Más</span>
-                </v-tooltip>
-              </template>
               <template v-slot:top>
                 <v-system-bar
                   flat
@@ -317,6 +310,7 @@ import auth from '@/auth/auth';
 import socio from '@/services/socio';
 import DetalleCreditosVue from './dialogos/DetalleCreditos.vue';
 import conv from '@/services/conversores';
+import { formatterRut } from 'chilean-formatter';
 
 export default {
   components: {
@@ -571,7 +565,7 @@ export default {
         },
         ],
       
-      colorCabeceras: 'indigo darken-1',
+      colorCabeceras: 'secondary',
       search: '',
       creditos: null,
       cuotasMorosas: [],
@@ -583,9 +577,18 @@ export default {
       totalCuotasMorosas:{},
       totalCreditos:{},
       loading:true,
+      user: {},
+      userLogged:{}
     }
   },
     methods:{
+      async getUserLogged() {
+        await auth.getCryptKey()
+        .then(response => {
+          let key  = response.data[0].crypt_key;
+          this.userLogged = auth.getUserLogged(key);
+        })
+      },
       async getSocioCredito(id_credito){
         await socio.getCreditos(this.userLogged.id_cliente)
           .then(response => {
@@ -605,11 +608,12 @@ export default {
             }
             else if(accion === 3){
               this.totalCreditos = response.data[response.data.length-1];
+
               this.creditos = response.data.filter( credito => credito.credito !== "0");
-              if(this.creditos.length == 0)
+              /*if(this.creditos.length == 0)
                 this.noDatos = true;
               else
-                this.noDatos = false;
+                this.noDatos = false;*/
             }
             else if(accion == 4 && response.data !== ""){
               this.creditosAvalados= response.data;
@@ -621,20 +625,13 @@ export default {
           })
           .catch(error => console.log(error));
       },
-      calcularTotalCreditos(){
-        let valor_cuota = 0;
-        let saldo_capital = 0;
-        let monto_otorgado = 0;
-        this.creditos.forEach(credito => {
-          valor_cuota += parseInt(credito.valor_cuota.split('.').join(""));
-          saldo_capital += parseInt(credito.saldo_capital.split('.').join(""));
-          monto_otorgado += parseInt(credito.monto_otorgado.split('.').join(""));
-        });
-      },
       async mostrarDetalle(item){
         this.dialog.data = item
         this.dialog.user = this.userLogged;
         this.dialog.state = true;
+      },
+      formatRut(value){
+        return formatterRut(value);
       },
         formatMonto(monto){
         let intMonto = parseInt(parseFloat(monto));
@@ -642,21 +639,25 @@ export default {
     },
     },
     async mounted(){
+      await this.getUserLogged();
       this.loading = true;
-      await this.getDetalleCreditos(3);
-      await this.getDetalleCreditos(2);
-      await this.getDetalleCreditos(4);
-      await this.getDetalleCreditos(5);
+      if(this.userLogged.info.creditos != "0"){
+        this.noDatos = false;
+        await this.getDetalleCreditos(3);
+        await this.getDetalleCreditos(2);
+        await this.getDetalleCreditos(4);
+        await this.getDetalleCreditos(5);
+      }
+      else
+        this.noDatos = true;
+      
       this.loading = false;
     },
     computed:{
-      userLogged() {
-          return auth.getUserLogged();
-        },
-        conv(){
+      conv(){
         return conv;
-      }
       },
+    },
       
     
 }

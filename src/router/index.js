@@ -12,7 +12,14 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ '../views/Login.vue'),
     meta:{
       requiresAuth:false
-    }
+    },
+    children: [
+      {
+        path: 'crear-contrasena/:id_cliente',
+        name: 'crear_contrasena',
+        component: () => import(/* webpackChunkName: "about" */ '../components/login/RecuperarClave.vue'),
+      }
+    ]
   },
   {
     path: '/maximiza/ingresa',
@@ -62,10 +69,6 @@ const routes = [
     path: '*',
     redirect: '/maximiza/'
   },
-
-  //{ path: "/", component: HomeComponent },
-  // ... otras rutas ...
-  //{ path: "*", component: Inicio }
 ]
 
 const router = new VueRouter({

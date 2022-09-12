@@ -11,26 +11,34 @@ export default {
        'usuario': rut,
        'clave': password
     })
-    //const user = { rut, password };
     return axios.post(URL_API + "login", data);
   },
-  setUserLogged(userLogged) {
-    var usuarioEncriptado = CryptoJS.AES.encrypt(
-        JSON.stringify(userLogged),
-        "maximizaDemo"
-      ).toString();
-
-    Cookies.set("userLogged", usuarioEncriptado);
-
+  async setUserLogged(userLogged) {
+    await this.getCryptKey()
+    .then(response => {
+      let data = response.data[0];
+      if (data.codigo === "1"){
+        var usuarioEncriptado = CryptoJS.AES.encrypt(
+          JSON.stringify(userLogged),
+          data.crypt_key
+        ).toString();
+        Cookies.set("userLogged", usuarioEncriptado);
+      }
+      else
+        console.log('Error: '+data.msg)
+    })
+    .catch(error => console.log(error))
   },
-  getUserLogged() {
-    let usuarioEncriptado = Cookies.get("userLogged");
-    var bytes = CryptoJS.AES.decrypt(usuarioEncriptado, "maximizaDemo");
-    var usuario = bytes.toString(CryptoJS.enc.Utf8);
 
+  getUserLogged(key){
+    let usuarioEncriptado = Cookies.get("userLogged");
+    var bytes = CryptoJS.AES.decrypt(usuarioEncriptado, key);
+    var usuario = bytes.toString(CryptoJS.enc.Utf8);
     return JSON.parse(usuario);
   },
-
+  getCryptKey() {
+    return axios.get(URL_API + "clave_encriptacion")
+  },
   cerrarSesion() {
     Cookies.remove('userLogged');
   },
@@ -50,7 +58,6 @@ export default {
     form.direc_s_id = direc_s_id;
     form.accion = 10;
     let data = qs.stringify(form)
-    console.log(data);
     return axios.post(URL_API + "datos_cliente_actualizar", data);
   },
   guardarDatosBancarios(rut, direc_s_id, form){
@@ -80,13 +87,14 @@ export default {
       'mail': correo,
       'telefono': telefono 
      })
-     return axios.post(URL_API + "info_cliente", data);
+     return axios.post(URL_API + "recuperar_clave", data);
   },
-  cambiarClave(rut, cl_actual,cl_nueva){
+  cambiarClave(rut, cl_actual,cl_nueva, accion){
     let data = qs.stringify({
       'usuario': rut,
       'clave_old': cl_actual,
-      'clave': cl_nueva 
+      'clave': cl_nueva,
+      'accion': accion
      })
      return axios.post(URL_API + "cambiar_clave", data);
   }

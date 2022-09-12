@@ -5,15 +5,17 @@
     justify="center"
     >
     <v-col
-      cols="10"> 
+      cols="11"> 
       <v-card
-        outlined
+      elevation="10"
       >
       <v-toolbar
-        color="primary"
+        class="primaryGradient"
         dark
         flat
         tile
+        :height="height"
+        
       >
         <v-toolbar-title class="titulo">Bienvenido/a <span v-if="userLogged"> {{user.nombre}}</span></v-toolbar-title>
 
@@ -23,7 +25,7 @@
       </v-card-title>
       
       <v-toolbar
-        color="primary"
+        color="secondary"
         dark
         flat
         tile
@@ -63,7 +65,7 @@
 
           <v-list-item-content>
             <v-list-item-subtitle>Dirección</v-list-item-subtitle>
-            <v-list-item-title v-if="user.direccion_particular !== ''">{{user.direccion_particular}}</v-list-item-title>
+            <v-list-item-title v-if="user.direccion_particular && user.direccion_particular.trim().length === 0">{{user.direccion_particular}}</v-list-item-title>
             <v-list-item-title v-else>No hay registro</v-list-item-title>
 
           </v-list-item-content>
@@ -78,7 +80,7 @@
 
           <v-list-item-content>
             <v-list-item-subtitle>Celular</v-list-item-subtitle>
-            <v-list-item-title v-if="user.Movil !== ''">{{user.Movil}}</v-list-item-title>
+            <v-list-item-title v-if="user.Movil && !user.Movil.trim().length === 0">{{user.Movil}}</v-list-item-title>
             <v-list-item-title v-else>No hay registro</v-list-item-title>
 
           </v-list-item-content>
@@ -93,7 +95,7 @@
 
           <v-list-item-content>
             <v-list-item-subtitle>Teléfono</v-list-item-subtitle>
-            <v-list-item-title v-if="user.telefono_particular !== ''">{{user.telefono_particular}}</v-list-item-title>
+            <v-list-item-title v-if="user.telefono_particular && user.telefono_particular.trim().length === 0">{{user.telefono_particular}}</v-list-item-title>
             <v-list-item-title v-else>No hay registro</v-list-item-title>
 
           </v-list-item-content>
@@ -108,7 +110,7 @@
 
           <v-list-item-content>
             <v-list-item-subtitle>Correo</v-list-item-subtitle>
-            <v-list-item-title v-if="user.email !== ''">{{user.email}}</v-list-item-title>
+            <v-list-item-title v-if="user.email && user.email.trim().length === 0">{{user.email}}</v-list-item-title>
             <v-list-item-title v-else>No hay registro</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
@@ -122,19 +124,19 @@
     justify="center"
   >
     <v-col
-    cols="10"
+    cols="11"
     >
     <v-row
       justify="center"
       align="stretch"
     >
-    <v-col v-for="product in products">
+    <v-col v-for="product in products" :key="product.type">
       <v-card
-        outlined
         height="140px"
+        elevation="10"
       >
       <v-toolbar
-        color="primary"
+        color="secondary"
         dark
         flat
         tile
@@ -178,20 +180,16 @@ export default {
 
       ],
       loading: true,
+      userLogged:{},
   }},
   methods:{
-    async getInfoCliente(){
-      this.loading = true;
-      let id_cliente = this.userLogged.rut.split('-')[0];
-      await auth.userInfo(id_cliente)
-      .then(async response => {
-        this.user = response.data[0];
-        await this.setProductos();
-        this.loading = false;
+    async getUserLogged() {
+      await auth.getCryptKey()
+      .then(response => {
+        let key  = response.data[0].crypt_key;
+        this.userLogged = auth.getUserLogged(key);
       })
-      .catch(error => console.log(error))
     },
-
     async setProductos(){
       if(this.user.creditos !== "0"){
 
@@ -220,7 +218,7 @@ export default {
             this.products[1].status = this.user.dap;
             let montoFinal = 0;
             daps.forEach(dap => {
-              montoFinal += parseInt(dap.monto_final.split('.').join(""));
+              montoFinal += parseInt(dap.monto_final);
             });
             this.products[1].amount = montoFinal;
           } 
@@ -235,7 +233,6 @@ export default {
         .then(response => {
           let libretas = response.data;
           if(libretas.length > 0){
-            console.log(libretas)
             this.products[2].status = this.user.libretas;
             let montoFinal = 0;
             libretas.forEach(libreta => {
@@ -266,16 +263,28 @@ export default {
 
     }
   },
+
   computed:{
-    userLogged() {
-      return auth.getUserLogged();
-    },
     conv(){
       return conv;
-    }
+    },
+    height () {
+        switch (this.$vuetify.breakpoint.name) {
+          case 'xs': return 150
+          case 'sm': return 100
+          case 'md': return 70
+          case 'lg': return 70
+          case 'xl': return 70
+        }
+      },
   },
-  mounted(){
-    this.getInfoCliente()
+  async mounted(){
+    await this.getUserLogged();
+    console.log(this.userLogged)
+    this.loading = true;
+    this.user = this.userLogged.info;
+    await this.setProductos();
+    this.loading = false;
   }
 };
 </script>
@@ -283,9 +292,10 @@ export default {
 <style scoped lang="css">
   .titulo { 
       font-size:30px;
-      line-height : 30px;
+      line-height : 40px;
       word-break:normal;
       font-weight: 300;
+      white-space: normal;
     }
   .cabecera {
     color: white;
@@ -297,6 +307,6 @@ export default {
     color: black;
     font-weight: 300;
     font-size:  23px;
-    line-height : 22px;
+    line-height : 23px;
   }
   </style>

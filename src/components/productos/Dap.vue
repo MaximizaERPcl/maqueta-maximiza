@@ -6,14 +6,14 @@
       <v-col
         cols="11"> 
         <v-card
-          outlined
-        >
+      elevation="10"
+      >
           <v-toolbar
             color="primary"
             dark
             flat
             tile
-            class="mb-4"
+            class="mb-4 primaryGradient"
           >
             <v-toolbar-title class="flex text-center titulo">Depósito a Plazo</v-toolbar-title>
           </v-toolbar>
@@ -136,20 +136,21 @@ export default {
       msg:'NO POSEE DEPÓSITOS A LARGO PLAZO ASOCIADOS',
       dialog: {state:false, data:{}, user:{}},
       loading:true,
-
+      userLogged:null
     }
   },
   methods:{
+    async getUserLogged() {
+      await auth.getCryptKey()
+      .then(response => {
+        let key  = response.data[0].crypt_key;
+        this.userLogged = auth.getUserLogged(key);
+      })
+    },
     async getDap(){
       await socio.getDap(this.userLogged.id_cliente)
-      .then(response => {
-        if(response.data.length == 0)
-          this.noDatos = true;
-        
-        else{
-          this.noDatos = false;
-          this.daps = response.data;
-        } 
+      .then(response => {    
+        this.daps = response.data;
       })
       .catch(error => console.log(error));
     },
@@ -160,16 +161,21 @@ export default {
     },
   },
   computed:{
-  userLogged() {
-      return auth.getUserLogged();
-    },
     conv(){
       return conv;
     }
   },
   async mounted(){
+    await this.getUserLogged();
+    console.log(this.userLogged)
     this.loading = true;
-    await this.getDap();
+    if(this.userLogged.info.dap != "0"){
+      this.noDatos = false;
+      await this.getDap();
+    }
+    else
+      this.noDatos = true;
+
     this.loading = false;
   }
 }

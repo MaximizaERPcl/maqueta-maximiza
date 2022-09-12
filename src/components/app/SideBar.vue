@@ -1,37 +1,42 @@
 <template>
   <v-container>
     <v-navigation-drawer
-      permanent
+      v-model="drawer"
       app
       v-if="$route.name != 'home'"
       width="300px"
       min-width="300px"
+      mobile-breakpoint="960"
+      class="glass"
+      tile
+      height="100%"
     >
-        <v-list>
-          <v-list-item class="p-5">
-              <v-img 
-                :src="require('../../assets/inicio/logo.png')"
-                aspect-ratio="2.5"
-                contain
-              ></v-img>
-          </v-list-item>
+      <v-img 
+        :src="require('../../assets/logos/logo.png')"
+        max-width="280px"
+        class="my-4 mx-2"
+        contain
+      ></v-img>
 
+        <v-list>
           <v-list-group 
             link 
             color="primary" 
-            no-action 
-            append-icon="mdi-menu-up"
+            no-action
+            v-if="userLogged"
             >
            <template v-slot:activator>
-            <v-list-item-icon >
+            <v-list-item-icon>
               <v-icon color="primary">mdi-account-cog</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title class="text-h6">{{nombreUsuario}}</v-list-item-title>
+              <v-list-item-title class="nombre">{{nombreUsuario}}</v-list-item-title>
               <v-list-item-subtitle>{{userRut}}</v-list-item-subtitle>
             </v-list-item-content>
-
             </template>
+            <template v-slot:appendIcon>
+              <v-icon style="margin-left:0 !important">mdi-menu-up</v-icon>
+              </template>
 
             <v-list-item
               v-for="child in ajustesCuenta"
@@ -98,21 +103,15 @@
         </v-list>
 
 
-        <template v-slot:append>
-            <!--v-list
-            nav
-            v-for="item in finalItems"
-            >
-            <v-list-item link >
-                <v-list-item-icon >
-                <v-icon color="primary">{{item.icon}}</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title>{{item.name}}</v-list-item-title>
-            </v-list-item>
-            </v-list-->
-            
+      <template v-slot:append>
+        <!--v-img 
+          :src="require('../../assets/logos/logo.png')"
+          max-width="280px"
+          class="my-4 mx-2"
+          contain
+        ></v-img-->
         <div class="pa-2">
-          <v-btn large @click="logout" block color="error">
+          <v-btn @click="logout" block color="error">
             Cerrar Sesión
           </v-btn>
         </div>
@@ -123,14 +122,14 @@
 </template>
 
 <script>
-  import { mapMutations } from 'vuex'
+  import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
   import auth from "@/auth/auth";
   import { formatterRut } from 'chilean-formatter';
 
   export default {
     data: () => ({
         items: [
-            {name: 'Información General', icon:'mdi-home', to:"ingresa", subgroup:false},
+            {name: 'Inicio', icon:'mdi-home', to:"ingresa", subgroup:false},
             {name: 'Productos', icon:'mdi-briefcase-account', to:"productos", subgroup:true,
                 productos: [
                     {name: 'Cuenta Capital', param:'cuenta-capital'}, //
@@ -139,7 +138,7 @@
                     {name: 'Deposito a plazo', param:'dap'},//
                     {name: 'Creditos', param:'creditos'},//
                     {name: 'Proximos Pagos', param:'proximos-pagos'},
-                    {name: 'Firma Legale', param:'firma'},
+                    //{name: 'Firma Legale', param:'firma'},
                 ]},
             {name: 'Simulador de créditos', icon:'mdi-credit-card', to:"creditos", subgroup:false},
             {name: 'Simulador Dap', icon:'mdi-bank-transfer-in', to:"dap", subgroup:false},
@@ -151,13 +150,10 @@
         ],
         finalItems: [
             {name: 'Atención Socios', icon:'mdi-phone'},
-            {name: 'Actualizar Clave', icon:'mdi-account-lock' },
         ],
+        userLogged:null,
     }),
     computed:{
-      userLogged() {
-        return auth.getUserLogged();
-      },
       userRut(){
         return formatterRut(this.userLogged.rut)
       },
@@ -165,9 +161,22 @@
         let nombre = this.userLogged.nombres.split(' ')[0].charAt(0).toUpperCase() + this.userLogged.nombres.toLowerCase().slice(1);
         let apellido = this.userLogged.apellido_paterno.split(' ')[0].charAt(0).toUpperCase() + this.userLogged.apellido_paterno.toLowerCase().slice(1);
         return nombre + ' ' + apellido
-      }
+      },
+      ...mapGetters({
+        drawerTest: 'drawer'
+      }),
+      drawer: {
+           get(){
+             return this.drawerTest
+           },
+           set(state){
+            this.switchDrawer(state)
+            return state
+           } 
+        }
     },
-    mounted(){
+    async created(){
+      await this.getUserLogged();
       if(this.$route.name){
         let ruta = this.$route.name;
         var indiceRuta = this.items.findIndex( item => item.to === ruta);
@@ -176,11 +185,19 @@
       
     },
     methods:{
+      async getUserLogged() {
+        await auth.getCryptKey()
+        .then(response => {
+          let key  = response.data[0].crypt_key;
+          this.userLogged = auth.getUserLogged(key);
+        })
+      },
       ...mapMutations([
         'cambiarRuta',
       ]),
+      ...mapActions(['switchDrawer']),
       logout(){
-        auth.cerrarSesion();
+        auth.cerrarSesion(); 
         this.$router.push("/maximiza/");
       }
     },
@@ -195,3 +212,23 @@
     }
   }
 </script>
+<style scoped lang="css">
+  .glass {
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 0 1rem 0 rgba(0, 0, 0, .2);   
+    background-color: rgba(255, 255, 255, 0.573);
+    backdrop-filter: blur(10px);
+  }
+  .transparente {
+    background-color: transparent;
+  }
+
+  .nombre{
+    white-space: normal;
+    font-weight: 400;
+    font-size:  18px;
+    line-height : 18px;
+  }
+
+</style>

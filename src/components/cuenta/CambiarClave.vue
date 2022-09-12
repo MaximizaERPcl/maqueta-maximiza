@@ -9,13 +9,12 @@
 
       >
       <v-card 
-        outlined 
         class="elevation-2 pb-8">
         <v-toolbar
             color="primary"
             dark
             flat
-            class="mb-8"
+            class="mb-8 primaryGradient"
             tile
             
           >
@@ -38,7 +37,7 @@
           ref="form"
           v-model="valid"    
         >
-        <v-row justify="center" no-gutters>
+        <v-row justify="center" no-gutters class="px-2">
           <v-col
             cols="12"
             sm="10"
@@ -76,8 +75,8 @@
               persistent-hint
               :rules="[
                 v => !!v || 'Campo requerido',
-                v => v.length == 6 || 'La clave debe tener 6 dígitos',
-                v => Number.isInteger(Number(v)) || 'La clave solo debe contener dígitos',
+                v => (!!v && v.length == 6) || 'La clave debe tener 6 dígitos',
+                v => (!!v && Number.isInteger(Number(v))) || 'La clave solo debe contener dígitos',
               ]"
               :append-icon="mostrar1 ? 'mdi-eye' : 'mdi-eye-off'"
               :type="mostrar1 ? 'text' : 'password'"
@@ -123,6 +122,7 @@
                 color="primary"
                 @click="validate()"
                 :disabled="!valid"
+                :loading="loading"
               >
               <v-icon left >mdi-lock-check-outline</v-icon>
               Cambiar Clave
@@ -139,12 +139,7 @@
 <script>
 import auth from "@/auth/auth";
 
-import { mapState } from 'vuex';
-import { formatterRut, cleanRut } from 'chilean-formatter';
-
-export function formatRut(value) {
-  return [...formatterRut(value)]
-}
+import { mapState, mapActions} from 'vuex';
 
 export default {
     components: {
@@ -152,8 +147,6 @@ export default {
     },
     data: function () {
         return {
-          alert:false,
-          alertMsg:"",
           form: {
             clave_anterior:'',
             clave_nueva:'',
@@ -163,33 +156,61 @@ export default {
           mostrar1: false,
           mostrar2: false,
           valid: true,
+          loading:false,
+          userLogged:null,
         };
     },
     computed: {
       ...mapState(["rutaActual"]),
-      userLogged() {
-        return auth.getUserLogged();
-      },
     },
     methods:{
+      ...mapActions(['mostrarAlerta']),
       validate () {
         this.$refs.form.validate()
         if(this.valid){
-          this.login()
-      }
-        
+          this.cambiarClave();
+        }
+      },
+      async getUserLogged() {
+      await auth.getCryptKey()
+        .then(response => {
+          let key  = response.data[0].crypt_key;
+          this.userLogged = auth.getUserLogged(key);
+        })
       },
       async cambiarClave(){
-        await auth.cambiarClave(this.userLogged.rut,this.form.clave_anterior, this.form.clave_nueva)
+        await auth.cambiarClave(this.userLogged.id_cliente,this.form.clave_anterior, this.form.clave_nueva,2)
         .then(response => {
           let data = response.data[0];
-          console.log('funciona')
+          let payload = {};
+          this.loading = true;
+
+          if(data.return_value == 1){
+            payload = {
+              mensaje: data.msg,
+              color: 'success',
+              mostrar: true,
+            }
+          }
+          else{
+            payload = {
+              mensaje: data.msg,
+              color: 'error',
+              mostrar: true,
+            }
+          }
+          this.loading = false;
+          this.$refs.form.reset();
+          this.mostrarAlerta(payload);
         })
         .catch(error => {
           console.log(error)
         })
       },
     },
+    async mounted(){
+      await this.getUserLogged();
+    }
 }
 </script>
 

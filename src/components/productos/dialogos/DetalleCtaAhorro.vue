@@ -2,8 +2,9 @@
   <div>
     <v-dialog
       v-model="dialog.state"
-      width="800px"
-      max-width="800px"
+      width="950px"
+      max-width="950px"
+      :fullscreen="$vuetify.breakpoint.xsOnly"
     >
       <v-card
         tile
@@ -22,145 +23,150 @@
         </v-card-title>
         <v-divider></v-divider>
         <v-row no-gutters>
-          <v-col cols="5">
-            <v-list >
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-account-details
-                  </v-icon>
-                </v-list-item-icon>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-account-details
+                </v-icon>
+              </v-list-item-icon>
 
-                <v-list-item-content>
-                  <v-list-item-subtitle>Rut</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.user.rut}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-briefcase-account
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Producto</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.data.nombre}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-percent-circle
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Tasa de interés</v-list-item-subtitle>
-                  <v-list-item-title>{{parseFloat(dialog.data.tasa_interes)}}%</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-calendar-start
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Fecha apertura</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.data.f_apertura}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list>
+              <v-list-item-content>
+                <v-list-item-subtitle>Rut</v-list-item-subtitle>
+                <v-list-item-title>{{formatterRut(dialog.user.rut)}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
           </v-col>
-          <v-col cols="7  ">
-            <v-list >
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-account
-                  </v-icon>
-                </v-list-item-icon>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-account
+                </v-icon>
+              </v-list-item-icon>
 
-                <v-list-item-content>
-                  <v-list-item-subtitle>Nombre</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.user.nombre}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
+              <v-list-item-content>
+                <v-list-item-subtitle>Nombre</v-list-item-subtitle>
+                <v-list-item-title>{{dialog.user.nombre}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-briefcase-account
+                </v-icon>
+              </v-list-item-icon>
 
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-briefcase-search
-                  </v-icon>
-                </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-subtitle>Producto</v-list-item-subtitle>
+                <v-list-item-title>{{dialog.data.nombre}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-briefcase-search
+                </v-icon>
+              </v-list-item-icon>
 
-                <v-list-item-content>
-                  <v-list-item-subtitle>Estado</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.data.estado}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
+              <v-list-item-content>
+                <v-list-item-subtitle>Estado</v-list-item-subtitle>
+                <v-list-item-title>{{dialog.data.estado}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-percent-circle
+                </v-icon>
+              </v-list-item-icon>
 
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-currency-usd
-                  </v-icon>
-                </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-subtitle>Tasa de interés</v-list-item-subtitle>
+                <v-list-item-title>{{conv.formatPorcentaje(dialog.data.tasa_interes)}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
 
-                <v-list-item-content>
-                  <v-list-item-subtitle>Saldo Disponible</v-list-item-subtitle>
-                  <v-list-item-title>{{conv.formatMonto(dialog.data.saldo, true)}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-currency-usd
+                </v-icon>
+              </v-list-item-icon>
 
-            </v-list>
+              <v-list-item-content>
+                <v-list-item-subtitle>Saldo Disponible</v-list-item-subtitle>
+                <v-list-item-title>${{dialog.data.saldo}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-calendar-start
+                </v-icon>
+              </v-list-item-icon>
+
+              <v-list-item-content>
+                <v-list-item-subtitle>Fecha apertura</v-list-item-subtitle>
+                <v-list-item-title>{{dialog.data.f_apertura}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
           </v-col>
         </v-row>
         
         <v-card-title class="mt-4">
           <span class="cabecera">Datos del Convenio:</span>
         </v-card-title>
+        <v-divider />
+        <v-row no-gutters>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-briefcase-search
+                </v-icon>
+              </v-list-item-icon>
+  
+              <v-list-item-content>
+                <v-list-item-subtitle>Forma de pago</v-list-item-subtitle>
+                <v-list-item-title>{{dialog.data.forma_pago}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider class="hidden-md-and-up" />
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-currency-usd
+                </v-icon>
+              </v-list-item-icon>
+  
+              <v-list-item-content>
+                <v-list-item-subtitle>Monto abono pactado</v-list-item-subtitle>
+                <v-list-item-title>{{conv.formatMonto(dialog.data.abono_pactado, true)}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider class="hidden-md-and-up" />
+          </v-col>
+        </v-row>
 
-        <v-list>
-          <v-list-item>
-            <v-list-item-icon>
-              <v-icon color="primary">
-                mdi-briefcase-search
-              </v-icon>
-            </v-list-item-icon>
-
-            <v-list-item-content>
-              <v-list-item-subtitle>Forma de pago</v-list-item-subtitle>
-              <v-list-item-title>{{dialog.data.forma_pago}}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-divider></v-divider>
-
-          <v-list-item>
-            <v-list-item-icon>
-              <v-icon color="primary">
-                mdi-currency-usd
-              </v-icon>
-            </v-list-item-icon>
-
-            <v-list-item-content>
-              <v-list-item-subtitle>Monto abono pactado</v-list-item-subtitle>
-              <v-list-item-title>{{conv.formatMonto(dialog.data.abono_pactado, true)}}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
         <v-card-title class="mt-4">
           <span class="cabecera">Detalles de giros y abonos:</span>
         </v-card-title>
@@ -200,7 +206,7 @@
           <v-btn
               color="primary"
               class="mx-2 my-2"
-              @click="etapa = 1"
+              @click="exportPDF()"
             >
               <v-icon left>mdi-download</v-icon>
                 Descargar PDF
@@ -221,6 +227,9 @@
 <script>
 import socio from '@/services/socio';
 import conv from '@/services/conversores';
+import pdf from '@/services/pdfGenerator';
+import { formatterRut } from 'chilean-formatter';
+
 export default {
     props: ["dialog"],
     data() {
@@ -238,7 +247,6 @@ export default {
                 },
                 { text: "Saldo", align: "start", sortable: true, value: "saldo"
                 },
-                { text: "", value: "actions", sortable: false },
             ],
             detalles: [],
             noData: false,
@@ -248,24 +256,30 @@ export default {
     computed: {
       conv(){
         return conv;
+      },
+      formatterRut(){
+        return formatterRut
       }
     },
     methods: {
-        cerrar() {
-            this.dialog.state = false;
-        },
-        getDetalleLibreta() {
-            socio.getDetalleLibreta(this.dialog.data.id_libreta)
-                .then(response => {
-                if (response.data.length == 0)
-                    this.noData = true;
-                else {
-                    this.noData = false;
-                    this.detalles = response.data;
-                }
-            })
-                .catch(error => console.log(error));
-        },
+      cerrar() {
+          this.dialog.state = false;
+      },
+      getDetalleLibreta() {
+          socio.getDetalleLibreta(this.dialog.data.id_libreta)
+              .then(response => {
+              if (response.data.length == 0)
+                  this.noData = true;
+              else {
+                  this.noData = false;
+                  this.detalles = response.data;
+              }
+          })
+              .catch(error => console.log(error));
+      },
+      exportPDF() {
+        pdf.exportToPdfCtaAhorro(this.cabeceras,this.detalles,this.dialog,'Libreta de ahorro N° ' + this.dialog.data.id_libreta)
+      },
     },
     mounted() {
         this.getDetalleLibreta();

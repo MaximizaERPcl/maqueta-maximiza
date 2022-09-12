@@ -2,8 +2,9 @@
   <div>
     <v-dialog
       v-model="dialog.state"
-      width="800px"
-      max-width="800px"
+      width="950px"
+      max-width="950px"
+      :fullscreen="$vuetify.breakpoint.xsOnly"
     >
       <v-card
         tile
@@ -22,213 +23,216 @@
         </v-card-title>
         <v-divider></v-divider>
         <v-row no-gutters>
-          <v-col cols="5">
-            <div>
-            <v-list two-line>
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-account-details
-                  </v-icon>
-                </v-list-item-icon>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-account-details
+                </v-icon>
+              </v-list-item-icon>
 
-                <v-list-item-content>
-                  <v-list-item-subtitle>Rut</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.user.rut}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-briefcase-account
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Descripción del producto</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.data.producto}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-briefcase-search
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Descripción estado</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.data.estado}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-calendar-start
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Fecha apertura</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.data.f_apertura}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-lock-alert
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Custodia digital</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.data.custodia_digital}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-currency-usd
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Monto interés pactado</v-list-item-subtitle>
-                  <v-list-item-title>{{conv.formatMonto(dialog.data.monto_interes,true)}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-calendar-end
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Fecha vencimiento</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.data.f_vencimiento}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-
-            </v-list>
-          </div>
+              <v-list-item-content>
+                <v-list-item-subtitle>Rut</v-list-item-subtitle>
+                <v-list-item-title>{{formatterRut(dialog.user.rut)}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
           </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-account
+                </v-icon>
+              </v-list-item-icon>
 
-
-
-          <v-col cols="7  ">
-            <v-list two-line>
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-account
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Nombre</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.user.nombre}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-cash-sync
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Descripción tipo de renovación</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.data.desc_estado}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-calendar-expand-horizontal
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Plazo</v-list-item-subtitle>
-                  <v-list-item-title>{{conv.formatDias(dialog.data.daple_n_dia_plazo)}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-percent-circle
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Tasa interés</v-list-item-subtitle>
-                  <v-list-item-title>{{conv.formatPorcentaje(dialog.data.tasa_base)}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-cash
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Monto inicial</v-list-item-subtitle>
-                  <v-list-item-title>{{conv.formatMonto(dialog.data.monto_inicial, true)}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-cash-plus
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Monto final</v-list-item-subtitle>
-                  <v-list-item-title>{{conv.formatMonto(dialog.data.monto_final, true)}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-calendar-sync
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Fecha renovación</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.data.f_renovacion_aut}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list>
+              <v-list-item-content>
+                <v-list-item-subtitle>Nombre</v-list-item-subtitle>
+                <v-list-item-title>{{dialog.user.nombre}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
           </v-col>
-          
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-briefcase-account
+                </v-icon>
+              </v-list-item-icon>
+
+              <v-list-item-content>
+                <v-list-item-subtitle>Descripción del producto</v-list-item-subtitle>
+                <v-list-item-title>{{dialog.data.producto}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-cash-sync
+                </v-icon>
+              </v-list-item-icon>
+
+              <v-list-item-content>
+                <v-list-item-subtitle>Descripción tipo de renovación</v-list-item-subtitle>
+                <v-list-item-title>{{dialog.data.desc_estado}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-briefcase-search
+                </v-icon>
+              </v-list-item-icon>
+
+              <v-list-item-content>
+                <v-list-item-subtitle>Descripción estado</v-list-item-subtitle>
+                <v-list-item-title>{{dialog.data.estado}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-calendar-expand-horizontal
+                </v-icon>
+              </v-list-item-icon>
+
+              <v-list-item-content>
+                <v-list-item-subtitle>Plazo</v-list-item-subtitle>
+                <v-list-item-title>{{conv.formatDias(dialog.data.daple_n_dia_plazo)}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-calendar-start
+                </v-icon>
+              </v-list-item-icon>
+
+              <v-list-item-content>
+                <v-list-item-subtitle>Fecha apertura</v-list-item-subtitle>
+                <v-list-item-title>{{dialog.data.f_apertura}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-percent-circle
+                </v-icon>
+              </v-list-item-icon>
+
+              <v-list-item-content>
+                <v-list-item-subtitle>Tasa interés</v-list-item-subtitle>
+                <v-list-item-title>{{conv.formatPorcentaje(dialog.data.tasa_base)}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-lock-alert
+                </v-icon>
+              </v-list-item-icon>
+
+              <v-list-item-content>
+                <v-list-item-subtitle>Custodia digital</v-list-item-subtitle>
+                <v-list-item-title>{{dialog.data.custodia_digital}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-cash
+                </v-icon>
+              </v-list-item-icon>
+
+              <v-list-item-content>
+                <v-list-item-subtitle>Monto inicial</v-list-item-subtitle>
+                <v-list-item-title>{{conv.formatMonto(dialog.data.monto_inicial, true)}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-currency-usd
+                </v-icon>
+              </v-list-item-icon>
+
+              <v-list-item-content>
+                <v-list-item-subtitle>Monto interés pactado</v-list-item-subtitle>
+                <v-list-item-title>{{conv.formatMonto(dialog.data.monto_interes,true)}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-cash-plus
+                </v-icon>
+              </v-list-item-icon>
+
+              <v-list-item-content>
+                <v-list-item-subtitle>Monto final</v-list-item-subtitle>
+                <v-list-item-title>{{conv.formatMonto(dialog.data.monto_final, true)}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-calendar-end
+                </v-icon>
+              </v-list-item-icon>
+
+              <v-list-item-content>
+                <v-list-item-subtitle>Fecha vencimiento</v-list-item-subtitle>
+                <v-list-item-title>{{dialog.data.f_vencimiento}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider class="hidden-md-and-up" />
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-calendar-sync
+                </v-icon>
+              </v-list-item-icon>
+
+              <v-list-item-content>
+                <v-list-item-subtitle>Fecha renovación</v-list-item-subtitle>
+                <v-list-item-title>{{dialog.data.f_renovacion_aut}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider class="hidden-md-and-up" />
+          </v-col>
         </v-row>
         
 
@@ -236,12 +240,24 @@
           <span class="cabecera">Detalles de renovaciones:</span>
         </v-card-title>
         <v-divider></v-divider>
-
+        <v-card-title>
+          <v-spacer class="hidden-sm-and-down" />
+            <v-text-field
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Buscar"
+              single-line
+              hide-details
+              outlined
+              dense
+            ></v-text-field>
+          </v-card-title>
          <v-data-table
           :headers="cabeceras"
           :items="detalles"
           :items-per-page="5"
           :loading="cargandoTabla"
+          :search="search"
         >
         <template
             v-slot:item.monto_total="{ item }"
@@ -295,6 +311,7 @@
 import socio from '@/services/socio';
 import pdf from '@/services/pdfGenerator';
 import conv from "@/services/conversores";
+import { formatterRut } from 'chilean-formatter';
 
 export default {
   props: ['dialog'],
@@ -346,7 +363,7 @@ export default {
       detalles:[],
       noData:false,
       cargandoTabla:true,
-      urlPDF:'/maximiza/storage/app/media/cartolas/libretas_'
+      search:''
     }
   },
   computed:{
@@ -356,7 +373,10 @@ export default {
     },
     conv(){
       return conv;
-    }
+    },
+    formatterRut(){
+      return formatterRut;
+    },
   },
   methods: {
     cerrar(){

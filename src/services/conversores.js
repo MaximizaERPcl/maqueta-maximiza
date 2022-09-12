@@ -19,6 +19,9 @@ export default {
   },
   formatFecha(fecha){
     return moment(new Date(fecha)).format('DD/MM/YYYY')
+  },
+  fechaNombreDocs(){
+    return moment(new Date(Date.now())).format('DDMMYYHHmmss')
   }
 
 }

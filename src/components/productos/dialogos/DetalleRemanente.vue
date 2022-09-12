@@ -2,8 +2,9 @@
   <div>
     <v-dialog
       v-model="dialog.state"
-      width="800px"
-      max-width="800px"
+      width="950px"
+      max-width="950px"
+      :fullscreen="$vuetify.breakpoint.xsOnly"
     >
       <v-card
         tile
@@ -22,110 +23,111 @@
         </v-card-title>
         <v-divider></v-divider>
         <v-row no-gutters>
-          <v-col cols="5">
-            <v-list two-line>
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-account-details
-                  </v-icon>
-                </v-list-item-icon>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-account-details
+                </v-icon>
+              </v-list-item-icon>
 
-                <v-list-item-content>
-                  <v-list-item-subtitle>Rut</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.user.rut}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-briefcase-account
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Producto</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.data.Producto}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-briefcase-search
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Estado</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.data.estado}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-currency-usd
-                  </v-icon>
-                </v-list-item-icon>
-
-                <v-list-item-content>
-                  <v-list-item-subtitle>Saldo Disponible</v-list-item-subtitle>
-                  <v-list-item-title>{{conv.formatMonto(this.dialog.data.vistd_m_monto,true)}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list>
+              <v-list-item-content>
+                <v-list-item-subtitle>Rut</v-list-item-subtitle>
+                <v-list-item-title>{{formatterRut(dialog.user.rut)}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
           </v-col>
-          <v-col cols="7  ">
-            <v-list two-line>
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-account
-                  </v-icon>
-                </v-list-item-icon>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-account
+                </v-icon>
+              </v-list-item-icon>
 
-                <v-list-item-content>
-                  <v-list-item-subtitle>Nombre</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.user.nombre}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
+              <v-list-item-content>
+                <v-list-item-subtitle>Nombre</v-list-item-subtitle>
+                <v-list-item-title>{{dialog.user.nombre}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-briefcase-account
+                </v-icon>
+              </v-list-item-icon>
 
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-numeric
-                  </v-icon>
-                </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-subtitle>Producto</v-list-item-subtitle>
+                <v-list-item-title>{{dialog.data.Producto}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-numeric
+                </v-icon>
+              </v-list-item-icon>
 
-                <v-list-item-content>
-                  <v-list-item-subtitle>N° Cuenta</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.data.Cuenta}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
+              <v-list-item-content>
+                <v-list-item-subtitle>N° Cuenta</v-list-item-subtitle>
+                <v-list-item-title>{{dialog.data.Cuenta}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-briefcase-search
+                </v-icon>
+              </v-list-item-icon>
 
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary">
-                    mdi-calendar-start
-                  </v-icon>
-                </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-subtitle>Estado</v-list-item-subtitle>
+                <v-list-item-title>{{dialog.data.estado}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
 
-                <v-list-item-content>
-                  <v-list-item-subtitle>Fecha apertura</v-list-item-subtitle>
-                  <v-list-item-title>{{dialog.data.Fecha_Apertura}}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-divider></v-divider>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-calendar-start
+                </v-icon>
+              </v-list-item-icon>
 
-            </v-list>
+              <v-list-item-content>
+                <v-list-item-subtitle>Fecha apertura</v-list-item-subtitle>
+                <v-list-item-title>{{dialog.data.Fecha_Apertura}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+          </v-col>
+          <v-col cols="12" sm="12" md="6">
+            <v-list-item>
+              <v-list-item-icon>
+                <v-icon color="primary">
+                  mdi-currency-usd
+                </v-icon>
+              </v-list-item-icon>
+
+              <v-list-item-content>
+                <v-list-item-subtitle>Saldo Disponible</v-list-item-subtitle>
+                <v-list-item-title>{{conv.formatMonto(this.dialog.data.vistd_m_monto,true)}}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider class="hidden-md-and-up" />
           </v-col>
         </v-row>
 
@@ -134,10 +136,23 @@
         </v-card-title>
         <v-divider></v-divider>
 
+        <v-card-title>
+          <v-spacer></v-spacer>
+            <v-text-field
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Buscar"
+              single-line
+              hide-details
+              outlined
+              dense
+            ></v-text-field>
+        </v-card-title>
          <v-data-table
           :headers="cabeceras"
           :items="detalles"
           :items-per-page="5"
+          :search="search"
         >
          <template
             v-slot:item.monto="{ item }"
@@ -177,7 +192,8 @@
 <script>
 import socio from '@/services/socio';
 import conv from '@/services/conversores';
-import pdf from '../../../services/pdfGenerator';
+import pdf from '@/services/pdfGenerator';
+import { formatterRut } from 'chilean-formatter';
 
 export default {
   props: ['dialog'],
@@ -207,12 +223,16 @@ export default {
         },
       ],
       detalles:[],
-      noData:false
+      noData:false,
+      search:''
     }
   },
   computed:{
     conv(){
       return conv;
+    },
+    formatterRut(){
+      return formatterRut
     }
   },
   methods: {

@@ -1,19 +1,18 @@
 <template>
   <div>
     <v-app-bar
-      dense
-      color="white"
-      absolute
       app
-      class="py=0 my-0"
+      dense
+      tile
+      style="background-color: rgba(255, 255, 255, 0.573); border-radius: 5px;  backdrop-filter: blur(5px);box-shadow: 0 0 1rem 0 rgba(0, 0, 0, .2);"
     >
-      <!--v-app-bar-nav-icon></v-app-bar-nav-icon-->
-      <v-toolbar-title>{{this.rutaActual}}</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn text>
+    <v-app-bar-nav-icon class="hidden-md-and-up" @click.stop="switchDrawer(true)"></v-app-bar-nav-icon>
+    <v-icon x-large>mdi-menu-right</v-icon>
+      <v-toolbar-title class="mx-2 cabecera">{{this.rutaActual}}</v-toolbar-title>
+      <!--v-btn text>
         <v-icon color="primary" left>mdi-phone</v-icon>
         Atención Socios
-      </v-btn>
+      </v-btn-->
       <!--v-btn text>
         <v-icon color="primary" left>mdi-account-lock</v-icon>
         Actualizar Clave
@@ -23,7 +22,7 @@
 </template> 
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 
 export default {
   data: function() {
@@ -31,7 +30,9 @@ export default {
 
     }
   },
-
+  methods:{
+    ...mapActions(['switchDrawer'])
+  },
   computed:{
     ...mapState(['rutaActual'])
   },
@@ -40,8 +41,11 @@ export default {
 }
 </script>
 
-<style scoped>
- .v-toolbar__content  {
-  padding: 0px !important;
-}
+<style scoped lang="css">
+  .cabecera {
+    font-weight: 300;
+    font-size:  25px;
+    line-height : 25px;
+  
+  }
 </style>

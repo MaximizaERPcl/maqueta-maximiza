@@ -6,8 +6,7 @@
       <v-col
         cols="11"> 
         <v-card
-          outlined
-          
+          elevation="10"
         >
           <v-toolbar
             color="primary"
@@ -15,7 +14,7 @@
             flat
             dense
             tile
-            class="mb-4"
+            class="mb-4 primaryGradient"
 
           >
             <v-toolbar-title class="flex text-center titulo">Cuotas de Crédito</v-toolbar-title>
@@ -86,24 +85,27 @@
               </template>
             </v-data-table>
             <v-divider></v-divider>
-            <v-col cols="3" v-for="item in pactado">
+            <div v-for="item in pactado" :key="item.nombre">
               <v-card
                 outlined
+                width="350px"
+                class="mt-2"
                 
               >
-                <v-simple-table >
+                <v-simple-table>
                   <template v-slot:default>
                     <tbody>
-                      <tr
-                      >
-                        <td style="background-color:#4285f4; color:white">{{item.nombre}}</td>
-                        <td> {{conv.formatMonto(item.monto, true)}}</td>
+                      <tr>
+                        <td 
+                          style="background-color:#4285f4; color:white;width: 40%;">
+                          {{item.nombre}}</td>
+                        <td style="width:60%"> {{conv.formatMonto(item.monto, true)}}</td>
                       </tr>
                     </tbody>
                   </template>
                 </v-simple-table>
               </v-card>
-            </v-col> 
+            </div> 
           </v-container>
         </div>    
       </v-card>
@@ -147,10 +149,18 @@ export default {
       pactado: [],
       noDatos: false,
       msg:'NO SE ENCONTRARON PRÓXIMOS PAGOS',
-      loading: true
+      loading: true,
+      userLogged:null
     }
   },
-   methods:{
+  methods:{
+    async getUserLogged() {
+      await auth.getCryptKey()
+      .then(response => {
+        let key  = response.data[0].crypt_key;
+        this.userLogged = auth.getUserLogged(key);
+      })
+    },
     async getProximosPagos(){
       await socio.getProximosPagos(this.userLogged.id_cliente,2)
       .then(response => {
@@ -172,6 +182,7 @@ export default {
             }
             i++;
           }
+          this.pactado[0].monto = 10000000
           if(suma == 0)
             this.noDatos = true;
           else
@@ -206,15 +217,12 @@ export default {
     },
   },
   computed:{
-    userLogged() {
-        return auth.getUserLogged();
-      },
     conv(){
       return conv;
     }
   },
   async mounted(){
-    //this.getSocioCredito()
+    await this.getUserLogged();
     this.loading = true;
     await this.getProximosPagos();
     this.loading = false;

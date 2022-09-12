@@ -6,7 +6,6 @@
         cols="11"
       >
       <v-card 
-        outlined 
         class="elevation-2 pb-8"
         >
         <!--template slot="progress">
@@ -502,32 +501,34 @@ export default {
         provincias:[],
         comunas:[],
         loading:true,
-        
+        userLogged:{},
       };
   },
   computed: {
     ...mapState(["rutaActual"]),
-    userLogged() {
-      return auth.getUserLogged();
-    },
     formattedDate () {
       return this.form.perso_f_nacimiento ? moment(this.form.perso_f_nacimiento).format('DD/MM/YYYY') : ''
     },
   },
   methods:{
+    async getUserLogged() {
+      await auth.getCryptKey()
+      .then(response => {
+        let key  = response.data[0].crypt_key;
+        this.userLogged = auth.getUserLogged(key);
+      })
+    },
     validate () {
       this.$refs.form.validate()
       this.guardarCambios();
       if(this.valid){
         //this.login()
-    }
-      
+      } 
     },
     guardarCambios(){
       let data = JSON.parse( JSON.stringify( this.form ) );
       data.perso_f_nacimiento = moment(data.perso_f_nacimiento).format('DD/MM/YYYY');
       data.tipca_s_id = data.dipca_s_id;
-      console.log(data);
       //this.guardarDatosPersonales(data);
     },
     async guardarDatosPersonales(data){
@@ -607,6 +608,7 @@ export default {
     }
   },
   async mounted(){
+    await this.getUserLogged();
     this.loading = true;
     for (let i = 1; i <= 5; i++) {
       await this.getDatosClientes(i,'');

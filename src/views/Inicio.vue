@@ -280,7 +280,6 @@ export default {
   },
   async mounted(){
     await this.getUserLogged();
-    console.log(this.userLogged)
     this.loading = true;
     this.user = this.userLogged.info;
     await this.setProductos();

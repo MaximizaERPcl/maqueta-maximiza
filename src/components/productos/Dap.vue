@@ -167,7 +167,6 @@ export default {
   },
   async mounted(){
     await this.getUserLogged();
-    console.log(this.userLogged)
     this.loading = true;
     if(this.userLogged.info.dap != "0"){
       this.noDatos = false;

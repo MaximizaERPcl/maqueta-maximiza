@@ -87,7 +87,7 @@ export default {
     ...mapActions(["mostrarAlerta","cerrarAlerta"]),
     onidle() {
       auth.cerrarSesion();
-      this.$router.push("/maximiza/");
+      this.$router.push("/maximiza_vue/");
       alert('Se cerró su sesión por inactividad');
     },
     onremind(time) {

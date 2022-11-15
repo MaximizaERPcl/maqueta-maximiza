@@ -14,11 +14,18 @@ export default {
     var final = Math.round(preRedondeo) / 100 * Math.sign(num);
     return final+'%';
   },
+  formatPorcentaje2(valor){
+    var num = parseFloat(valor)*100
+    return num.toFixed(2) + '%'
+  },
   formatDias(valor){
     return valor === "1"? valor +' día': valor+' días';
   },
   formatFecha(fecha){
     return moment(new Date(fecha)).format('DD/MM/YYYY')
+  },
+  formatFecha2(fecha,srcFormat){
+    return moment(fecha,srcFormat).format('DD/MM/YYYY')
   },
   fechaNombreDocs(){
     return moment(new Date(Date.now())).format('DDMMYYHHmmss')

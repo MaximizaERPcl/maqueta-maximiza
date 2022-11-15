@@ -22,7 +22,7 @@ export default {
           JSON.stringify(userLogged),
           data.crypt_key
         ).toString();
-        Cookies.set("userLogged", usuarioEncriptado);
+        Cookies.set("userLoggedMxz", usuarioEncriptado);
       }
       else
         console.log('Error: '+data.msg)
@@ -31,7 +31,7 @@ export default {
   },
 
   getUserLogged(key){
-    let usuarioEncriptado = Cookies.get("userLogged");
+    let usuarioEncriptado = Cookies.get("userLoggedMxz");
     var bytes = CryptoJS.AES.decrypt(usuarioEncriptado, key);
     var usuario = bytes.toString(CryptoJS.enc.Utf8);
     return JSON.parse(usuario);
@@ -40,10 +40,10 @@ export default {
     return axios.get(URL_API + "clave_encriptacion")
   },
   cerrarSesion() {
-    Cookies.remove('userLogged');
+    Cookies.remove('userLoggedMxz');
   },
   isAuthenticated(){
-    return (Cookies.get('userLogged') !== undefined);
+    return (Cookies.get('userLoggedMxz') !== undefined);
   },
 
   userInfo(id_cliente){
@@ -69,14 +69,8 @@ export default {
      return axios.post(URL_API + "datos_cliente_actualizar_bancario", data);
   },
 
-  datosCliente(rut, direc_s_id, accion, add){
-    let data = qs.stringify({
-        'rut': rut,
-        'direc_s_id':direc_s_id,
-        'accion':accion,
-        'adicional':add
-
-     })
+  datosCliente(form){
+    let data = qs.stringify(form);
      //const user = { rut, password };
      return axios.post(URL_API + "datos_cliente", data);
   },

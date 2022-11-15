@@ -137,6 +137,7 @@ export default {
           let data = response.data[0];
           let payload = {};
           this.loading = true;
+          console.log(data)
 
           if(data.error_codigo == 0){
             payload = {
@@ -146,7 +147,7 @@ export default {
             }
           }else{
             payload = {
-              mensaje: data.msg,
+              mensaje: data.erro_msg,
               color: 'error',
               mostrar: true,
             }

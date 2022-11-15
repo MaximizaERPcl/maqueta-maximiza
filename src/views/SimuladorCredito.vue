@@ -170,7 +170,7 @@
              </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-subtitle>Interés</v-list-item-subtitle>
-                <v-list-item-title>{{conv.formatPorcentaje(resultado.tasa_visible)}}</v-list-item-title>
+                <v-list-item-title>{{formatPorcentaje(resultado.tasa_visible)}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -242,7 +242,7 @@
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-subtitle>CAE</v-list-item-subtitle>
-                <v-list-item-title>{{conv.formatPorcentaje(resultado.tasa_cae)}}</v-list-item-title>
+                <v-list-item-title>{{formatPorcentaje(resultado.tasa_cae)}}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -253,9 +253,9 @@
             class="mx-2 mb-2 elevation-1"
           >
           <template
-            v-slot:item.gascr_m_valor="{ item }"
+            v-slot:item.gascr_m_valor_or="{ item }"
           >
-            ${{item.gascr_m_valor}}
+            ${{item.gascr_m_valor_or}}
           </template>
           <template v-slot:top>
               <v-toolbar
@@ -284,7 +284,7 @@
             <v-btn
               color="primary"
               class="mx-2 my-2"
-              @click="etapa = 1"
+              @click="exportToPDF()"
             >
               <v-icon left>mdi-file-download</v-icon>
                 Descargar Documento
@@ -313,6 +313,7 @@
   import auth from "@/auth/auth";
   import simulador from "@/services/simulador";
   import conv from '@/services/conversores';
+  import pdf from '@/services/pdfGenerator'
 
   export default {
     data: function() {
@@ -347,7 +348,7 @@
           { text: 'Monto',
             align: 'start',
             sortable: true, 
-            value: 'gascr_m_valor' },
+            value: 'gascr_m_valor_or' },
         ],
         userLogged:null
       }
@@ -410,6 +411,7 @@
           this.$refs.amountField.validate();
       },
       enviarSimulacion(accion){
+        console.log(this.userLogged)
         let datosFormulario = this.formData;
         let f_otorgamiento = moment(new Date(Date.now())).format('DD/MM/YYYY');
         let data = {
@@ -427,6 +429,7 @@
         simulador.simularCredito(data)
         .then(response => {
           let result = response.data;
+          console.log(result)
           if(accion == 1){
             this.resultado = result[0];
             this.enviarSimulacion(2);
@@ -436,17 +439,46 @@
             let seg = parseInt(this.resultado.valor_seguro);
             let seg_desg = Intl.NumberFormat('es-CL',{currency: 'CLP'}).format( seg - value);
             this.gastos = response.data;
-            this.gastos.unshift({gascr_c_nombre:'Seguro Desgravamen', gascr_m_valor: seg_desg});
+            //this.gastos.unshift({gascr_c_nombre:'Seguro Desgravamen', gascr_m_valor: seg_desg});
           }
 
         })
         .catch(error => console.log(error))
+      },
+
+      exportToPDF(){
+        let solicitud = JSON.parse(JSON.stringify(this.formData));
+        solicitud.nombre = this.userLogged.nombre
+        solicitud.rut = this.userLogged.rut
+        pdf.exportToPdfSimCredito(this.cabeceras,this.gastos,solicitud,this.resultado)
+      },
+      sendEmail(){
+        let formEmail = {
+          accion: '1',
+          clien_s_id:this.userLogged.id_cliente,
+          cre_tasa_interes_mensual:this.resultado.tasa_visible,
+          cre_monto_solicitado:this.formData.monto,
+          cre_monto_bruto_credito:this.resultado.monto_bruto,
+          cre_plazo_credito:this.resultado.cuota,
+          cre_costo_total_credito:this.resultado.valor_total,
+          cre_fecha_primer_venc:this.resultado.fprimervencimiento,
+          cre_cae:this.resultado.tasa_cae,
+          cre_gasto_nombre:this.gastos[1].gascr_c_nombre,
+          cre_gasto_costo:this.gastos[1].gascr_m_valor,
+          cre_gasto_id:this.gastos[1].gascr_s_id,
+        }
       },
       formatDate(date) {
         if (!date) return null
         const [year, month, day] = date.split('-')
         return `${day}/${month}/${year}`
       },
+      formatPorcentaje(valor){
+        var num = parseFloat(valor)*100
+        //var preRedondeo = Number(num.toPrecision(15));
+        //var final = Math.round(preRedondeo) / 100 * Math.sign(num);
+        return num.toFixed(2) + '%'
+      }
     },
 
     async mounted () {
@@ -465,10 +497,17 @@
         return this.formData.date ? moment(this.formData.date).format('D [de] MMMM, YYYY') : ''
       },
       ayudaMonto(){
-        let min = parseInt(this.formData.producto.monto_minimo);
-        let max = parseInt(this.formData.producto.monto_maximo);
-        return "El monto ingresado debe ser superior a " + conv.formatMonto(min, true) 
-                + " e inferior a " + conv.formatMonto(max, true) 
+        let msg = "";
+        let min = parseInt(parseFloat(this.formData.producto.monto_minimo));
+        let max = parseInt(parseFloat(this.formData.producto.monto_maximo));
+
+        if(max == 0 || max >= 999999999)
+          msg = "El monto ingresado debe ser superior a " + conv.formatMonto(min, true);
+         
+        else
+          msg = "El monto ingresado debe ser superior a " + conv.formatMonto(min, true) 
+                + " e inferior a " + conv.formatMonto(max, true);
+        return msg
       },
       conv(){
         return conv;

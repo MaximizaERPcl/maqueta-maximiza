@@ -295,4 +295,155 @@ export default {
     });
     doc.save('rem_'+cleanRut(obj.user.rut,true)+'_'+conv.fechaNombreDocs()+'.pdf');
   },
+
+  //SIMULACION CREDITO
+  exportToPdfSimCredito(cab,tab,solicitud,resultado){
+    //Se formatean los datos para la tabla
+    let detalles = JSON.parse(JSON.stringify(tab));
+
+    detalles.forEach(item => {
+      item.gascr_m_valor = '$'+item.gascr_m_valor;
+    });
+
+    //Se genera el documento
+    var doc = new jsPDF('p', 'pt');
+
+    //Se inserta el logo
+    var img = new Image();
+    img.src = require('@/assets/logos/logo.png');
+    doc.addImage(img, 'png', 40, 5, 142, 55);
+
+    //Se inserta el titulo'
+    doc.text('Simulación de Crédito', 200, 90);
+
+    //Se inserta fecha
+    doc.setFontSize(8)
+    doc.text(conv.formatFecha(Date.now()), 40, 70);
+    //Se modifican los datos tipo objeto para adaptarlos al PDF
+
+    //Datos Solicitud
+    doc.setFontSize(13)
+    var datos = [];
+    datos.push(['Solicitante', solicitud.nombre, 'Rut', formatterRut(solicitud.rut)]);
+    datos.push(['Fecha', conv.formatFecha(Date.now()), 'Producto', solicitud.producto.nombre]);
+    datos.push(['Monto Solicitado', '$'+solicitud.monto, 'Cuotas', solicitud.plazo])
+    datos.push(['Primer Vencimiento', resultado.fprimervencimiento, 'Forma de pago', solicitud.pago]);
+
+    //Se escriben los datos del objeto en el PDF
+    doc.autoTable({
+      head:[],
+      body:datos,
+      didDrawPage: function(data) {
+        doc.text("Datos Solicitante", data.settings.margin.left, data.settings.margin.top - 5);
+      },
+      margin: {top: 120},
+      theme:'grid' 
+    })
+
+    //Datos Simulacion
+    var datos2 = [];
+    datos2.push(['Valor Cuota', conv.formatMonto(resultado.valor_cuota, true)]);
+    datos2.push(['Interés', conv.formatPorcentaje2(resultado.tasa_visible)]);
+    datos2.push(['Monto Solicitado', '$'+solicitud.monto]);
+    datos2.push(['Monto Bruto del Crédito', conv.formatMonto(resultado.monto_bruto,true)]);
+    datos2.push(['Plazo del Crédito', resultado.cuota +' meses']);
+    datos2.push(['Costo Total del Crédito', conv.formatMonto(resultado.valor_total, true)]);
+    datos2.push(['Fecha Primer Vencimiento', resultado.fprimervencimiento]);
+    datos2.push(['CAE', conv.formatPorcentaje2(resultado.tasa_cae)]);
+
+    doc.autoTable({
+      head:[],
+      didDrawPage: function(data) {
+        doc.text("Datos de la simulación", data.settings.margin.left, data.settings.startY - 5);
+      },
+      body:datos2,
+      startY: doc.lastAutoTable.finalY + 30,
+      margin: {top: 10},
+      theme:'grid'
+    })
+    //Se definen las cabeceras para las tablas
+    var cabeceras = [];
+    cab.forEach( item => {
+      cabeceras.push({title: item.text, dataKey: item.value},)
+    })
+
+    let temp = true;
+    //Se insertan la tabla con sus respectivos datos
+    doc.autoTable({
+      columns:cabeceras,
+      body:detalles,
+      didDrawPage: function(data) {
+        if(temp)
+          doc.text("Detalle Gastos:", data.settings.margin.left, data.settings.startY - 5);
+        temp = false
+      },
+      startY: doc.lastAutoTable.finalY + 30,
+      margin: {top: 10},
+      theme:'grid',
+      headStyles: { fillColor: COLOR_PRINCIPAL, lineWidth: 1},
+    });
+    doc.save('simCred_'+cleanRut(solicitud.rut,true)+'_'+conv.fechaNombreDocs()+'.pdf');
+  },
+
+  //SIMULACION DAP
+  exportToPdfSimDAP(solicitud,resultado){
+
+    //Se genera el documento
+    var doc = new jsPDF('p', 'pt');
+
+    //Se inserta el logo
+    var img = new Image();
+    img.src = require('@/assets/logos/logo.png');
+    doc.addImage(img, 'png', 40, 5, 142, 55);
+
+    //Se inserta el titulo'
+    doc.text('Simulación de Depósito a Plazo', 200, 90);
+
+    //Se inserta fecha
+    doc.setFontSize(8)
+    doc.text(conv.formatFecha(Date.now()), 40, 70);
+    //Se modifican los datos tipo objeto para adaptarlos al PDF
+
+    //Datos Solicitud
+    doc.setFontSize(13)
+    var datos = [];
+    datos.push(['Solicitante', solicitud.nombre, 'Rut', formatterRut(solicitud.rut)]);
+    datos.push(['Fecha', conv.formatFecha(Date.now()), 'Tipo de depósito', solicitud.producto.nombre]);
+    datos.push(['Monto del depósito', '$'+solicitud.monto, 'Plazo', solicitud.plazo])
+
+    //Se escriben los datos del objeto en el PDF
+    doc.autoTable({
+      head:[],
+      body:datos,
+      didDrawPage: function(data) {
+        doc.text("Datos Solicitante", data.settings.margin.left, data.settings.margin.top - 5);
+      },
+      margin: {top: 120},
+      theme:'grid' 
+    })
+
+    //Datos Simulacion
+    var datos2 = [];
+    datos2.push(['Tipo de depósito', solicitud.producto.nombre]);
+    datos2.push(['Días Plazo', resultado.dias_plazo_real + ' días']);
+    datos2.push(['Moneda', resultado.nombre_moneda]);
+    datos2.push(['Valor del Depósito', '$'+solicitud.monto]);
+    datos2.push(['Tasa', conv.formatPorcentaje(resultado.tasa_base)]);
+    datos2.push(['Interés', conv.formatMonto(resultado.interes_pactado,true)]);
+    datos2.push(['Monto Final', conv.formatMonto(resultado.monto_total,true)]);
+    datos2.push(['Fecha Vencimiento',conv.formatFecha2(resultado.fecha_vencimiento,'DD-MM-YYYY')]);
+    datos2.push(['Tipo de renovación', 'Automática']);
+
+    doc.autoTable({
+      head:[],
+      didDrawPage: function(data) {
+        doc.text("Datos de la simulación", data.settings.margin.left, data.settings.startY - 5);
+      },
+      body:datos2,
+      startY: doc.lastAutoTable.finalY + 30,
+      margin: {top: 10},
+      theme:'grid'
+    })
+    doc.save('simDAP_'+cleanRut(solicitud.rut,true)+'_'+conv.fechaNombreDocs()+'.pdf');
+  },
 }

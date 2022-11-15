@@ -507,7 +507,7 @@ export default {
   computed: {
     ...mapState(["rutaActual"]),
     formattedDate () {
-      return this.form.perso_f_nacimiento ? moment(this.form.perso_f_nacimiento).format('DD/MM/YYYY') : ''
+      return this.form.perso_f_nacimiento ? moment(this.form.perso_f_nacimiento).format('DD/MM/YYYY') : null
     },
   },
   methods:{
@@ -527,16 +527,15 @@ export default {
     },
     guardarCambios(){
       let data = JSON.parse( JSON.stringify( this.form ) );
+
+      data.accion = 10;
+      data.adicional = '';
+      data.direc_s_id = this.userLogged.direc_s_id;
+      data.rut = this.userLogged.rut;
       data.perso_f_nacimiento = moment(data.perso_f_nacimiento).format('DD/MM/YYYY');
       data.tipca_s_id = data.dipca_s_id;
-      //this.guardarDatosPersonales(data);
-    },
-    async guardarDatosPersonales(data){
-      await (await auth.guardarDatosPersonales(this.userLogged.rut,this.userLogged.direc_s_id,data))
-      .then( response => {
-        console.log(response)
-      })
-      .catch(error => console.log(error))
+      
+      this.updateDatosCliente(data);
     },
     async guardarDatosBancarios(data){
       await (await auth.guardarDatosBancarios(this.userLogged.rut,this.userLogged.direc_s_id,data))
@@ -546,7 +545,13 @@ export default {
       .catch(error => console.log(error))
     },
     async getDatosClientes(accion, add){
-      await auth.datosCliente(this.userLogged.rut,this.userLogged.direc_s_id, accion, add)
+      let form = {
+        accion: accion,
+        rut: this.userLogged.rut,
+        direc_s_id: this.userLogged.direc_s_id,
+        adicional:add
+      }
+      await auth.datosCliente(form)
       .then(response => {
         //console.log(accion+' ', response.data)
         switch(accion) {
@@ -556,7 +561,9 @@ export default {
               if(this.form[prop] == null)
                 this.form[prop] = '';
             }
-            let date = moment(this.form.perso_f_nacimiento).format('yyyy-MM-DD');
+            console.log(this.form.perso_f_nacimiento)
+            let date = moment(this.form.perso_f_nacimiento,'DD/MM/YYYY').format('yyyy-MM-DD');
+            //console.log(date)
             this.form.perso_f_nacimiento = date;
             if(this.form.direc_c_calle === null || this.form.direc_c_calle === ''){
               this.form.regio_s_id = '';
@@ -595,6 +602,14 @@ export default {
       .catch(error => {
         console.log(error)
       })
+    },
+    async updateDatosCliente(data){
+      console.log(data)
+      await auth.datosCliente(data)
+      .then(response => {
+        console.log(response.data[0]);
+      })
+      .catch(error => console.log(error))
     },
     getProvincias(){
       if(this.form.regio_s_id !== "0" && this.form.regio_s_id !== null && this.form.regio_s_id !== ''){

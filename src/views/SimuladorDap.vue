@@ -43,7 +43,6 @@
 
             <v-text-field
               v-model="formData.monto"
-              :counter="10"
               dense
               label="Monto del depósito"
               v-mask="currencyMask"
@@ -194,7 +193,7 @@
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-subtitle>Fecha Vencimiento</v-list-item-subtitle>
-                  <v-list-item-title>{{resultado.fecha_vencimiento}}</v-list-item-title>
+                  <v-list-item-title>{{conv.formatFecha2(resultado.fecha_vencimiento,'DD-MM-YYYY')}}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
 
@@ -222,7 +221,7 @@
             <v-btn
               color="primary"
               class="mx-2 my-2"
-              @click="etapa = 1"
+              @click="exportToPDF()"
             >
               <v-icon left>mdi-file-download</v-icon>
                 Descargar Documento
@@ -250,6 +249,7 @@
   import auth from "@/auth/auth";
   import simulador from "@/services/simulador";
   import conv from '@/services/conversores';
+  import pdf from '@/services/pdfGenerator';
 
   export default {
     data: function() {
@@ -259,10 +259,6 @@
         hoy: new Date(Date.now()),
         formData:{ producto:'', monto:'',  plazo:'',},
         plazos:[],
-        nameRules: [
-        v => !!v || 'Name is required',
-        v => (v && v.length <= 10) || 'Name must be less than 10 characters',
-      ],
         resultado: null,
         currencyMask: createNumberMask({
           prefix: "",
@@ -345,9 +341,17 @@
         }
         simulador.simularDap(data)
         .then(response => {
+          console.log(response.data)
           this.resultado = response.data[0];
         })
         .catch(error => console.log(error))
+      },
+    
+      exportToPDF(){
+        let solicitud = JSON.parse(JSON.stringify(this.formData));
+        solicitud.nombre = this.userLogged.nombre
+        solicitud.rut = this.userLogged.rut
+        pdf.exportToPdfSimDAP(solicitud,this.resultado)
       },
     },
       
@@ -362,10 +366,17 @@
         return this.date ? moment(this.date).format('D [de] MMMM, YYYY') : ''
       },
       ayudaMonto(){
-        let min = parseInt(this.formData.producto.monto_minimo);
-        let max = parseInt(this.formData.producto.monto_maximo);
-        return "El monto ingresado debe ser superior a " + conv.formatMonto(min,true) 
-                + " e inferior a " + conv.formatMonto(max,true) 
+        let msg = "";
+        let min = parseInt(parseFloat(this.formData.producto.monto_minimo));
+        let max = parseInt(parseFloat(this.formData.producto.monto_maximo));
+
+        if(max == 0 || max >= 999999999)
+          msg = "El monto ingresado debe ser superior a " + conv.formatMonto(min, true);
+         
+        else
+          msg = "El monto ingresado debe ser superior a " + conv.formatMonto(min, true) 
+                + " e inferior a " + conv.formatMonto(max, true);
+        return msg
       },
       conv(){
         return conv;

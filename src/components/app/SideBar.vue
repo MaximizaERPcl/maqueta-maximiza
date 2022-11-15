@@ -135,9 +135,9 @@
                     {name: 'Cuenta Capital', param:'cuenta-capital'}, //
                     {name: 'Cuenta de Ahorro', param:'cuenta-ahorro'}, //
                     {name: 'Remanentes', param:'remanentes'},
-                    {name: 'Deposito a plazo', param:'dap'},//
-                    {name: 'Creditos', param:'creditos'},//
-                    {name: 'Proximos Pagos', param:'proximos-pagos'},
+                    {name: 'Depósito a plazo', param:'dap'},//
+                    {name: 'Créditos', param:'creditos'},//
+                    {name: 'Próximos Pagos', param:'proximos-pagos'},
                     //{name: 'Firma Legale', param:'firma'},
                 ]},
             {name: 'Simulador de créditos', icon:'mdi-credit-card', to:"creditos", subgroup:false},
@@ -198,7 +198,7 @@
       ...mapActions(['switchDrawer']),
       logout(){
         auth.cerrarSesion(); 
-        this.$router.push("/maximiza/");
+        this.$router.push({name:'login'});
       }
     },
     watch: {

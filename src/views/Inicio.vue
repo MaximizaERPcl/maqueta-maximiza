@@ -65,7 +65,7 @@
 
           <v-list-item-content>
             <v-list-item-subtitle>Dirección</v-list-item-subtitle>
-            <v-list-item-title v-if="user.direccion_particular && user.direccion_particular.trim().length === 0">{{user.direccion_particular}}</v-list-item-title>
+            <v-list-item-title v-if="user.direccion_particular && user.direccion_particular.trim().length > 0">{{user.direccion_particular}}</v-list-item-title>
             <v-list-item-title v-else>No hay registro</v-list-item-title>
 
           </v-list-item-content>
@@ -80,7 +80,7 @@
 
           <v-list-item-content>
             <v-list-item-subtitle>Celular</v-list-item-subtitle>
-            <v-list-item-title v-if="user.Movil && !user.Movil.trim().length === 0">{{user.Movil}}</v-list-item-title>
+            <v-list-item-title v-if="user.Movil && user.Movil.trim().length > 0">{{user.Movil}}</v-list-item-title>
             <v-list-item-title v-else>No hay registro</v-list-item-title>
 
           </v-list-item-content>
@@ -95,7 +95,7 @@
 
           <v-list-item-content>
             <v-list-item-subtitle>Teléfono</v-list-item-subtitle>
-            <v-list-item-title v-if="user.telefono_particular && user.telefono_particular.trim().length === 0">{{user.telefono_particular}}</v-list-item-title>
+            <v-list-item-title v-if="user.telefono_particular && user.telefono_particular.trim().length > 0">{{user.telefono_particular}}</v-list-item-title>
             <v-list-item-title v-else>No hay registro</v-list-item-title>
 
           </v-list-item-content>
@@ -110,7 +110,7 @@
 
           <v-list-item-content>
             <v-list-item-subtitle>Correo</v-list-item-subtitle>
-            <v-list-item-title v-if="user.email && user.email.trim().length === 0">{{user.email}}</v-list-item-title>
+            <v-list-item-title v-if="user.email && user.email.trim().length > 0">{{user.email}}</v-list-item-title>
             <v-list-item-title v-else>No hay registro</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
@@ -280,6 +280,7 @@ export default {
   },
   async mounted(){
     await this.getUserLogged();
+    console.log(this.userLogged)
     this.loading = true;
     this.user = this.userLogged.info;
     await this.setProductos();

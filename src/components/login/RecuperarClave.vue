@@ -160,7 +160,7 @@
 
 
           if(data.error_codigo == 1){
-            this.$router.push("/maximiza/");
+            this.$router.push("/maximiza_vue/");
             payload = {
               mensaje: data.msg,
               color: 'success',

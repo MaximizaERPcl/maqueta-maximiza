@@ -97,7 +97,7 @@ export default {
             }
           }else{
             payload = {
-              mensaje: data.msg,
+              mensaje: data.erro_msg,
               color: 'error',
               mostrar: true,
             }

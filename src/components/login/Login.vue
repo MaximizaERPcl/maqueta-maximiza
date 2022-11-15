@@ -124,7 +124,7 @@ export default {
             .catch(error => console.log(error));
 
             await auth.setUserLogged(data);
-            this.$router.push("/maximiza/ingresa");
+            this.$router.push("/maximiza_vue/ingresa");
             payload = {
               mensaje: data.msg,
               color: 'success',

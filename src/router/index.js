@@ -7,7 +7,7 @@ Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/maximiza',
+    path: '/maximiza_vue',
     name: 'login',
     component: () => import(/* webpackChunkName: "about" */ '../views/Login.vue'),
     meta:{
@@ -22,7 +22,7 @@ const routes = [
     ]
   },
   {
-    path: '/maximiza/ingresa',
+    path: '/maximiza_vue/ingresa',
     name: 'ingresa',
     component: Inicio,
     meta:{
@@ -30,7 +30,7 @@ const routes = [
     }
   },
   {
-    path: '/maximiza/simulador-creditos',
+    path: '/maximiza_vue/simulador-creditos',
     name: 'creditos',
     component: () => import(/* webpackChunkName: "about" */ '../views/SimuladorCredito.vue'),
     meta:{
@@ -38,7 +38,7 @@ const routes = [
     }
   },
   {
-    path: '/maximiza/simulador-dap',
+    path: '/maximiza_vue/simulador-dap',
     name: 'dap',
     component: () => import(/* webpackChunkName: "about" */ '../views/SimuladorDap.vue'),
     meta:{
@@ -46,7 +46,7 @@ const routes = [
     }
   },
   {
-    path: '/maximiza/productos/:product',
+    path: '/maximiza_vue/productos/:product',
     name: 'productos',
     component: () => import(/* webpackChunkName: "about" */ '../views/Productos.vue'),
     meta:{
@@ -54,7 +54,7 @@ const routes = [
     }
   },
   {
-    path: '/maximiza/cuenta/:ajuste',
+    path: '/maximiza_vue/cuenta/:ajuste',
     name: 'cuenta',
     component: () => import(/* webpackChunkName: "about" */ '../views/Cuenta.vue'),
     meta:{
@@ -63,11 +63,11 @@ const routes = [
   },
   {
     path: '/',
-    redirect: '/maximiza/'
+    redirect: '/maximiza_vue'
   },
   {
     path: '*',
-    redirect: '/maximiza/'
+    redirect: '/maximiza_vue'
   },
 ]
 
@@ -82,11 +82,11 @@ router.beforeEach((to, from, next) => {
       next()
       return
     } else {
-      next('/maximiza/')
+      next('/maximiza_vue')
     }
   } else {
     if (auth.isAuthenticated()) {
-      next('/maximiza/ingresa')
+      next('/maximiza_vue/ingresa')
       return
     } else {
       next()

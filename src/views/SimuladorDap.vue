@@ -43,6 +43,7 @@
 
             <v-text-field
               v-model="formData.monto"
+              ref="amountField"
               dense
               label="Monto del depósito"
               v-mask="currencyMask"
@@ -211,7 +212,7 @@
             </v-list>
             <v-btn
               color="warning"
-              @click="etapa = 1"
+              @click="etapa = 1; sended = false"
               class="mx-2 my-2"
             >
             <v-icon left>mdi-arrow-left</v-icon>
@@ -230,7 +231,9 @@
               <v-btn
                 color="info"
                 class="mx-2 my-2"
-              @click="etapa = 1"
+                :disabled="sended"
+                :loading="loadingEmail"
+              @click="sendEmail()"
             >
               <v-icon left>mdi-email</v-icon>
               Enviar Correo
@@ -250,12 +253,15 @@
   import simulador from "@/services/simulador";
   import conv from '@/services/conversores';
   import pdf from '@/services/pdfGenerator';
+  import { mapActions, mapState } from 'vuex';
 
   export default {
     data: function() {
       return {
         etapa:1,
         valid: true,
+        sended:false,
+        loadingEmail:false,
         hoy: new Date(Date.now()),
         formData:{ producto:'', monto:'',  plazo:'',},
         plazos:[],
@@ -271,6 +277,7 @@
       }
     },
     methods:{
+      ...mapActions(["mostrarAlerta"]),
       async getUserLogged() {
         await auth.getCryptKey()
         .then(response => {
@@ -352,6 +359,47 @@
         solicitud.nombre = this.userLogged.nombre
         solicitud.rut = this.userLogged.rut
         pdf.exportToPdfSimDAP(solicitud,this.resultado)
+      },
+
+      async sendEmail(){
+        this.loadingEmail = true;
+        let formEmail = {
+          accion: '2',
+          clien_s_id:this.userLogged.id_cliente,
+          dap_tipo_deposito: this.formData.producto.nombre,
+          dap_dias_plazo:this.resultado.dias_plazo_real,
+          dap_moneda:this.resultado.nombre_moneda,
+          dap_valor_deposito:this.formData.monto,
+          dap_tasa:conv.formatPorcentaje(this.resultado.tasa_base),
+          dap_interes:this.resultado.interes_pactado,
+          dap_monto_final:this.resultado.monto_total,
+          dap_fecha_vencimiento:conv.formatFecha2(this.resultado.fecha_vencimiento,'DD-MM-YYYY'),
+          dap_tipo_renovacion:'Automática',
+          
+        }
+        let payload = {};
+        await simulador.enviarCorreo(formEmail)
+        .then( response => {
+          let data = response.data[0];
+          if(data.codigo === "1"){
+            payload = {
+              mensaje: data.msg,
+              color: 'success',
+              mostrar: true,
+            }
+          }else{
+            payload = {
+              mensaje: data.msg,
+              color: 'error',
+              mostrar: true,
+            }
+          }
+          console.log(response)
+        })
+        .catch( error => console.log(error));
+        this.loadingEmail = false;
+        this.mostrarAlerta(payload)
+        this.sended = true;
       },
     },
       

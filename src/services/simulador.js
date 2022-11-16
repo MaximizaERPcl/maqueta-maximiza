@@ -32,5 +32,9 @@ export default {
         let formattedData = qs.stringify(data)
         return axios.post(URL_API + "simulador_dap_producto_simular", formattedData);
     },
+    enviarCorreo(form){
+        let data = qs.stringify(form)
+        return axios.post(URL_API + "simulador_envio_correo", data);
+    }
     
 }

@@ -3,6 +3,7 @@
     <v-navigation-drawer
       v-model="drawer"
       app
+      dark
       v-if="$route.name != 'home'"
       width="300px"
       min-width="300px"
@@ -21,13 +22,13 @@
         <v-list>
           <v-list-group 
             link 
-            color="primary" 
+            color="white" 
             no-action
             v-if="userLogged"
             >
            <template v-slot:activator>
             <v-list-item-icon>
-              <v-icon color="primary">mdi-account-cog</v-icon>
+              <v-icon color="accent">mdi-account-cog</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
               <v-list-item-title class="nombre">{{nombreUsuario}}</v-list-item-title>
@@ -49,7 +50,7 @@
                 <v-list-item-title v-text="child.name"></v-list-item-title>
               </v-list-item-content>
               <v-list-item-icon >
-              <v-icon small color="primary">{{child.icon}}</v-icon>
+              <v-icon small color="accent">{{child.icon}}</v-icon>
             </v-list-item-icon>
             </v-list-item>
           </v-list-group>
@@ -60,17 +61,17 @@
         <v-list
           nav
         >
-          <v-list-item link :to="{name:items[0].to}" color="primary">
+          <v-list-item link :to="{name:items[0].to}" color="white">
             <v-list-item-icon >
-              <v-icon color="primary">{{items[0].icon}}</v-icon>
+              <v-icon color="accent">{{items[0].icon}}</v-icon>
             </v-list-item-icon>
             <v-list-item-title>{{items[0].name}}</v-list-item-title>
           </v-list-item>
   
-          <v-list-group link :to="{name:items[1].to}" color="primary" no-action append-icon="mdi-menu-up">
+          <v-list-group link :to="{name:items[1].to}" color="white" no-action append-icon="mdi-menu-up">
            <template v-slot:activator>
               <v-list-item-icon >
-                <v-icon color="primary">{{items[1].icon}}</v-icon>
+                <v-icon color="accent">{{items[1].icon}}</v-icon>
               </v-list-item-icon>
               <v-list-item-title>{{items[1].name}}</v-list-item-title>
             </template>
@@ -87,16 +88,16 @@
             </v-list-item>
           </v-list-group>
     
-          <v-list-item link :to="{name:items[2].to}" color="primary">
+          <v-list-item link :to="{name:items[2].to}" color="white">
             <v-list-item-icon >
-              <v-icon color="primary">{{items[2].icon}}</v-icon>
+              <v-icon color="accent">{{items[2].icon}}</v-icon>
             </v-list-item-icon>
             <v-list-item-title>{{items[2].name}}</v-list-item-title>
           </v-list-item>
 
-          <v-list-item link :to="{name:items[3].to}" color="primary">
+          <v-list-item link :to="{name:items[3].to}" color="white">
             <v-list-item-icon >
-              <v-icon color="primary">{{items[3].icon}}</v-icon>
+              <v-icon color="accent">{{items[3].icon}}</v-icon>
             </v-list-item-icon>
             <v-list-item-title>{{items[3].name}}</v-list-item-title>
           </v-list-item>
@@ -145,7 +146,7 @@
             {name: 'Ajustes Cuenta', icon:'mdi-account-cog', to:"cuenta", subgroup:false},
         ],
         ajustesCuenta:[
-          {name: 'Actualizar Datos', to:'actualizar-datos', icon: 'mdi-account-details'}, //
+          //{name: 'Actualizar Datos', to:'actualizar-datos', icon: 'mdi-account-details'}, //
           {name: 'Cambiar Clave', to:'cambiar-clave', icon:'mdi-account-lock'}, //
         ],
         finalItems: [
@@ -217,7 +218,7 @@
     width: 100%;
     height: 100%;
     box-shadow: 0 0 1rem 0 rgba(0, 0, 0, .2);   
-    background-color: rgba(255, 255, 255, 0.573);
+    background-color: rgba(66, 133, 244, 0.3);
     backdrop-filter: blur(10px);
   }
   .transparente {

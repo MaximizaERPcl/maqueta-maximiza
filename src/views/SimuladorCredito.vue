@@ -274,7 +274,7 @@
 
             <v-btn
               color="warning"
-              @click="etapa = 1"
+              @click="etapa = 1; sended = false"
               class="mx-2 my-2"
             >
             <v-icon left>mdi-arrow-left</v-icon>
@@ -292,8 +292,10 @@
 
               <v-btn
                 color="info"
+                :disabled="sended"
+                :loading="loadingEmail"
                 class="mx-2 my-2"
-              @click="etapa = 1"
+              @click="sendEmail()"
             >
               <v-icon left>mdi-email</v-icon>
               Enviar Correo
@@ -313,12 +315,15 @@
   import auth from "@/auth/auth";
   import simulador from "@/services/simulador";
   import conv from '@/services/conversores';
-  import pdf from '@/services/pdfGenerator'
+  import pdf from '@/services/pdfGenerator';
+  import { mapActions, mapState } from 'vuex';
 
   export default {
     data: function() {
       return {
         etapa:1,
+        sended:false,
+        loadingEmail:false,
         valid: true,
         formData:{ producto:'', monto:'',  plazo:'', pago: 'Descuento por planilla', date:''},
         pago:'Descuento por planilla',
@@ -354,6 +359,7 @@
       }
     },
     methods:{
+      ...mapActions(["mostrarAlerta"]),
       async getUserLogged() {
         await auth.getCryptKey()
         .then(response => {
@@ -411,7 +417,6 @@
           this.$refs.amountField.validate();
       },
       enviarSimulacion(accion){
-        console.log(this.userLogged)
         let datosFormulario = this.formData;
         let f_otorgamiento = moment(new Date(Date.now())).format('DD/MM/YYYY');
         let data = {
@@ -437,7 +442,7 @@
           else{
             let value = parseInt(result[result.length - 1].gascr_m_valor_or);
             let seg = parseInt(this.resultado.valor_seguro);
-            let seg_desg = Intl.NumberFormat('es-CL',{currency: 'CLP'}).format( seg - value);
+            //let seg_desg = Intl.NumberFormat('es-CL',{currency: 'CLP'}).format( seg - value);
             this.gastos = response.data;
             //this.gastos.unshift({gascr_c_nombre:'Seguro Desgravamen', gascr_m_valor: seg_desg});
           }
@@ -452,21 +457,56 @@
         solicitud.rut = this.userLogged.rut
         pdf.exportToPdfSimCredito(this.cabeceras,this.gastos,solicitud,this.resultado)
       },
-      sendEmail(){
+      async sendEmail(){
+        this.loadingEmail = true;
+        let cre_gasto_nombre = '';
+        let cre_gasto_costo = '';
+        let cre_gasto_id = '';
+
+        this.gastos.forEach(gasto => {
+          cre_gasto_nombre += gasto.gascr_c_nombre + ',';
+          cre_gasto_costo += gasto.gascr_m_valor_or + ',';
+          cre_gasto_id += gasto.gascr_s_id + ',';
+          
+        });
         let formEmail = {
           accion: '1',
           clien_s_id:this.userLogged.id_cliente,
-          cre_tasa_interes_mensual:this.resultado.tasa_visible,
+          cre_valor_cuota: this.resultado.valor_cuota,
+          cre_tasa_interes_mensual:this.formatPorcentaje(this.resultado.tasa_visible),
           cre_monto_solicitado:this.formData.monto,
           cre_monto_bruto_credito:this.resultado.monto_bruto,
           cre_plazo_credito:this.resultado.cuota,
           cre_costo_total_credito:this.resultado.valor_total,
           cre_fecha_primer_venc:this.resultado.fprimervencimiento,
-          cre_cae:this.resultado.tasa_cae,
-          cre_gasto_nombre:this.gastos[1].gascr_c_nombre,
-          cre_gasto_costo:this.gastos[1].gascr_m_valor,
-          cre_gasto_id:this.gastos[1].gascr_s_id,
+          cre_cae:this.formatPorcentaje(this.resultado.tasa_cae),
+          cre_gasto_nombre:cre_gasto_nombre,
+          cre_gasto_costo:cre_gasto_costo,
+          cre_gasto_id:cre_gasto_id,
         }
+        let payload = {};
+        await simulador.enviarCorreo(formEmail)
+        .then( response => {
+          let data = response.data[0];
+          if(data.codigo === "1"){
+            payload = {
+              mensaje: data.msg,
+              color: 'success',
+              mostrar: true,
+            }
+          }else{
+            payload = {
+              mensaje: data.msg,
+              color: 'error',
+              mostrar: true,
+            }
+          }
+          console.log(response)
+        })
+        .catch( error => console.log(error));
+        this.loadingEmail = false;
+        this.mostrarAlerta(payload)
+        this.sended = true;
       },
       formatDate(date) {
         if (!date) return null

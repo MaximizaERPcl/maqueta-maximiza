@@ -6,29 +6,46 @@
       'background-attachment': 'fixed',
       'background-size': 'cover'}">
     <v-snackbar
-      :timeout="6000"
+      :timeout="50000"
       v-model="snackbar.mostrar"  
       app
-      absolute
       centered
       top
-      :color="snackbar.color"
       elevation="10"
-      style="z-index: 99 !important;"
+      light
+      style="z-index: 99 !important;padding:0 !important"
     >
-      <v-row align="center" justify="space-around">
+      <!--v-row align="center" justify="space-around">
         <v-col cols="1">
           <v-icon left>{{snackbar.icon}}</v-icon>
         </v-col>
-        <v-col cols="11">
+        <v-col cols="10">
           <h6 class="alerta">
             {{snackbar.mensaje}} 
           </h6>
         </v-col>
         
-      </v-row>
+      </v-row-->
+      <v-alert
+        border="top"
+        :type="snackbar.color"
+        text
+        prominent
+        class="mb-0"
+      >
+      {{snackbar.mensaje}}
+      <template v-slot:append>
+        <v-btn
+          icon
+          class="ml-2"
+          @click="cerrarAlerta()"
+        >
+          <v-icon :color="snackbar.color">mdi-close-circle-outline</v-icon>
+        </v-btn>
+      </template>
+    </v-alert>
    
-      <template v-slot:action="{ attrs }">
+      <!--template v-slot:action="{ attrs }">
         <v-btn
           icon
           v-bind="attrs"
@@ -36,7 +53,7 @@
         >
           <v-icon>mdi-close-circle-outline</v-icon>
         </v-btn>
-      </template>
+      </template-->
     </v-snackbar>
     <app-side-bar v-if="rutaActual !== 'login' && rutaActual && rutaActual !== 'crear_contrasena'"></app-side-bar>
     <app-toolbar v-if="rutaActual !== 'login' && rutaActual && rutaActual !== 'crear_contrasena'"></app-toolbar>
@@ -126,4 +143,10 @@ export default {
       margin: 0;
       min-width: 0px !important;
   }
+  .v-snack__content {
+    padding: 0 !important;
+  }
+  .v-snack__action {
+    display: none;
+}
 </style>

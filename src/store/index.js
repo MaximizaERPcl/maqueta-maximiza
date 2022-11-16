@@ -9,7 +9,7 @@ export default new Vuex.Store({
     snackbar:{
       mostrar:false,
       mensaje: '',
-      color:'',
+      color:'success',
       icon:'',
     },
     drawer:true,

@@ -44,16 +44,6 @@
         </v-btn>
       </template>
     </v-alert>
-   
-      <!--template v-slot:action="{ attrs }">
-        <v-btn
-          icon
-          v-bind="attrs"
-          @click="cerrarAlerta()"
-        >
-          <v-icon>mdi-close-circle-outline</v-icon>
-        </v-btn>
-      </template-->
     </v-snackbar>
     <app-side-bar v-if="rutaActual !== 'login' && rutaActual && rutaActual !== 'crear_contrasena'"></app-side-bar>
     <app-toolbar v-if="rutaActual !== 'login' && rutaActual && rutaActual !== 'crear_contrasena'"></app-toolbar>

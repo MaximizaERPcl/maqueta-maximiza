@@ -67,20 +67,27 @@
             </v-list-item-icon>
             <v-list-item-title>{{items[0].name}}</v-list-item-title>
           </v-list-item>
+
+          <v-list-item link :to="{name:items[1].to}" color="white">
+            <v-list-item-icon >
+              <v-icon color="accent">{{items[1].icon}}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>{{items[1].name}}</v-list-item-title>
+          </v-list-item>
   
-          <v-list-group link :to="{name:items[1].to}" color="white" no-action append-icon="mdi-menu-up">
+          <v-list-group link :to="{name:items[2].to}" color="white" no-action append-icon="mdi-menu-up">
            <template v-slot:activator>
               <v-list-item-icon >
-                <v-icon color="accent">{{items[1].icon}}</v-icon>
+                <v-icon color="accent">{{items[2].icon}}</v-icon>
               </v-list-item-icon>
-              <v-list-item-title>{{items[1].name}}</v-list-item-title>
+              <v-list-item-title>{{items[2].name}}</v-list-item-title>
             </template>
 
             <v-list-item
-              v-for="child in items[1].productos"
+              v-for="child in items[2].productos"
               :key="child.name"
               link
-              :to="{ name: items[1].to, params: {product: child.param}}"
+              :to="{ name: items[2].to, params: {product: child.param}}"
             >
               <v-list-item-content>
                 <v-list-item-title v-text="child.name"></v-list-item-title>
@@ -88,18 +95,18 @@
             </v-list-item>
           </v-list-group>
     
-          <v-list-item link :to="{name:items[2].to}" color="white">
-            <v-list-item-icon >
-              <v-icon color="accent">{{items[2].icon}}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>{{items[2].name}}</v-list-item-title>
-          </v-list-item>
-
           <v-list-item link :to="{name:items[3].to}" color="white">
             <v-list-item-icon >
               <v-icon color="accent">{{items[3].icon}}</v-icon>
             </v-list-item-icon>
             <v-list-item-title>{{items[3].name}}</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item link :to="{name:items[4].to}" color="white">
+            <v-list-item-icon >
+              <v-icon color="accent">{{items[4].icon}}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>{{items[4].name}}</v-list-item-title>
           </v-list-item>
         </v-list>
 
@@ -131,6 +138,7 @@
     data: () => ({
         items: [
             {name: 'Inicio', icon:'mdi-home', to:"ingresa", subgroup:false},
+            {name: 'Pagar Productos', icon:'mdi-account-credit-card', to:"pagoweb", subgroup:false},
             {name: 'Productos', icon:'mdi-briefcase-account', to:"productos", subgroup:true,
                 productos: [
                     {name: 'Cuenta Capital', param:'cuenta-capital'}, //

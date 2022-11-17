@@ -62,6 +62,14 @@ const routes = [
     }
   },
   {
+    path: '/maximiza_vue/pago-web',
+    name: 'pagoweb',
+    component: () => import('../views/Pago.vue'),
+    meta:{
+      requiresAuth:true
+    }
+  },
+  {
     path: '/',
     redirect: '/maximiza_vue'
   },

@@ -4,7 +4,12 @@
         "comision": ".8600"
     }
 ],
-"comision_credito": [],
+"comision_credito": [
+    {
+        "monto":"2500",
+        "fecha":"05/11/2022"
+    }
+],
 "tasa_web": [
     {
         "tasa_tbk": ".8600"
@@ -56,8 +61,36 @@
         "monto": "185732"
     }
 ],
-"plan_contratado": [],
-"venta_plan": [],
+"plan_contratado": [
+    {
+    "nombre_plan": "Plan Mensual",
+    "fecha_inicio": "30/10/2022",
+    "fecha_termino": "30/11/2022"
+    }
+],
+"venta_plan": [
+    {
+        "id": "1",
+        "nombre": "Plan mensual",
+        "valor": "10000.0000"
+    },
+    {
+        "id": "2",
+        "nombre": "Plan trimestral",
+        "valor": "26000.0000"
+    },
+    {
+        "id": "4",
+        "nombre": "Plan Semestral",
+        "valor": "50000.0000"
+    },
+    {
+        "id": "5",
+        "nombre": "Plan Anual",
+        "valor": "95000.0000"
+    }
+
+],
 "capital": [
     {
         "numero": "12637",

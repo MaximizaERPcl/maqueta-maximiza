@@ -6,7 +6,7 @@
       'background-attachment': 'fixed',
       'background-size': 'cover'}">
     <v-snackbar
-      :timeout="50000"
+      :timeout="5000"
       v-model="snackbar.mostrar"  
       app
       centered

@@ -1,24 +1,19 @@
 <template>
   <div>
     <v-dialog
-      v-model="dialog.state"
+      :value="dialog.state"
       width="950px"
       max-width="950px"
       :fullscreen="$vuetify.breakpoint.xsOnly"
+      @click:outside="cerrar()"
     >
-      <v-card
-        tile
-        flat
-      >
-        <v-toolbar
-          color="primary"
-          dark
-          flat
-          tile
-        >
-          <v-toolbar-title class="flex text-center titulo">Libreta de ahorro N° {{dialog.data.id_libreta}}</v-toolbar-title>
-      </v-toolbar>
-        <v-card-title >
+      <v-card tile flat>
+        <v-toolbar color="primary" dark flat tile>
+          <v-toolbar-title class="flex text-center titulo"
+            >Libreta de ahorro N° {{ dialog.data.id_libreta }}</v-toolbar-title
+          >
+        </v-toolbar>
+        <v-card-title>
           <span class="cabecera">Datos del producto:</span>
         </v-card-title>
         <v-divider></v-divider>
@@ -26,14 +21,14 @@
           <v-col cols="12" sm="12" md="6">
             <v-list-item>
               <v-list-item-icon>
-                <v-icon color="primary">
-                  mdi-account-details
-                </v-icon>
+                <v-icon color="primary"> mdi-account-details </v-icon>
               </v-list-item-icon>
 
               <v-list-item-content>
                 <v-list-item-subtitle>Rut</v-list-item-subtitle>
-                <v-list-item-title>{{formatterRut(dialog.user.rut)}}</v-list-item-title>
+                <v-list-item-title>{{
+                  formatterRut(dialog.user.rut)
+                }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider></v-divider>
@@ -41,14 +36,12 @@
           <v-col cols="12" sm="12" md="6">
             <v-list-item>
               <v-list-item-icon>
-                <v-icon color="primary">
-                  mdi-account
-                </v-icon>
+                <v-icon color="primary"> mdi-account </v-icon>
               </v-list-item-icon>
 
               <v-list-item-content>
                 <v-list-item-subtitle>Nombre</v-list-item-subtitle>
-                <v-list-item-title>{{dialog.user.nombre}}</v-list-item-title>
+                <v-list-item-title>{{ dialog.user.nombre }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider></v-divider>
@@ -56,14 +49,12 @@
           <v-col cols="12" sm="12" md="6">
             <v-list-item>
               <v-list-item-icon>
-                <v-icon color="primary">
-                  mdi-briefcase-account
-                </v-icon>
+                <v-icon color="primary"> mdi-briefcase-account </v-icon>
               </v-list-item-icon>
 
               <v-list-item-content>
                 <v-list-item-subtitle>Producto</v-list-item-subtitle>
-                <v-list-item-title>{{dialog.data.nombre}}</v-list-item-title>
+                <v-list-item-title>{{ dialog.data.nombre }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider></v-divider>
@@ -71,14 +62,12 @@
           <v-col cols="12" sm="12" md="6">
             <v-list-item>
               <v-list-item-icon>
-                <v-icon color="primary">
-                  mdi-briefcase-search
-                </v-icon>
+                <v-icon color="primary"> mdi-briefcase-search </v-icon>
               </v-list-item-icon>
 
               <v-list-item-content>
                 <v-list-item-subtitle>Estado</v-list-item-subtitle>
-                <v-list-item-title>{{dialog.data.estado}}</v-list-item-title>
+                <v-list-item-title>{{ dialog.data.estado }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider></v-divider>
@@ -86,30 +75,27 @@
           <v-col cols="12" sm="12" md="6">
             <v-list-item>
               <v-list-item-icon>
-                <v-icon color="primary">
-                  mdi-percent-circle
-                </v-icon>
+                <v-icon color="primary"> mdi-percent-circle </v-icon>
               </v-list-item-icon>
 
               <v-list-item-content>
                 <v-list-item-subtitle>Tasa de interés</v-list-item-subtitle>
-                <v-list-item-title>{{conv.formatPorcentaje(dialog.data.tasa_interes)}}</v-list-item-title>
+                <v-list-item-title>{{
+                  conv.formatPorcentaje(dialog.data.tasa_interes)
+                }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider></v-divider>
-
           </v-col>
           <v-col cols="12" sm="12" md="6">
             <v-list-item>
               <v-list-item-icon>
-                <v-icon color="primary">
-                  mdi-currency-usd
-                </v-icon>
+                <v-icon color="primary"> mdi-currency-usd </v-icon>
               </v-list-item-icon>
 
               <v-list-item-content>
                 <v-list-item-subtitle>Saldo Disponible</v-list-item-subtitle>
-                <v-list-item-title>${{dialog.data.saldo}}</v-list-item-title>
+                <v-list-item-title>${{ dialog.data.saldo }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider></v-divider>
@@ -117,19 +103,19 @@
           <v-col cols="12" sm="12" md="6">
             <v-list-item>
               <v-list-item-icon>
-                <v-icon color="primary">
-                  mdi-calendar-start
-                </v-icon>
+                <v-icon color="primary"> mdi-calendar-start </v-icon>
               </v-list-item-icon>
 
               <v-list-item-content>
                 <v-list-item-subtitle>Fecha apertura</v-list-item-subtitle>
-                <v-list-item-title>{{dialog.data.f_apertura}}</v-list-item-title>
+                <v-list-item-title>{{
+                  dialog.data.f_apertura
+                }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-col>
         </v-row>
-        
+
         <v-card-title class="mt-4">
           <span class="cabecera">Datos del Convenio:</span>
         </v-card-title>
@@ -138,14 +124,14 @@
           <v-col cols="12" sm="12" md="6">
             <v-list-item>
               <v-list-item-icon>
-                <v-icon color="primary">
-                  mdi-briefcase-search
-                </v-icon>
+                <v-icon color="primary"> mdi-briefcase-search </v-icon>
               </v-list-item-icon>
-  
+
               <v-list-item-content>
                 <v-list-item-subtitle>Forma de pago</v-list-item-subtitle>
-                <v-list-item-title>{{dialog.data.forma_pago}}</v-list-item-title>
+                <v-list-item-title>{{
+                  dialog.data.forma_pago
+                }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider class="hidden-md-and-up" />
@@ -153,14 +139,14 @@
           <v-col cols="12" sm="12" md="6">
             <v-list-item>
               <v-list-item-icon>
-                <v-icon color="primary">
-                  mdi-currency-usd
-                </v-icon>
+                <v-icon color="primary"> mdi-currency-usd </v-icon>
               </v-list-item-icon>
-  
+
               <v-list-item-content>
                 <v-list-item-subtitle>Monto abono pactado</v-list-item-subtitle>
-                <v-list-item-title>{{conv.formatMonto(dialog.data.abono_pactado, true)}}</v-list-item-title>
+                <v-list-item-title>{{
+                  conv.formatMonto(dialog.data.abono_pactado, true)
+                }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider class="hidden-md-and-up" />
@@ -172,7 +158,7 @@
         </v-card-title>
         <v-divider></v-divider>
         <v-card-title>
-        <v-spacer></v-spacer>
+          <v-spacer></v-spacer>
           <v-text-field
             v-model="search"
             append-icon="mdi-magnify"
@@ -183,38 +169,27 @@
             dense
           ></v-text-field>
         </v-card-title>
-         <v-data-table
+        <v-data-table
           :headers="cabeceras"
           :items="detalles"
           :items-per-page="5"
           :search="search"
         >
-         <template
-            v-slot:item.monto="{ item }"
-          >
+          <template v-slot:item.monto="{ item }">
             {{ conv.formatMonto(item.monto, true) }}
           </template>
-          <template
-            v-slot:item.saldo="{ item }"
-          >
+          <template v-slot:item.saldo="{ item }">
             {{ conv.formatMonto(item.saldo, true) }}
           </template>
         </v-data-table>
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-              color="primary"
-              class="mx-2 my-2"
-              @click="exportPDF()"
-            >
-              <v-icon left>mdi-download</v-icon>
-                Descargar PDF
-            </v-btn>
-          <v-btn
-            color="error"
-            @click="cerrar()"
-          >
+          <v-btn color="primary" class="mx-2 my-2" @click="exportPDF()">
+            <v-icon left>mdi-download</v-icon>
+            Descargar PDF
+          </v-btn>
+          <v-btn color="error" @click="cerrar()">
             <v-icon left>mdi-window-close</v-icon>
             Cerrar
           </v-btn>
@@ -225,80 +200,81 @@
 </template>
 
 <script>
-import socio from '@/services/socio';
-import conv from '@/services/conversores';
-import pdf from '@/services/pdfGenerator';
-import { formatterRut } from 'chilean-formatter';
+import socio from "@/services/socio";
+import conv from "@/services/conversores";
+import pdf from "@/services/pdfGenerator";
+import { formatterRut } from "chilean-formatter";
 
 export default {
-    props: ["dialog"],
-    data() {
-        return {
-            cabeceras: [
-                { text: "Fecha", align: "start", sortable: true, value: "fecha"
-                },
-                {
-                    text: "Tipo",
-                    align: "start",
-                    sortable: true,
-                    value: "tipo",
-                },
-                { text: "Monto", align: "start", sortable: true, value: "monto"
-                },
-                { text: "Saldo", align: "start", sortable: true, value: "saldo"
-                },
-            ],
-            detalles: [],
-            noData: false,
-            search:''
-        };
+  props: ["dialog"],
+  data() {
+    return {
+      cabeceras: [
+        { text: "Fecha", align: "start", sortable: true, value: "fecha" },
+        {
+          text: "Tipo",
+          align: "start",
+          sortable: true,
+          value: "tipo",
+        },
+        { text: "Monto", align: "start", sortable: true, value: "monto" },
+        { text: "Saldo", align: "start", sortable: true, value: "saldo" },
+      ],
+      detalles: [],
+      noData: false,
+      search: "",
+    };
+  },
+  computed: {
+    conv() {
+      return conv;
     },
-    computed: {
-      conv(){
-        return conv;
-      },
-      formatterRut(){
-        return formatterRut
-      }
+    formatterRut() {
+      return formatterRut;
     },
-    methods: {
-      cerrar() {
-          this.dialog.state = false;
-      },
-      getDetalleLibreta() {
-          socio.getDetalleLibreta(this.dialog.data.id_libreta)
-              .then(response => {
-              if (response.data.length == 0)
-                  this.noData = true;
-              else {
-                  this.noData = false;
-                  this.detalles = response.data;
-              }
-          })
-              .catch(error => console.log(error));
-      },
-      exportPDF() {
-        pdf.exportToPdfCtaAhorro(this.cabeceras,this.detalles,this.dialog,'Libreta de ahorro N° ' + this.dialog.data.id_libreta)
-      },
+  },
+  methods: {
+    cerrar() {
+      this.$emit("cerrarDialogo");
     },
-    mounted() {
-        this.getDetalleLibreta();
+    getDetalleLibreta() {
+      socio
+        .getDetalleLibreta(this.dialog.data.id_libreta)
+        .then((response) => {
+          if (response.data.length == 0) this.noData = true;
+          else {
+            this.noData = false;
+            this.detalles = response.data;
+          }
+        })
+        .catch((error) => console.log(error));
     },
-}
+    exportPDF() {
+      pdf.exportToPdfCtaAhorro(
+        this.cabeceras,
+        this.detalles,
+        this.dialog,
+        "Libreta de ahorro N° " + this.dialog.data.id_libreta
+      );
+    },
+  },
+  mounted() {
+    this.getDetalleLibreta();
+  },
+};
 </script>
 
 <style scoped lang="css">
-.titulo { 
-    font-size:30px;
-    line-height : 30px;
-    word-break:normal;
-    font-weight: 300;
-  }
+.titulo {
+  font-size: 30px;
+  line-height: 30px;
+  word-break: normal;
+  font-weight: 300;
+}
 .cabecera {
   color: black;
   font-weight: 300;
-  font-size:  22px;
-  line-height : 22px;
-
+  font-size: 22px;
+  line-height: 22px;
 }
 </style>

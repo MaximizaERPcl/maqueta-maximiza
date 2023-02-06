@@ -11,7 +11,7 @@
             class="mb-4 primaryGradient"
           >
             <v-toolbar-title class="flex text-center titulo"
-              >Cuenta de Ahorro</v-toolbar-title
+              >Remanentes</v-toolbar-title
             >
           </v-toolbar>
           <v-row
@@ -35,10 +35,11 @@
           <div v-else>
             <app-no-datos v-if="noDatos" v-bind:msg="msg"></app-no-datos>
             <v-container v-else>
-              <v-data-table :headers="cabeceras.general" :items="ctaAhorro">
-                <template v-slot:item.saldo="{ item }">
-                  ${{ item.saldo }}
+              <v-data-table :headers="cabeceras.general" :items="remanentes">
+                <template v-slot:item.vistd_m_monto="{ item }">
+                  {{ conv.formatMonto(item.vistd_m_monto, true) }}
                 </template>
+
                 <template v-slot:item.actions="{ item }">
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
@@ -66,44 +67,30 @@
 </template>
 
 <script>
-import NoDataVue from "../app/NoDataApp.vue";
 import auth from "@/auth/auth";
 import socio from "@/services/socio";
-import DetalleCtaAhorroVue from "./dialogos/DetalleCtaAhorro.vue";
+import NoDataVue from "../app/NoDataApp.vue";
+import DetalleRemanenteVue from "./dialogos/DetalleRemanente.vue";
 import conv from "@/services/conversores";
-import cabecerasAhorro from "@/assets/json/cabecerasAhorro.json";
+import cabecerasRemanente from "@/assets/json/cabecerasRemanente.json";
 
 export default {
-  metaInfo: { titleTemplate: "%s | Cuenta de Ahorro" },
+  metaInfo: {
+    titleTemplate: "%s | Remanentes",
+  },
   components: {
     "app-no-datos": NoDataVue,
-    "app-detalle": DetalleCtaAhorroVue,
+    "app-detalle": DetalleRemanenteVue,
   },
   data: function () {
     return {
-      cabeceras: cabecerasAhorro,
-      ctaAhorro: [],
-      msg: "NO POSEE CUENTAS DE AHORRO ASOCIADAS",
+      cabeceras: cabecerasRemanente,
+      remanentes: [],
       noDatos: false,
+      msg: "NO POSEE REMANENTES ASOCIADOS",
       dialog: { state: false, data: {}, user: {} },
       loading: true,
     };
-  },
-  methods: {
-    async getCuentaAhorro() {
-      await socio
-        .getLibretas(this.userLogged.id_cliente)
-        .then((response) => {
-          this.ctaAhorro = response.data;
-        })
-        .catch((error) => console.log(error));
-    },
-
-    mostrarDetalle(item) {
-      this.dialog.data = item;
-      this.dialog.user = this.userLogged;
-      this.dialog.state = true;
-    },
   },
 
   computed: {
@@ -114,13 +101,33 @@ export default {
       return auth.getUserLogged();
     },
   },
+
+  methods: {
+    getRemanentes() {
+      socio
+        .getRemanentes(this.userLogged.id_cliente)
+        .then((response) => {
+          if (
+            (response.data.length == 1 && response.data[0].Cuenta == 0) ||
+            response.data.length == 0
+          )
+            this.noDatos = true;
+          else {
+            this.noDatos = false;
+            this.remanentes = response.data;
+          }
+        })
+        .catch((error) => console.log(error));
+    },
+    mostrarDetalle(item) {
+      this.dialog.data = item;
+      this.dialog.user = this.userLogged;
+      this.dialog.state = true;
+    },
+  },
   async mounted() {
     this.loading = true;
-    if (this.userLogged.info.libretas != "0") {
-      this.noDatos = false;
-      await this.getCuentaAhorro();
-    } else this.noDatos = true;
-
+    await this.getRemanentes();
     this.loading = false;
   },
 };

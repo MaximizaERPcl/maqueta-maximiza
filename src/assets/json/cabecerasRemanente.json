@@ -1,0 +1,29 @@
+{
+  "general": [
+    {
+      "text": "N° Cuenta",
+      "align": "start",
+      "sortable": true,
+      "value": "Cuenta"
+    },
+    {
+      "text": "Producto",
+      "align": "start",
+      "sortable": true,
+      "value": "Producto"
+    },
+    {
+      "text": "Saldo",
+      "align": "start",
+      "sortable": true,
+      "value": "vistd_m_monto"
+    },
+    {
+      "text": "Último Abono",
+      "align": "start",
+      "sortable": true,
+      "value": "ult_abono"
+    },
+    { "text": "", "value": "actions", "sortable": false }
+  ]
+}

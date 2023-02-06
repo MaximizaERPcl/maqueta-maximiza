@@ -1,0 +1,30 @@
+{
+  "general": [
+    {
+      "text": "N° Cuenta",
+      "align": "start",
+      "sortable": true,
+      "value": "id_libreta"
+    },
+    {
+      "text": "Producto",
+      "align": "start",
+      "sortable": true,
+      "value": "nombre"
+    },
+    {
+      "text": "Fecha Apertura",
+      "align": "start",
+      "sortable": true,
+      "value": "f_apertura"
+    },
+    { "text": "Saldo", "align": "start", "sortable": true, "value": "saldo" },
+    {
+      "text": "Último Abono",
+      "align": "start",
+      "sortable": true,
+      "value": "fecha_ultimo_abono"
+    },
+    { "text": "", "value": "actions", "sortable": false }
+  ]
+}

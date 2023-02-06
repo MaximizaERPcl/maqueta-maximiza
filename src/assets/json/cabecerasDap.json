@@ -1,0 +1,43 @@
+{
+  "general": [
+    {
+      "text": "N° Cuenta",
+      "align": "start",
+      "sortable": true,
+      "value": "n_cuenta"
+    },
+    {
+      "text": "Producto",
+      "align": "start",
+      "sortable": true,
+      "value": "producto"
+    },
+    {
+      "text": "Oficina",
+      "align": "start",
+      "sortable": true,
+      "value": "oficina"
+    },
+    { "text": "Estado", "align": "start", "sortable": true, "value": "estado" },
+    {
+      "text": "Monto",
+      "align": "start",
+      "sortable": true,
+      "value": "monto_final"
+    },
+    {
+      "text": "Fecha Apertura",
+      "align": "start",
+      "sortable": true,
+      "value": "f_apertura"
+    },
+    {
+      "text": "Fecha Vencimiento",
+      "align": "start",
+      "sortable": true,
+      "value": "f_vencimiento"
+    },
+
+    { "text": "", "value": "actions", "sortable": false }
+  ]
+}

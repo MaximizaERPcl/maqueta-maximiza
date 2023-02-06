@@ -120,6 +120,7 @@ export default {
       formatRut(){
         if(this.rut)
           return formatterRut(this.rut);
+          else return false;
       }
     },
     methods:{

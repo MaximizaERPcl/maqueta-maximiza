@@ -1,0 +1,40 @@
+{
+  "general": [
+    {
+      "text": "Producto",
+      "align": "start",
+      "sortable": true,
+      "value": "producto"
+    },
+    {
+      "text": "Vigente",
+      "align": "start",
+      "sortable": true,
+      "value": "vigente"
+    },
+    {
+      "text": "Cantidad de cuotas",
+      "align": "start",
+      "sortable": true,
+      "value": "cuota_participacion"
+    },
+    { "text": "Saldo", "align": "start", "sortable": true, "value": "saldo" },
+    { "text": "Cartola", "align": "end", "sortable": false, "value": "actions" }
+  ],
+  "detalle": [
+    {
+      "text": "Fecha",
+      "align": "start",
+      "sortable": true,
+      "value": "fecha"
+    },
+    {
+      "text": "Tipo de Movimiento",
+      "align": "start",
+      "sortable": true,
+      "value": "tipo_mov"
+    },
+    { "text": "Monto", "align": "start", "sortable": true, "value": "monto" },
+    { "text": "Saldo", "align": "start", "sortable": true, "value": "saldo" }
+  ]
+}

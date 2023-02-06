@@ -11,7 +11,7 @@
             class="mb-4 primaryGradient"
           >
             <v-toolbar-title class="flex text-center titulo"
-              >Cuenta de Ahorro</v-toolbar-title
+              >Depósito a Plazo</v-toolbar-title
             >
           </v-toolbar>
           <v-row
@@ -35,14 +35,25 @@
           <div v-else>
             <app-no-datos v-if="noDatos" v-bind:msg="msg"></app-no-datos>
             <v-container v-else>
-              <v-data-table :headers="cabeceras.general" :items="ctaAhorro">
-                <template v-slot:item.saldo="{ item }">
-                  ${{ item.saldo }}
+              <v-data-table
+                :headers="cabeceraGeneral"
+                :items="daps"
+                class="elevation-1"
+              >
+                <template v-slot:item.producto="{ item }">
+                  {{ conv.capitalizeString(item.producto) }}
                 </template>
+                <template v-slot:item.oficina="{ item }">
+                  {{ conv.capitalizeString(item.oficina) }}
+                </template>
+                <template v-slot:item.monto_final="{ item }">
+                  {{ conv.formatMonto(item.monto_final, true) }}
+                </template>
+
                 <template v-slot:item.actions="{ item }">
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
-                      <v-btn icon @click="mostrarDetalle(item)">
+                      <v-btn @click="mostrarDetalle(item)" icon>
                         <v-icon v-bind="attrs" v-on="on">
                           mdi-magnify-expand
                         </v-icon>
@@ -66,46 +77,56 @@
 </template>
 
 <script>
-import NoDataVue from "../app/NoDataApp.vue";
 import auth from "@/auth/auth";
 import socio from "@/services/socio";
-import DetalleCtaAhorroVue from "./dialogos/DetalleCtaAhorro.vue";
+import NoDataVue from "../app/NoDataApp.vue";
+import DetalleDapVue from "./dialogos/DetalleDap.vue";
 import conv from "@/services/conversores";
-import cabecerasAhorro from "@/assets/json/cabecerasAhorro.json";
+import cabecerasDap from "@/assets/json/cabecerasDap.json";
+import funciones from "@/services/funciones";
 
 export default {
-  metaInfo: { titleTemplate: "%s | Cuenta de Ahorro" },
+  metaInfo: { titleTemplate: "%s | Depósito a Plazo" },
   components: {
     "app-no-datos": NoDataVue,
-    "app-detalle": DetalleCtaAhorroVue,
+    "app-detalle": DetalleDapVue,
   },
   data: function () {
     return {
-      cabeceras: cabecerasAhorro,
-      ctaAhorro: [],
-      msg: "NO POSEE CUENTAS DE AHORRO ASOCIADAS",
+      cabeceras: cabecerasDap,
+      cabeceraGeneral: [],
+      daps: [],
       noDatos: false,
+      msg: "NO POSEE DEPÓSITOS A LARGO PLAZO ASOCIADOS",
       dialog: { state: false, data: {}, user: {} },
       loading: true,
     };
   },
   methods: {
-    async getCuentaAhorro() {
+    async getDap() {
       await socio
-        .getLibretas(this.userLogged.id_cliente)
+        .getDap(this.userLogged.id_cliente)
         .then((response) => {
-          this.ctaAhorro = response.data;
+          this.daps = response.data;
         })
         .catch((error) => console.log(error));
     },
-
     mostrarDetalle(item) {
       this.dialog.data = item;
       this.dialog.user = this.userLogged;
       this.dialog.state = true;
     },
-  },
+    initCabecera() {
+      let cabeceraGeneral = cabecerasDap.general;
+      cabeceraGeneral[5].sort = (a, b) =>
+        funciones.compareFn(a, b, "DD/MM/YYYY");
 
+      cabeceraGeneral[6].sort = (a, b) =>
+        funciones.compareFn(a, b, "DD/MM/YYYY");
+
+      this.cabeceraGeneral = cabeceraGeneral;
+    },
+  },
   computed: {
     conv() {
       return conv;
@@ -116,9 +137,10 @@ export default {
   },
   async mounted() {
     this.loading = true;
-    if (this.userLogged.info.libretas != "0") {
+    if (this.userLogged.info.dap != "0") {
       this.noDatos = false;
-      await this.getCuentaAhorro();
+      this.initCabecera();
+      await this.getDap();
     } else this.noDatos = true;
 
     this.loading = false;

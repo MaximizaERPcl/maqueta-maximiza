@@ -22,7 +22,7 @@ import CuentaCapitalVue from "@/components/productos/CuentaCapital.vue";
 import CreditosVue from "@/components/productos/CreditosProducto.vue";
 import DapVue from "@/components/productos/DapProducto.vue";
 import FirmaVue from "@/components/productos/FirmaProducto.vue";
-import PagosVue from "@/components/productos/PagosProducto.vue";
+import PagosVue from "@/components/productos/ProximosPagos.vue";
 import RemanentesVue from "@/components/productos/RemanentesProducto.vue";
 import CuentaAhorroVue from "@/components/productos/CuentaAhorro.vue";
 

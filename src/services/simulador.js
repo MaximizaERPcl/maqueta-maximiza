@@ -10,10 +10,8 @@ const URL_API =
     : process.env.VUE_APP_API_URL;
 
 export default {
-  getProductosCreditos(rut) {
-    let data = qs.stringify({
-      rut: rut,
-    });
+  getProductosCreditos(form) {
+    let data = qs.stringify(form);
     return axios.post(URL_API + "simulador_credito_producto", data);
   },
   simularCredito(data) {

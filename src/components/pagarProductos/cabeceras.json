@@ -1,0 +1,119 @@
+{
+  "capital": [
+    {
+      "text": "Abono",
+      "align": "start",
+      "sortable": true,
+      "groupable": true,
+      "value": "vigente",
+      "width": "50%"
+    },
+    {
+      "text": "Monto",
+      "align": "start",
+      "sortable": true,
+      "groupable": false,
+      "value": "abono_pactado"
+    }
+  ],
+  "credito": [
+    {
+      "text": "Credito",
+      "align": "start",
+      "sortable": true,
+      "groupable": true,
+      "value": "credito"
+    },
+    {
+      "text": "Producto",
+      "align": "start",
+      "sortable": true,
+      "groupable": false,
+      "value": "producto"
+    },
+    {
+      "text": "Cuota",
+      "align": "start",
+      "sortable": true,
+      "groupable": false,
+      "value": "cuota"
+    },
+    {
+      "text": "Estado",
+      "align": "start",
+      "sortable": true,
+      "groupable": false,
+      "value": "estado_cuota_abre",
+      "width": "4%"
+    },
+    {
+      "text": "Vencimiento",
+      "align": "start",
+      "sortable": true,
+      "groupable": false,
+      "value": "vencimiento"
+    },
+    {
+      "text": "Monto",
+      "align": "start",
+      "sortable": true,
+      "groupable": false,
+      "value": "monto",
+      "width": "25%"
+    }
+  ],
+  "credito_castigado": [
+    {
+      "text": "Credito",
+      "align": "start",
+      "sortable": true,
+      "groupable": true,
+      "value": "credito"
+    },
+    {
+      "text": "Producto",
+      "align": "start",
+      "sortable": true,
+      "groupable": false,
+      "value": "nombre"
+    },
+    {
+      "text": "Estado",
+      "align": "start",
+      "sortable": true,
+      "groupable": false,
+      "value": "estado"
+    },
+    {
+      "text": "Vencimiento",
+      "align": "start",
+      "sortable": true,
+      "groupable": false,
+      "value": "vencimiento"
+    },
+    {
+      "text": "Monto",
+      "align": "start",
+      "sortable": true,
+      "groupable": false,
+      "value": "valor_cuota",
+      "width": "30%"
+    }
+  ],
+  "comision": [
+    {
+      "text": "Fecha",
+      "align": "start",
+      "sortable": true,
+      "groupable": false,
+      "value": "fecha"
+    },
+    {
+      "text": "Monto",
+      "align": "start",
+      "sortable": true,
+      "groupable": true,
+      "value": "monto"
+    }
+  ]
+}

@@ -6,7 +6,9 @@
           <v-toolbar class="primaryGradient" dark flat tile :height="height">
             <v-toolbar-title class="titulo"
               >Bienvenido/a
-              <span v-if="userLogged"> {{ user.nombre }}</span></v-toolbar-title
+              <span v-if="user">
+                {{ conv.capitalizeString(user.nombre) }}</span
+              ></v-toolbar-title
             >
           </v-toolbar>
           <v-alert
@@ -173,7 +175,7 @@ export default {
   },
   data: function () {
     return {
-      user: {},
+      user: null,
       metaInfo: { title: "Inicio" },
       products: [
         { type: "Créditos", status: "0", amount: 0, icon: "mdi-credit-card" },
@@ -269,7 +271,6 @@ export default {
   computed: {
     ...mapState(["dialogoMora"]),
     userLogged() {
-      console.log(auth.getUserLogged());
       return auth.getUserLogged();
     },
     conv() {

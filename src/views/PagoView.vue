@@ -4,7 +4,7 @@
   </div>
 </template>
 <script>
-import PagoWeb from "@/components/pago/PagoWeb.vue";
+import PagoWeb from "@/components/pagarProductos/PagoWeb.vue";
 
 export default {
   metaInfo: { title: "Pago Web" },

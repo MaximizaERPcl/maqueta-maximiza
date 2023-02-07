@@ -129,6 +129,7 @@
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import auth from "@/auth/auth";
 import { formatterRut } from "chilean-formatter";
+import conv from "@/services/conversores";
 
 export default {
   data: () => ({
@@ -185,17 +186,12 @@ export default {
       return formatterRut(this.userLogged.rut);
     },
     userLogged() {
-      console.log(auth.getUserLogged());
       return auth.getUserLogged();
     },
     nombreUsuario() {
-      let nombre =
-        this.userLogged.nombres.split(" ")[0].charAt(0).toUpperCase() +
-        this.userLogged.nombres.toLowerCase().slice(1);
-      let apellido =
-        this.userLogged.apellido_paterno.split(" ")[0].charAt(0).toUpperCase() +
-        this.userLogged.apellido_paterno.toLowerCase().slice(1);
-      return nombre + " " + apellido;
+      let nombre = this.userLogged.nombres.split(" ")[0];
+      let apellido = this.userLogged.apellido_paterno.split(" ")[0];
+      return conv.capitalizeString(nombre + " " + apellido);
     },
     ...mapGetters({
       drawerTest: "drawer",

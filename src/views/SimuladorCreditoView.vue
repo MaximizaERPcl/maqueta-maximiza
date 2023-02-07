@@ -12,7 +12,10 @@
                   v-model="formData.producto"
                   placeholder="Seleccionar Producto"
                   :items="productos"
-                  :rules="[(v) => !!v || 'Campo requerido']"
+                  :rules="[
+                    (v) => !!v || 'Campo requerido',
+                    (v) => !!v && puedeSimular(v),
+                  ]"
                   :menu-props="{ offsetY: true }"
                   item-text="nombre"
                   return-object
@@ -27,102 +30,179 @@
                       mdi-briefcase-account
                     </v-icon>
                   </template>
-                </v-select>
-
-                <v-text-field
-                  ref="amountField"
-                  v-model="formData.monto"
-                  dense
-                  label="Monto del crédito en pesos"
-                  outlined
-                  required
-                  v-mask="currencyMask"
-                  :hint="formData.producto !== '' ? ayudaMonto : ''"
-                  persistent-hint
-                  :rules="[
-                    (v) => !!v || 'Campo requerido',
-                    (v) => !!v && revisarMonto(v),
-                  ]"
-                >
-                  <template v-slot:prepend>
-                    <v-icon left color="primary"> mdi-currency-usd </v-icon>
+                  <template v-slot:item="{ item }">
+                    {{
+                      conv.capitalizeString(
+                        item.tipo === "Campania"
+                          ? item.nombre
+                          : item.nombre.split(" - ")[1]
+                      )
+                    }}
                   </template>
-                </v-text-field>
-
-                <v-select
-                  v-model="formData.plazo"
-                  :items="plazos"
-                  :rules="[(v) => !!v || 'Campo requerido']"
-                  dense
-                  :menu-props="{ offsetY: true }"
-                  no-data-text="Debe seleccionar un producto para calcular los plazos disponibles"
-                  label="Plazo en el que desea pagar"
-                  outlined
-                  required
-                  @click="cargarPlazos()"
-                >
-                  <template v-slot:prepend>
-                    <v-icon left color="primary">
-                      mdi-calendar-expand-horizontal
-                    </v-icon>
+                  <template v-slot:selection="{ item }">
+                    {{
+                      conv.capitalizeString(
+                        item.tipo === "Campania"
+                          ? item.nombre
+                          : item.nombre.split(" - ")[1]
+                      )
+                    }}
                   </template>
                 </v-select>
+                <div v-if="simular">
+                  <v-select
+                    v-if="
+                      userLogged.campanias && userLogged.campanias.length > 0
+                    "
+                    v-model="formData.campania"
+                    placeholder="Seleccionar Campaña"
+                    no-data-text="Debe seleccionar un producto para mostrar las campañas disponibles"
+                    :items="campanias"
+                    :rules="[
+                      (v) => !!v || 'Campo requerido',
+                      (v) => !!v && puedeSimular(v),
+                    ]"
+                    :menu-props="{ offsetY: true }"
+                    item-text="campania"
+                    return-object
+                    dense
+                    label="Campaña"
+                    required
+                    outlined
+                    @click="cargarCampanias()"
+                  >
+                    <template v-slot:prepend>
+                      <v-icon left color="primary"> mdi-briefcase-plus </v-icon>
+                    </template>
+                    <template v-slot:item="{ item }">
+                      {{ conv.capitalizeString(item.campania) }}
+                    </template>
+                    <template v-slot:selection="{ item }">
+                      {{ conv.capitalizeString(item.campania) }}
+                    </template>
+                  </v-select>
 
-                <v-menu
-                  v-model="menu1"
-                  :close-on-content-click="false"
-                  :close-on-click="false"
-                  max-width="290"
-                  transition="scale-transition"
-                  offset-y
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      :value="computedDateFormattedMomentjs"
-                      clearable
-                      dense
-                      label="Primer Vencimiento"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                      @click:clear="formData.date = null"
-                      outlined
-                      required
-                      :rules="[(v) => !!v || 'Campo requerido']"
-                    >
-                      <template v-slot:prepend>
-                        <v-icon left color="primary"> mdi-calendar-end </v-icon>
-                      </template>
-                    </v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="formData.date"
-                    @change="menu1 = false"
-                    :allowed-dates="allowedDates"
-                    :min="vencMin"
-                    :first-day-of-week="1"
-                    elevation="10"
-                    locale="es-cl"
-                  ></v-date-picker>
-                </v-menu>
+                  <v-text-field
+                    ref="amountField"
+                    v-model="formData.monto"
+                    dense
+                    label="Monto del crédito en pesos"
+                    outlined
+                    required
+                    v-mask="formData.monto ? currencyMask : ''"
+                    :hint="formData.producto ? ayudaMonto : ''"
+                    persistent-hint
+                    :rules="[
+                      (v) => !!v || 'Campo requerido',
+                      (v) => !!v && revisarMonto(v),
+                    ]"
+                  >
+                    <template v-slot:prepend>
+                      <v-icon left color="primary"> mdi-currency-usd </v-icon>
+                    </template>
+                  </v-text-field>
+
+                  <v-select
+                    v-if="!inmediato"
+                    v-model="formData.plazo"
+                    :items="plazos"
+                    :rules="[(v) => !!v || 'Campo requerido']"
+                    dense
+                    :menu-props="{ offsetY: true }"
+                    item-text="text"
+                    item-value="value"
+                    no-data-text="Debe seleccionar un producto para calcular los plazos disponibles"
+                    label="Plazo en el que desea pagar"
+                    outlined
+                    required
+                    @click="cargarPlazos()"
+                  >
+                    <template v-slot:prepend>
+                      <v-icon left color="primary">
+                        mdi-calendar-expand-horizontal
+                      </v-icon>
+                    </template>
+                  </v-select>
+
+                  <v-select
+                    v-else
+                    v-model="formData.plazo"
+                    :items="plazosInm"
+                    :rules="[(v) => !!v || 'Campo requerido']"
+                    dense
+                    :menu-props="{ offsetY: true }"
+                    item-text="text"
+                    item-value="value"
+                    no-data-text="Debe seleccionar un producto para calcular los plazos disponibles"
+                    label="Plazo en el que desea pagar"
+                    outlined
+                    required
+                    @change="
+                      formData.date = sumarDiasFecha(formData.plazo * 30)
+                    "
+                  >
+                    <template v-slot:prepend>
+                      <v-icon left color="primary">
+                        mdi-calendar-expand-horizontal
+                      </v-icon>
+                    </template>
+                  </v-select>
+
+                  <v-menu
+                    v-model="menu1"
+                    :close-on-content-click="false"
+                    :close-on-click="false"
+                    max-width="290"
+                    transition="scale-transition"
+                    offset-y
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        :value="computedDateFormattedMomentjs"
+                        clearable
+                        dense
+                        :label="
+                          inmediato ? 'Vencimiento' : 'Primer Vencimiento'
+                        "
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                        @click:clear="formData.date = null"
+                        outlined
+                        required
+                        :disabled="inmediato"
+                        :rules="[(v) => !!v || 'Campo requerido']"
+                      >
+                        <template v-slot:prepend>
+                          <v-icon left color="primary">
+                            mdi-calendar-end
+                          </v-icon>
+                        </template>
+                      </v-text-field>
+                    </template>
+                    <v-date-picker
+                      v-model="formData.date"
+                      @change="menu1 = false"
+                      :min="vencMin"
+                      :first-day-of-week="1"
+                      elevation="10"
+                      locale="es-cl"
+                    ></v-date-picker>
+                  </v-menu>
+                </div>
               </v-form>
-              <v-text-field
-                dense
-                v-model="pago"
-                label="Forma de pago"
-                :value="pago"
-                readonly
-                outlined
-                style="pointer-events: none"
-              >
-                <template v-slot:prepend>
-                  <v-icon left color="primary"> mdi-cash-clock </v-icon>
-                </template>
-              </v-text-field>
               <v-btn color="primary" :disabled="!valid" @click="validate">
                 Continuar
               </v-btn>
-              <v-btn class="ml-2" color="warning" @click="reset">
+              <v-btn
+                class="ml-2"
+                color="warning"
+                @click="
+                  inmediato = false;
+                  simular = true;
+                  reset();
+                "
+              >
                 Limpiar
               </v-btn>
             </v-card>
@@ -131,163 +211,43 @@
             Resultados
           </v-stepper-step>
           <v-stepper-content step="2">
-            <v-card outlined v-if="resultado != null">
-              <v-list>
-                <v-list-item>
-                  <v-list-item-icon>
-                    <v-icon color="primary"> mdi-cash-sync </v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-subtitle>Cuota</v-list-item-subtitle>
-                    <v-list-item-title>{{
-                      conv.formatMonto(resultado.valor_cuota, true)
-                    }}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-list-item-icon>
-                    <v-icon color="primary"> mdi-percent-circle </v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-subtitle>Interés</v-list-item-subtitle>
-                    <v-list-item-title>{{
-                      formatPorcentaje(resultado.tasa_visible)
-                    }}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-list-item-icon>
-                    <v-icon color="primary"> mdi-cash </v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-subtitle
-                      >Monto Solicitado</v-list-item-subtitle
-                    >
-                    <v-list-item-title>${{ formData.monto }}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-list-item-icon>
-                    <v-icon color="primary"> mdi-cash-check </v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-subtitle
-                      >Monto Bruto del Crédito</v-list-item-subtitle
-                    >
-                    <v-list-item-title>{{
-                      conv.formatMonto(resultado.monto_bruto, true)
-                    }}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-list-item-icon>
-                    <v-icon color="primary">
-                      mdi-calendar-expand-horizontal
-                    </v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-subtitle
-                      >Plazo del Crédito</v-list-item-subtitle
-                    >
-                    <v-list-item-title>{{
-                      resultado.cuota + " meses"
-                    }}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-list-item-icon>
-                    <v-icon color="primary"> mdi-cash-multiple </v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-subtitle
-                      >Costo Total del Crédito</v-list-item-subtitle
-                    >
-                    <v-list-item-title>{{
-                      conv.formatMonto(resultado.valor_total, true)
-                    }}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-list-item-icon>
-                    <v-icon color="primary"> mdi-calendar-end </v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-subtitle
-                      >Fecha Primer Vencimiento</v-list-item-subtitle
-                    >
-                    <v-list-item-title>{{
-                      resultado.fprimervencimiento
-                    }}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-list-item-icon>
-                    <v-icon color="primary"> mdi-percent-circle </v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-subtitle>CAE</v-list-item-subtitle>
-                    <v-list-item-title>{{
-                      formatPorcentaje(resultado.tasa_cae)
-                    }}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list>
-              <v-data-table
-                :headers="cabeceras"
-                :items="gastos"
-                class="mx-2 mb-2 elevation-1"
-              >
-                <template v-slot:item.gascr_m_valor_or="{ item }">
-                  ${{ item.gascr_m_valor_or }}
-                </template>
-                <template v-slot:top>
-                  <v-toolbar flat outlined dense tile>
-                    <v-icon left color="primary"> mdi-currency-usd </v-icon>
-                    <v-list-item-title class="ml-2"
-                      >Detalle gastos</v-list-item-title
-                    >
-                  </v-toolbar>
-                </template>
-              </v-data-table>
-
-              <v-btn
-                color="warning"
-                @click="
-                  etapa = 1;
-                  sended = false;
-                "
-                class="mx-2 my-2"
-              >
-                <v-icon left>mdi-arrow-left</v-icon>
-                Volver
-              </v-btn>
-
-              <v-btn color="primary" class="mx-2 my-2" @click="exportToPDF()">
-                <v-icon left>mdi-file-download</v-icon>
-                Descargar Documento
-              </v-btn>
-
-              <v-btn
-                color="info"
-                :disabled="sended"
-                :loading="loadingEmail"
-                class="mx-2 my-2"
-                @click="sendEmail()"
-              >
-                <v-icon left>mdi-email</v-icon>
-                Enviar Correo
-              </v-btn>
-            </v-card>
+            <v-row
+              class="fill-height mb-4"
+              align-content="center"
+              justify="center"
+              v-if="loadingResultado"
+            >
+              <v-col class="text-subtitle-1 text-center" cols="12">
+                Cargando Resultados
+              </v-col>
+              <v-col cols="6">
+                <v-progress-linear
+                  color="primary"
+                  indeterminate
+                  rounded
+                  height="10"
+                ></v-progress-linear>
+              </v-col>
+            </v-row>
+            <div v-else>
+              <resultados-simulacion
+                v-if="resultado"
+                :resultado="resultado"
+                :formData="formData"
+                :solicita="formData.producto.solicita === '1'"
+                @volver="volver()"
+              />
+            </div>
           </v-stepper-content>
         </v-stepper>
       </v-col>
+      <!-- <v-col v-else cols="11" class="py-8">
+        <v-card height="120px" class="px-12 py-6">
+          <v-alert outlined type="warning" dense prominent class="mx-1 mb-1">
+            {{ userLogged.msg_institucion }}
+          </v-alert>
+        </v-card>
+      </v-col> -->
     </v-row>
   </v-container>
 </template>
@@ -296,81 +256,96 @@
 import moment from "moment";
 import createNumberMask from "text-mask-addons/dist/createNumberMask";
 import auth from "@/auth/auth";
-import simulador from "@/services/simulador";
+import simulador from "@/services/simulador"; //Llamados a la API relacionados con el simulador
 import conv from "@/services/conversores";
-import pdf from "@/services/pdfGenerator";
+import ResultadosSimulacionVue from "@/components/simuladorCredito/ResultadosSimulacion.vue";
 import { mapActions } from "vuex";
 
 export default {
-  metaInfo: { title: "Simulador Créditos" },
+  metaInfo: { title: "Simulador Crédito" },
+  components: {
+    "resultados-simulacion": ResultadosSimulacionVue,
+  },
   data: function () {
     return {
       etapa: 1,
-      sended: false,
-      loadingEmail: false,
+      gasto_fijo: 0,
       valid: true,
+      inmediato: false,
+      simular: true,
       formData: {
         producto: "",
         monto: "",
         plazo: "",
-        pago: "Descuento por planilla",
+        pago: "En cooperativa",
         date: "",
+        campania: "",
       },
-      pago: "Descuento por planilla",
+      loadingResultado: false,
       vencMin: "",
-      hoy: new Date(Date.now()),
       menu1: false,
       plazos: [],
+      campanias: [],
+      plazosInm: [
+        { text: "30 días", value: 1 },
+        { text: "60 días", value: 2 },
+      ],
       productos: [],
       resultado: null,
-      gastos: [],
-
+      convenio: true,
       currencyMask: createNumberMask({
         prefix: "",
         includeThousandsSeparator: true,
         allowNegative: false,
         thousandsSeparatorSymbol: ".",
       }),
-
-      //Para la tabla de gastos
-      cabeceras: [
-        {
-          text: "Nombre",
-          align: "start",
-          sortable: true,
-          value: "gascr_c_nombre",
-        },
-        {
-          text: "Monto",
-          align: "start",
-          sortable: true,
-          value: "gascr_m_valor_or",
-        },
-      ],
     };
   },
   methods: {
     ...mapActions(["mostrarAlerta"]),
+    async volver() {
+      await this.getProductos(1);
+      this.etapa = 1;
+      this.resultado = null;
+      this.reset();
+    },
+    async getProductos(accion, producto) {
+      let form = {
+        accion: accion,
+        rut: this.userLogged.rut,
+      };
+      if (accion == 2) form.procm_s_id = producto;
+      await simulador
+        .getProductosCreditos(form)
+        .then((response) => {
+          console.log(response.data);
+          if (accion == 1) this.productos = response.data;
+          else {
+            this.gasto_fijo = parseInt(response.data[0].gasto_fijo);
+            //console.log(this.gasto_fijo);
+          }
+        })
+        .catch((error) => console.log(error));
+    },
     validate() {
       this.$refs.form.validate();
       if (this.valid) {
-        this.enviarSimulacion(1);
+        this.loadingResultado = true;
         this.etapa = 2;
+        this.enviarSimulacion();
       }
     },
-    allowedDates(val) {
-      return moment(val).day() !== 0 && moment(val).day() !== 6;
+    sumarDiasFecha(dias) {
+      let date = new Date(Date.now());
+      let nextMes = date.setDate(date.getDate() + dias);
+      return moment(nextMes).format("YYYY-MM-DD");
     },
     reset() {
       this.$refs.form.reset();
     },
-    async getProductos() {
-      await simulador
-        .getProductosCreditos(this.userLogged.rut)
-        .then((response) => {
-          this.productos = response.data;
-        })
-        .catch((error) => console.log(error));
+
+    cargarCampanias() {
+      if (this.formData.producto) this.campanias = this.set_campanias;
     },
     cargarPlazos() {
       this.plazos = [];
@@ -380,16 +355,24 @@ export default {
         for (let index = inicio; index <= fin; index++) {
           let meses = index;
           meses > 1
-            ? this.plazos.push(meses + " meses")
-            : this.plazos.push(meses + " mes");
+            ? this.plazos.push({ text: meses + " meses", value: meses })
+            : this.plazos.push({ text: meses + " mes", value: meses });
         }
       }
     },
     revisarMonto(value) {
-      if (this.formData.producto !== "") {
+      if (this.formData.producto) {
         let formatedValue = parseInt(value.split(".").join(""));
-        let min = parseInt(this.formData.producto.monto_minimo);
-        let max = parseInt(this.formData.producto.monto_maximo);
+        let min = 0;
+        let max = 0;
+        if (this.formData.campania && this.formData.campania.id) {
+          min = parseInt(this.formData.campania.monto_minimo) + this.gasto_fijo;
+          max = parseInt(this.formData.campania.monto_maximo);
+        } else {
+          min = parseInt(this.formData.producto.monto_minimo);
+          max = parseInt(this.formData.producto.monto_maximo);
+        }
+
         if (formatedValue < min)
           return (
             false ||
@@ -404,133 +387,97 @@ export default {
       }
       return true;
     },
-    validarMonto() {
-      this.formData.date = this.formData.producto.fecha_mec;
-      if (this.formData.monto !== "") this.$refs.amountField.validate();
+    puedeSimular(value) {
+      let min = parseInt(value.monto_minimo);
+      let max = parseInt(value.monto_maximo);
+      if (min >= max || Math.abs(max - min) < 100000) {
+        this.simular = false;
+        if (max < 0) max = 0;
+        return (
+          false ||
+          `El monto máximo de simulación que usted tiene permitido para este producto es de ${conv.formatMonto(
+            max,
+            true
+          )}, y el monto mínimo para simular es ${conv.formatMonto(
+            min,
+            true
+          )} el cual no es suficiente para realizar una simulación, por favor intente con otro producto`
+        );
+      } else {
+        this.simular = true;
+        return true;
+      }
     },
-    enviarSimulacion(accion) {
+    async validarMonto() {
+      if (this.formData.producto) {
+        await this.getProductos(2, this.formData.producto.codigo);
+        this.inmediato = this.formData.producto.codigo === "601";
+        if (!this.inmediato)
+          this.formData.date = this.formData.producto.fecha_mec;
+        else this.formData.date = "";
+        if (this.formData.monto !== "") this.$refs.amountField.validate();
+      }
+    },
+    enviarSimulacion() {
       let datosFormulario = this.formData;
       let f_otorgamiento = moment(new Date(Date.now())).format("DD/MM/YYYY");
+
       let data = {
         procm_s_id: datosFormulario.producto.codigo,
+        campe_s_id: datosFormulario.campania
+          ? datosFormulario.campania.id
+          : null,
         rut: this.userLogged.rut,
-        accion: accion,
+        accion: 1,
         fecha_otorgamiento: f_otorgamiento, //cuando se hizo la simulacion
-        primer_vencimiento: this.formatDate(datosFormulario.date),
+        primer_vencimiento: conv.formatFecha2(
+          datosFormulario.date,
+          "YYYY-MM-DD"
+        ),
         seguro_desgravamen: 1,
         monto: parseInt(datosFormulario.monto.split(".").join("")),
         monto_solicitado: parseInt(datosFormulario.monto.split(".").join("")),
-        cantidad_cuota: datosFormulario.plazo.split(" ")[0],
-        amortizacion: datosFormulario.producto.amortizacion, //se ignora
+        cantidad_cuota:
+          datosFormulario.producto.codigo !== "601" ? datosFormulario.plazo : 1,
+        amortizacion: 1,
       };
+
       simulador
         .simularCredito(data)
         .then((response) => {
           let result = response.data;
-          console.log(result);
-          if (accion == 1) {
-            this.resultado = result[0];
-            this.enviarSimulacion(2);
-          } else {
-            //let value = parseInt(result[result.length - 1].gascr_m_valor_or);
-            //let seg = parseInt(this.resultado.valor_seguro);
-            //let seg_desg = Intl.NumberFormat('es-CL',{currency: 'CLP'}).format( seg - value);
-            this.gastos = response.data;
-            //this.gastos.unshift({gascr_c_nombre:'Seguro Desgravamen', gascr_m_valor: seg_desg});
-          }
+          this.resultado = result[0];
+          this.loadingResultado = false;
         })
         .catch((error) => console.log(error));
-    },
-
-    exportToPDF() {
-      let solicitud = JSON.parse(JSON.stringify(this.formData));
-      solicitud.nombre = this.userLogged.nombre;
-      solicitud.rut = this.userLogged.rut;
-      pdf.exportToPdfSimCredito(
-        this.cabeceras,
-        this.gastos,
-        solicitud,
-        this.resultado
-      );
-    },
-    async sendEmail() {
-      this.loadingEmail = true;
-      let cre_gasto_nombre = "";
-      let cre_gasto_costo = "";
-      let cre_gasto_id = "";
-
-      this.gastos.forEach((gasto) => {
-        cre_gasto_nombre += gasto.gascr_c_nombre + ",";
-        cre_gasto_costo += gasto.gascr_m_valor_or + ",";
-        cre_gasto_id += gasto.gascr_s_id + ",";
-      });
-      let formEmail = {
-        accion: "1",
-        clien_s_id: this.userLogged.id_cliente,
-        cre_valor_cuota: this.resultado.valor_cuota,
-        cre_tasa_interes_mensual: this.formatPorcentaje(
-          this.resultado.tasa_visible
-        ),
-        cre_monto_solicitado: this.formData.monto,
-        cre_monto_bruto_credito: this.resultado.monto_bruto,
-        cre_plazo_credito: this.resultado.cuota,
-        cre_costo_total_credito: this.resultado.valor_total,
-        cre_fecha_primer_venc: this.resultado.fprimervencimiento,
-        cre_cae: this.formatPorcentaje(this.resultado.tasa_cae),
-        cre_gasto_nombre: cre_gasto_nombre,
-        cre_gasto_costo: cre_gasto_costo,
-        cre_gasto_id: cre_gasto_id,
-      };
-      let payload = {};
-      await simulador
-        .enviarCorreo(formEmail)
-        .then((response) => {
-          let data = response.data[0];
-          if (data.codigo === "1") {
-            payload = {
-              mensaje: data.msg,
-              color: "success",
-              mostrar: true,
-            };
-          } else {
-            payload = {
-              mensaje: data.msg,
-              color: "error",
-              mostrar: true,
-            };
-          }
-          console.log(response);
-        })
-        .catch((error) => console.log(error));
-      this.loadingEmail = false;
-      this.mostrarAlerta(payload);
-      this.sended = true;
-    },
-    formatDate(date) {
-      if (!date) return null;
-      const [year, month, day] = date.split("-");
-      return `${day}/${month}/${year}`;
-    },
-    formatPorcentaje(valor) {
-      var num = parseFloat(valor) * 100;
-      //var preRedondeo = Number(num.toPrecision(15));
-      //var final = Math.round(preRedondeo) / 100 * Math.sign(num);
-      return num.toFixed(2) + "%";
     },
   },
 
   async mounted() {
-    this.getProductos();
-    var nextMes = new Date(this.hoy.setMonth(this.hoy.getMonth() + 1));
-
-    if (nextMes.getDay() == 0 || nextMes.getDay() == 6) {
-      nextMes.setDate(
-        nextMes.getDate() + ((((7 - nextMes.getDay()) % 7) + 1) % 7)
-      );
+    //if (this.userLogged.institucion) {
+    //this.convenio = true;
+    await this.getProductos(1);
+    if (this.$route.params.preSelect) {
+      let preselect = this.$route.params.preSelect;
+      let index = this.productos.findIndex((prod) => prod.id === preselect);
+      if (index >= 0) this.formData.producto = this.productos[index];
+      else this.$router.replace("/simulador-creditos");
     }
-    this.vencMin = moment(nextMes).format("YYYY-MM-DD");
+    this.vencMin = this.sumarDiasFecha(30);
+    //} else this.convenio = false;
   },
   computed: {
+    set_campanias() {
+      let sin_campania = {
+        campania: "Sin Campaña",
+        descripcin: "",
+        fecha_disponible: "",
+        id: null,
+      };
+      let campania = this.userLogged.campanias;
+      campania.unshift(sin_campania);
+      return campania;
+    },
     computedDateFormattedMomentjs() {
       moment.locale("es");
       return this.formData.date
@@ -539,8 +486,16 @@ export default {
     },
     ayudaMonto() {
       let msg = "";
-      let min = parseInt(parseFloat(this.formData.producto.monto_minimo));
-      let max = parseInt(parseFloat(this.formData.producto.monto_maximo));
+      let min = 0;
+      let max = 0;
+
+      if (this.formData.campania && this.formData.campania.id) {
+        min = parseInt(this.formData.campania.monto_minimo) + this.gasto_fijo;
+        max = parseInt(this.formData.campania.monto_maximo);
+      } else {
+        min = parseInt(this.formData.producto.monto_minimo);
+        max = parseInt(this.formData.producto.monto_maximo);
+      }
 
       if (max == 0 || max >= 999999999)
         msg =
@@ -565,10 +520,6 @@ export default {
     menu1: function () {
       if (this.formData.date === "") this.formData.date = this.vencMin;
     },
-    /*'formData.producto': function(){
-        //this.formData.monto = Intl.NumberFormat('es-CL',{currency: 'CLP', decimal:','}).format(this.formData.monto);
-        this.$refs.amountField.validate();
-      }*/
   },
 };
 </script>

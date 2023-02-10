@@ -11,10 +11,8 @@ const URL_API =
 
 export default {
   //Creditos
-  getCreditos(id_cliente) {
-    let data = qs.stringify({
-      clien_s_id: id_cliente,
-    });
+  getCreditos(form) {
+    let data = qs.stringify(form);
     return axios.post(URL_API + "creditos_socio", data);
   },
 

@@ -295,6 +295,7 @@ import socio from "@/services/socio";
 import pdf from "@/services/pdfGenerator";
 import conv from "@/services/conversores";
 import { formatterRut } from "chilean-formatter";
+import funciones from "@/services/funciones";
 
 export default {
   props: ["dialog"],
@@ -306,6 +307,7 @@ export default {
           align: "start",
           sortable: true,
           value: "f_renovacion",
+          sort: (a, b) => funciones.compareFn(a, b),
         },
         {
           text: "Valor Renovación",
@@ -336,12 +338,14 @@ export default {
           align: "start",
           sortable: true,
           value: "f_vencimiento",
+          sort: (a, b) => funciones.compareFn(a, b),
         },
         {
           text: "Fecha Renovación Automática",
           align: "start",
           sortable: true,
           value: "f_automatica",
+          sort: (a, b) => funciones.compareFn(a, b),
         },
         { text: "Vigente", align: "start", sortable: true, value: "vigente" },
       ],

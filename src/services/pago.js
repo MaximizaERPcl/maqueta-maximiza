@@ -39,4 +39,8 @@ export default {
     let data = qs.stringify(form);
     return axios.post(URL_API_PAGO + "pagar_producto", data);
   },
+  reversar_pago(form) {
+    let data = qs.stringify(form);
+    return axios.post(URL_API_PAGO + "anular_pago_transbank", data);
+  },
 };

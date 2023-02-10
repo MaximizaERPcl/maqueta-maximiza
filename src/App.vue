@@ -103,7 +103,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["mostrarAlerta", "cerrarAlerta"]),
+    ...mapActions(["mostrarAlerta", "cerrarAlerta", "set_timeout"]),
     onidle() {
       auth.cerrarSesion();
       this.$router.push("/maximiza_vue/");
@@ -119,8 +119,17 @@ export default {
       this.mostrarAlerta(payload);
     },
   },
+
   mounted() {
     this.rutaActual = this.$route.name;
+    if (auth.isAuthenticated()) {
+      //this.updateBits();
+      if (auth.isExpireSet()) this.set_timeout();
+      else {
+        auth.cerrarSesion();
+        this.$router.push("/login");
+      }
+    }
   },
   watch: {
     "$route.name"(value) {
@@ -158,5 +167,26 @@ export default {
 }
 .v-snack__action {
   display: none;
+}
+.v-data-table-header th {
+  padding-top: 10px !important;
+  vertical-align: top !important;
+}
+.titulo {
+  font-size: 3.2vh;
+  line-height: 3.5vh;
+  word-break: normal;
+  font-weight: 300;
+}
+.v-navigation-drawer__content::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px #5d5d5d;
+  background-color: #5d5d5d;
+}
+.v-navigation-drawer__content::-webkit-scrollbar {
+  width: 0px;
+}
+.v-navigation-drawer__content::-webkit-scrollbar-thumb {
+  -webkit-box-shadow: inset 0 0 6px #424242;
+  background-color: #424242;
 }
 </style>

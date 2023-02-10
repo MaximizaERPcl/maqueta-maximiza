@@ -241,13 +241,13 @@
           </v-stepper-content>
         </v-stepper>
       </v-col>
-      <!-- <v-col v-else cols="11" class="py-8">
+      <!--v-col v-else cols="11" class="py-8">
         <v-card height="120px" class="px-12 py-6">
           <v-alert outlined type="warning" dense prominent class="mx-1 mb-1">
             {{ userLogged.msg_institucion }}
           </v-alert>
         </v-card>
-      </v-col> -->
+      </v-col-->
     </v-row>
   </v-container>
 </template>
@@ -454,8 +454,8 @@ export default {
   },
 
   async mounted() {
-    //if (this.userLogged.institucion) {
-    //this.convenio = true;
+    // if (this.userLogged.institucion) {
+    this.convenio = true;
     await this.getProductos(1);
     if (this.$route.params.preSelect) {
       let preselect = this.$route.params.preSelect;

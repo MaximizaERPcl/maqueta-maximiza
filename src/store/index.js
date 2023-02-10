@@ -1,5 +1,8 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import Cookies from "js-cookie";
+import auth from "@/auth/auth";
+import router from "../router";
 
 Vue.use(Vuex);
 
@@ -11,6 +14,7 @@ export default new Vuex.Store({
       mensaje: "",
       color: "success",
       icon: "",
+      expireTimeout: null,
     },
     drawer: true,
     dialogoMora: false,
@@ -35,6 +39,18 @@ export default new Vuex.Store({
     },
     SET_DIALOGO_MORA(state, value) {
       state.dialogoMora = value;
+    },
+    SET_TIMEOUT(state, remaining) {
+      state.expireTimeout = setTimeout(function () {
+        alert(
+          "Su sesión ha expirado, si quiere seguir utilizando el portal ingrese nuevamente"
+        );
+        auth.cerrarSesion();
+        router.push("/login");
+      }, remaining);
+    },
+    CLOSE_TIMEOUT(state) {
+      clearTimeout(state.expireTimeout);
     },
   },
   actions: {
@@ -65,6 +81,25 @@ export default new Vuex.Store({
     },
     mostrarDialogoMora({ commit }, value) {
       commit("SET_DIALOGO_MORA", value);
+    },
+    set_timeout({ commit }) {
+      let current = new Date().getTime();
+      let expires = new Date(Cookies.get("userLoggedExpired"));
+      let remaining = expires.getTime() - current;
+      if (process.env.NODE_ENV === "development") {
+        console.log(
+          "Expiración: ",
+          expires.getHours() +
+            ":" +
+            (expires.getMinutes() < 10
+              ? "0" + expires.getMinutes()
+              : expires.getMinutes())
+        );
+      }
+      commit("SET_TIMEOUT", remaining);
+    },
+    close_timeout({ commit }) {
+      commit("CLOSE_TIMEOUT");
     },
   },
   modules: {},

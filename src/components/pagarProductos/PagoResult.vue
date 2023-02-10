@@ -184,8 +184,7 @@
         </v-col>
         <v-col cols="11" v-else>
           <v-alert outlined type="error" prominent class="mx-1 mb-1">
-            Se produjo un fallo al procesar la transacción y el pago de
-            productos no ha podido ser realizado , por favor intente nuevamente.
+            {{ alertMsg }}
           </v-alert>
         </v-col>
       </v-row>
@@ -224,6 +223,8 @@ export default {
     return {
       loading: false,
       error: false,
+      alertMsg:
+        "Se produjo un fallo al procesar la transacción y el pago de productos no ha podido ser realizado, si el error persiste comuníquese con nuestra cooperativa",
       finalResult: null,
       resultado_tb: null,
       sesion_pago: null,
@@ -255,10 +256,9 @@ export default {
       await pago
         .obtener_estado_tb({ token: this.token })
         .then((response) => {
-          //console.log('1',response.data)
+          console.log("1. Estado Transacción", response.data);
           this.resultado_tb = response.data;
           this.web_token = response.data.session_id;
-          //console.log(localStorage.getItem('pay_data'))
         })
         .catch((error) => console.log(error));
     },
@@ -277,8 +277,8 @@ export default {
       await pago
         .pagar_producto(form)
         .then(async (response) => {
-          let data = response.data;
-
+          let data = response.data[0];
+          console.log("2. Pagar Producto", data);
           if (data.codigo === "1") {
             payload = {
               mensaje: data.msg,
@@ -288,12 +288,33 @@ export default {
             this.mostrarAlerta(payload);
             await this.detallePago();
           } else {
-            payload = {
-              mensaje: data.msg,
-              color: "error",
-              mostrar: true,
+            let alertMsg = this.alertMsg;
+
+            let form_reversar = {
+              token: this.token,
+              amount: this.resultado_tb.amount,
             };
-            this.mostrarAlerta(payload);
+            await pago
+              .reversar_pago(form_reversar)
+              .then((response) => {
+                console.log("2.1. Anular pago", data);
+                let type = response.data.type;
+                if (type === "REVERSED") {
+                  alertMsg += ". Se ha reversado el pago correctamente";
+                } else if (type === "NULLIFIED") {
+                  alertMsg += ". Se ha anulado el pago correctamente";
+                } else {
+                  alertMsg +=
+                    ". No se ha podido reversar el pago, comuníquese con su sucursal para verificar la transacción";
+                }
+              })
+              .catch((error) => {
+                console.log(error);
+                alertMsg +=
+                  ". No se ha podido reversar el pago, comuníquese con nuestra cooperativa para verificar la transacción";
+              });
+            this.alertMsg = alertMsg;
+            this.loading = false;
           }
         })
         .catch((error) => {
@@ -317,11 +338,11 @@ export default {
       await pago
         .detalle_pago(form)
         .then((response) => {
-          //console.log('3',response.data)
+          console.log("3. Detalle pago", response.data);
           this.finalResult = response.data;
           this.loading = false;
         })
-        .catch((error) => console.log(error));
+        .catch((error) => console.log(error) && (this.loading = false));
     },
     exportPDF() {
       let user = this.userLogged;
@@ -340,18 +361,6 @@ export default {
         "Comprobande de Pago"
       );
     },
-
-    /*setAlert(){
-      let status = this.result.response_code
-      if(status == 0){
-          this.alert= {type : 'success', msg : 'Se ha realizado el pago exitosamente'}
-      }
-      else if (status > 0){
-        this.alert = {type: 'error',  msg :'El sistema de pago ha rechazado la transacción por el siguiente motivo: '+ this.errores[status-1]}
-      }
-      else
-        this.alert = {type: 'error',  msg :'El sistema de pago ha rechazado la transacción por el siguiente motivo: Pago Rechazado por entidad bancaria'}
-    }*/
   },
   async mounted() {
     this.loading = true;

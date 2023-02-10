@@ -5,8 +5,8 @@
       app
       dark
       v-if="$route.name != 'home'"
-      width="300px"
-      min-width="300px"
+      width="270px"
+      min-width="270px"
       mobile-breakpoint="960"
       class="glass"
       tile
@@ -18,9 +18,15 @@
         class="mt-2 mb-0 mx-auto flex justify-center"
         contain
       ></v-img>
-
+      <!--INICIO MENÚ DE CUENTA-->
       <v-list>
-        <v-list-group link color="white" no-action v-if="userLogged">
+        <v-list-group
+          link
+          color="white"
+          no-action
+          v-if="userLogged"
+          group="/cuenta/"
+        >
           <template v-slot:activator>
             <v-list-item-icon>
               <v-icon color="accent">mdi-account-cog</v-icon>
@@ -37,78 +43,84 @@
           </template>
 
           <v-list-item
-            v-for="child in ajustesCuenta"
+            v-for="child in cuenta.children"
             :key="child.name"
             link
             :to="{ name: 'cuenta', params: { ajuste: child.to } }"
           >
             <v-list-item-content>
-              <v-list-item-title>{{ child.name }}</v-list-item-title>
+              <v-list-item-title style="font-size: 0.85rem !important">
+                {{ child.name }}
+              </v-list-item-title>
             </v-list-item-content>
-            <v-list-item-icon>
+            <v-list-item-icon style="margin: 15px 25px 15px 0 !important">
               <v-icon small color="accent">{{ child.icon }}</v-icon>
             </v-list-item-icon>
           </v-list-item>
         </v-list-group>
       </v-list>
-
+      <!-- FIN MENÚ DE CUENTA-->
       <v-divider></v-divider>
 
+      <!-- INICIO MENÚ DE PRINCIPAL -->
       <v-list nav>
-        <v-list-item link :to="{ name: items[0].to }" color="white">
-          <v-list-item-icon>
-            <v-icon color="accent">{{ items[0].icon }}</v-icon>
-          </v-list-item-icon>
-          <v-list-item-title>{{ items[0].name }}</v-list-item-title>
-        </v-list-item>
-
-        <v-list-item link :to="{ name: items[1].to }" color="white">
-          <v-list-item-icon>
-            <v-icon color="accent">{{ items[1].icon }}</v-icon>
-          </v-list-item-icon>
-          <v-list-item-title>{{ items[1].name }}</v-list-item-title>
-        </v-list-item>
-
-        <v-list-group
-          link
-          :to="{ name: items[2].to }"
-          color="white"
-          no-action
-          append-icon="mdi-menu-up"
-        >
-          <template v-slot:activator>
-            <v-list-item-icon>
-              <v-icon color="accent">{{ items[2].icon }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>{{ items[2].name }}</v-list-item-title>
-          </template>
-
+        <div v-for="(item, i) in principal" :key="i">
           <v-list-item
-            v-for="child in items[2].productos"
-            :key="child.name"
+            :disabled="userLogged.b_cambiar_clave == '1'"
+            v-if="
+              !item.subgroup /*&&
+              (item.bit ? sideBarMenuBits[item.bit] === '1' : true) &&
+              (item.dev ? (prod ? false : true) : true)*/
+            "
             link
-            :to="{ name: items[2].to, params: { product: child.param } }"
+            :to="{
+              name: item.to,
+              params: item.param ? { [item.paramName]: item.param } : {},
+            }"
+            color="white"
           >
-            <v-list-item-content>
-              <v-list-item-title>{{ child.name }}</v-list-item-title>
-            </v-list-item-content>
+            <v-list-item-icon style="margin: 15px 25px 15px 0 !important">
+              <v-icon color="primary">{{ item.icon }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title style="font-size: 0.85rem !important">{{
+              item.name
+            }}</v-list-item-title>
           </v-list-item>
-        </v-list-group>
 
-        <v-list-item link :to="{ name: items[3].to }" color="white">
-          <v-list-item-icon>
-            <v-icon color="accent">{{ items[3].icon }}</v-icon>
-          </v-list-item-icon>
-          <v-list-item-title>{{ items[3].name }}</v-list-item-title>
-        </v-list-item>
+          <v-list-group
+            v-else-if="item.subgroup"
+            link
+            :to="{ name: item.to }"
+            no-action
+            append-icon="mdi-menu-up"
+            color="white"
+          >
+            <template v-slot:activator>
+              <v-list-item-icon style="margin: 15px 25px 15px 0 !important">
+                <v-icon color="primary">{{ item.icon }}</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title style="font-size: 0.85rem !important">{{
+                item.name
+              }}</v-list-item-title>
+            </template>
 
-        <v-list-item link :to="{ name: items[4].to }" color="white">
-          <v-list-item-icon>
-            <v-icon color="accent">{{ items[4].icon }}</v-icon>
-          </v-list-item-icon>
-          <v-list-item-title>{{ items[4].name }}</v-list-item-title>
-        </v-list-item>
+            <v-list-item
+              v-for="child in item.children"
+              :key="child.name"
+              link
+              :to="{ name: item.to, params: { product: child.param } }"
+            >
+              <v-list-item-content>
+                <v-list-item-title style="font-size: 0.85rem !important">{{
+                  child.name
+                }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list-group>
+        </div>
       </v-list>
+
+      <!-- FIN MENÚ PRINCIPAL -->
 
       <template v-slot:append>
         <!--v-img 
@@ -133,20 +145,29 @@ import conv from "@/services/conversores";
 
 export default {
   data: () => ({
-    items: [
-      { name: "Inicio", icon: "mdi-home", to: "ingresa", subgroup: false },
+    totalMenu: [
+      { name: "Inicio", route: "ingresa" },
+      { name: "Productos", route: "productos" },
+      //{ name: "Beneficiarios Seguro Capital", route: "benCapital" },
+      { name: "Simulador de créditos", route: "creditos" },
+      { name: "Pagar Productos", route: "pagoweb" },
+      //{ name: "Seguimiento de Crédito", route: "seguimiento" },
+      { name: "Simulador Dap", route: "dap" },
+      { name: "Cuenta", route: "cuenta" },
+    ],
+    principal: [
+      { name: "Inicio", icon: "mdi-home", to: "ingresa" },
       {
         name: "Pagar Productos",
         icon: "mdi-account-credit-card",
         to: "pagoweb",
-        subgroup: false,
       },
       {
         name: "Productos",
         icon: "mdi-briefcase-account",
         to: "productos",
         subgroup: true,
-        productos: [
+        children: [
           { name: "Cuenta Capital", param: "cuenta-capital" }, //
           { name: "Cuenta de Ahorro", param: "cuenta-ahorro" }, //
           { name: "Remanentes", param: "remanentes" },
@@ -160,25 +181,30 @@ export default {
         name: "Simulador de créditos",
         icon: "mdi-credit-card",
         to: "creditos",
-        subgroup: false,
       },
       {
         name: "Simulador Dap",
         icon: "mdi-bank-transfer-in",
         to: "dap",
-        subgroup: false,
-      },
-      {
-        name: "Ajustes Cuenta",
-        icon: "mdi-account-cog",
-        to: "cuenta",
-        subgroup: false,
       },
     ],
-    ajustesCuenta: [
-      //{name: 'Actualizar Datos', to:'actualizar-datos', icon: 'mdi-account-details'}, //
-      { name: "Cambiar Clave", to: "cambiar-clave", icon: "mdi-account-lock" }, //
-    ],
+    cuenta: {
+      name: "Ajustes Cuenta",
+      icon: "mdi-account-cog",
+      to: "cuenta",
+      children: [
+        {
+          name: "Actualizar Datos",
+          to: "actualizar-datos",
+          icon: "mdi-account-details",
+        }, //
+        {
+          name: "Cambiar Clave",
+          to: "cambiar-clave",
+          icon: "mdi-account-lock",
+        }, //
+      ],
+    },
     finalItems: [{ name: "Atención Socios", icon: "mdi-phone" }],
   }),
   computed: {
@@ -189,7 +215,7 @@ export default {
       return auth.getUserLogged();
     },
     nombreUsuario() {
-      let nombre = this.userLogged.nombres.split(" ")[0];
+      let nombre = this.userLogged.nombre.split(" ")[0];
       let apellido = this.userLogged.apellido_paterno.split(" ")[0];
       return conv.capitalizeString(nombre + " " + apellido);
     },
@@ -206,26 +232,29 @@ export default {
       },
     },
   },
-  async created() {
-    if (this.$route.name) {
-      let ruta = this.$route.name;
-      var indiceRuta = this.items.findIndex((item) => item.to === ruta);
-      this.cambiarRuta(this.items[indiceRuta].name);
-    }
-  },
   methods: {
     ...mapMutations(["cambiarRuta"]),
-    ...mapActions(["switchDrawer"]),
+    ...mapActions(["switchDrawer", "close_timeout"]),
     logout() {
+      this.close_timeout();
       auth.cerrarSesion();
       this.$router.push({ name: "login" });
     },
   },
+  created() {
+    if (this.$route.name) {
+      let ruta = this.$route.name;
+      var indiceRuta = this.totalMenu.findIndex((item) => item.route === ruta);
+      this.cambiarRuta(this.totalMenu[indiceRuta].name);
+    }
+  },
   watch: {
     "$route.name": {
       handler(value) {
-        var indiceRuta = this.items.findIndex((item) => item.to === value);
-        this.cambiarRuta(this.items[indiceRuta].name);
+        var indiceRuta = this.totalMenu.findIndex(
+          (item) => item.route === value
+        );
+        this.cambiarRuta(this.totalMenu[indiceRuta].name);
       },
       deep: true,
     },

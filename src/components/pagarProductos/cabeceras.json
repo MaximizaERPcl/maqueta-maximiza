@@ -115,5 +115,37 @@
       "groupable": true,
       "value": "monto"
     }
+  ],
+  "libretas": [
+    {
+      "text": "Nº Cuenta",
+      "align": "start",
+      "sortable": true,
+      "groupable": true,
+      "value": "id_libreta",
+      "width": "18%"
+    },
+    {
+      "text": "Producto",
+      "align": "start",
+      "sortable": true,
+      "groupable": true,
+      "value": "nombre"
+    },
+    {
+      "text": "Saldo",
+      "align": "start",
+      "sortable": true,
+      "groupable": false,
+      "value": "saldo"
+    },
+    {
+      "text": "Abono",
+      "align": "start",
+      "sortable": true,
+      "groupable": false,
+      "value": "amount",
+      "width": "30%"
+    }
   ]
 }

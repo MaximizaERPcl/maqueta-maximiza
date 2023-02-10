@@ -40,7 +40,25 @@
                 :headers="cabecerasCreditos"
                 :items="creditos"
                 class="mx-4 mb-2 elevation-1"
+                group-by="credito"
               >
+                <template v-slot:group.header="{ group, items }">
+                  <td
+                    colspan="10"
+                    style="height: 28px !important; background: #f5f5f5"
+                  >
+                    <span class="grupo">
+                      {{
+                        /*"Credito: " +*/
+                        conv.capitalizeString(
+                          items[0].tipo_credito.split(" - ")[1]
+                        ) +
+                        " Nº" +
+                        group
+                      }}
+                    </span>
+                  </td>
+                </template>
                 <template v-slot:item.valor_cuota="{ item }">
                   {{ conv.formatMonto(item.valor_cuota, true) }}
                 </template>
@@ -78,8 +96,6 @@
                   </tr>
                   <tr class="hidden-xs-only">
                     <td><b>TOTAL</b></td>
-                    <td></td>
-                    <td></td>
                     <td>
                       <b>{{ formatMonto(totalCreditos.valor_cuota) }}</b>
                     </td>
@@ -94,6 +110,7 @@
                     <td>
                       <b>{{ formatMonto(totalCreditos.monto_otorgado) }}</b>
                     </td>
+                    <td></td>
                   </tr>
                 </template>
                 <template v-slot:top>
@@ -115,8 +132,27 @@
                 :headers="cabecerasMorosas"
                 :items="cuotasMorosas"
                 :search="search"
+                group-by="credito"
+                v-if="cuotasMorosas.length > 0"
                 class="mx-4 mb-2 elevation-1"
               >
+                <template v-slot:group.header="{ group, items }">
+                  <td
+                    colspan="10"
+                    style="height: 28px !important; background: #f5f5f5"
+                  >
+                    <span class="grupo">
+                      {{
+                        /*"Credito: " +*/
+                        conv.capitalizeString(
+                          items[0].tipo_credito.split(" - ")[1]
+                        ) +
+                        " Nº" +
+                        group
+                      }}
+                    </span>
+                  </td>
+                </template>
                 <template v-slot:item.tipo_credito="{ item }">
                   {{ conv.capitalizeString(item.tipo_credito.split(" - ")[1]) }}
                 </template>
@@ -167,7 +203,7 @@
                   {{ formatMonto(item.i_pro, true) }}
                 </template>
 
-                <template v-if="cuotasMorosas.length > 0" v-slot:body.append>
+                <template v-slot:body.append>
                   <tr class="hidden-sm-and-up">
                     <td><b>TOTAL</b></td>
                     <td>
@@ -176,7 +212,6 @@
                   </tr>
                   <tr class="hidden-xs-only">
                     <td><b>TOTAL</b></td>
-                    <td></td>
                     <td></td>
                     <td></td>
                     <td>
@@ -220,6 +255,7 @@
               </v-data-table>
 
               <v-data-table
+                v-if="creditosAvalados.length > 0"
                 :headers="cabecerasAvalados"
                 :items="creditosAvalados"
                 class="mx-4 mb-2 elevation-1"
@@ -257,6 +293,7 @@
               </v-data-table>
 
               <v-data-table
+                v-if="avalesVigentes.length > 0"
                 :headers="cabecerasAvales"
                 :items="avalesVigentes"
                 class="mx-4 mb-2 elevation-1"
@@ -352,18 +389,6 @@ export default {
     },
   },
   methods: {
-    async getSocioCredito(id_credito) {
-      await socio
-        .getCreditos(this.userLogged.id_cliente)
-        .then((response) => {
-          let credito = response.data;
-          let filterCredito = credito.filter(
-            (credito) => credito.credito === id_credito
-          );
-          return filterCredito;
-        })
-        .catch((error) => console.log(error));
-    },
     async getDetalleCreditos(accion) {
       await socio
         .getDetalleCreditos(this.userLogged.id_cliente, accion)
@@ -430,14 +455,21 @@ export default {
   },
   async mounted() {
     this.loading = true;
-    if (this.userLogged.info.creditos != "0") {
-      this.noDatos = false;
-      this.initCabeceras();
-      await this.getDetalleCreditos(3);
-      await this.getDetalleCreditos(2);
-      await this.getDetalleCreditos(4);
-      await this.getDetalleCreditos(5);
-    } else this.noDatos = true;
+
+    await auth
+      .userInfo(this.userLogged.id_cliente)
+      .then(async (response) => {
+        let user = response.data[0];
+        if (user.creditos != "0") {
+          this.noDatos = false;
+          this.initCabeceras();
+          await this.getDetalleCreditos(3);
+          await this.getDetalleCreditos(2);
+          await this.getDetalleCreditos(4);
+          await this.getDetalleCreditos(5);
+        } else this.noDatos = true;
+      })
+      .catch((error) => console.log(error));
 
     this.loading = false;
   },
@@ -445,17 +477,16 @@ export default {
 </script>
 
 <style scoped lang="css">
-.titulo {
-  font-size: 30px;
-  line-height: 35px;
-  word-break: normal;
-  font-weight: 300;
-}
 .cabecera {
   color: white;
   font-weight: 300;
   font-size: 22px;
   line-height: 28px;
   word-break: normal;
+}
+.grupo {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
 }
 </style>

@@ -1,10 +1,7 @@
 <template>
-  <div v-if="pagos">
+  <div v-if="castigados">
     <v-data-table
-      v-if="
-        pagos.credito_castigado.length >
-        0 /*&& userLogged.b_paga_credito === '1'*/
-      "
+      v-if="castigados.length > 0 /*&& userLogged.b_paga_credito === '1'*/"
       v-model="selectedCastigados"
       dense
       :headers="cabecera.credito_castigado"
@@ -163,7 +160,7 @@ export default {
       return auth.getUserLogged();
     }, //userLogged
     indexedCastigados() {
-      return this.pagos.credito_castigado.map((item, index) => ({
+      return this.castigados.map((item, index) => ({
         id: index,
         ...item,
       }));
@@ -178,7 +175,7 @@ export default {
     },
   }, //watch
   props: {
-    pagos: null,
+    castigados: null,
   },
 }; //default
 </script>

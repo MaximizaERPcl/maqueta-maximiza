@@ -76,6 +76,7 @@ export default {
       selectedCapital: [],
       selected: [],
       selectedCastigados: [],
+      selectedAhorro: [],
       validCapital: true,
       validCredito: true,
       totales: [
@@ -83,6 +84,7 @@ export default {
         { tipo: "Castigado", monto: 0 },
         { tipo: "Abono Capital", monto: 0 },
         { tipo: "Cargo por Tarjeta de Crédito", monto: 0 },
+        { tipo: "Cuenta de ahorro", monto: 0 },
         { tipo: "Cargo por servicio", monto: 0 },
       ],
     }; //return
@@ -116,6 +118,12 @@ export default {
         this.calculateSum("selectedComCre", 3, "monto");
       },
     },
+    selectedAhorro: {
+      handler() {
+        this.calculateSum("selectedAhorro", 4, "monto");
+      },
+      deep: true,
+    },
     total: function () {
       this.$root.$emit("total", this.total);
     },
@@ -131,7 +139,7 @@ export default {
     },
     sumAll() {
       let tempSuma = 0;
-      this.totales[4].monto = 0;
+      this.totales[5].monto = 0;
       this.totales.forEach((item) => {
         tempSuma += item.monto;
       });
@@ -139,7 +147,7 @@ export default {
         tempSuma / ((100 - this.pagos.tasa_web[0].tasa_tbk) / 100)
       );
       let cargo = totalCom - tempSuma;
-      this.totales[4].monto = cargo;
+      this.totales[5].monto = cargo;
       this.total = totalCom;
     },
     pagar() {
@@ -156,6 +164,9 @@ export default {
   beforeMount() {
     this.$root.$on("enviarCapital", (data) => {
       this.selectedCapital = data;
+    }); //enviarCapital
+    this.$root.$on("enviarAhorro", (data) => {
+      this.selectedAhorro = data;
     }); //enviarCapital
     this.$root.$on("enviarCredito", (item) => {
       this.selected = item;

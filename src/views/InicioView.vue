@@ -83,7 +83,7 @@
                 <v-list-item-content>
                   <v-list-item-subtitle>Celular</v-list-item-subtitle>
                   <v-list-item-title
-                    v-if="user.Movil && user.Movil.trim().length > 0"
+                    v-if="user.Movil && parseInt(user.Movil.trim()) > 0"
                     >{{ user.Movil }}</v-list-item-title
                   >
                   <v-list-item-title v-else>No hay registro</v-list-item-title>
@@ -100,8 +100,7 @@
                   <v-list-item-title
                     v-if="
                       user.telefono_particular &&
-                      user.telefono_particular.trim().length > 0 &&
-                      user.telefono_particular !== '0'
+                      parseInt(user.telefono_particular.trim()) > 0
                     "
                     >{{ user.telefono_particular }}</v-list-item-title
                   >
@@ -199,8 +198,11 @@ export default {
   methods: {
     async setProductos() {
       if (this.user.creditos !== "0") {
+        let form = {
+          clien_s_id: this.userLogged.id_cliente,
+        };
         await socio
-          .getCreditos(this.userLogged.id_cliente)
+          .getCreditos(form)
           .then((response) => {
             let creditos = response.data;
             if (creditos.length > 0) {
@@ -266,6 +268,16 @@ export default {
         //traer monto
       }
     },
+    async getUserInfo() {
+      //get info user from auth
+      await auth
+        .userInfo(this.userLogged.id_cliente)
+        .then((response) => {
+          this.user = response.data[0];
+          this.setProductos();
+        })
+        .catch((error) => console.log(error));
+    },
   },
 
   computed: {
@@ -296,8 +308,7 @@ export default {
   async mounted() {
     if (process.env.NODE_ENV !== "production") console.log(this.userLogged);
     this.loading = true;
-    this.user = this.userLogged.info;
-    await this.setProductos();
+    await this.getUserInfo();
     this.loading = false;
   },
 };

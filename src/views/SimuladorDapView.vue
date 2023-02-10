@@ -27,6 +27,9 @@
                       mdi-briefcase-account
                     </v-icon>
                   </template>
+                  <template v-slot:item="{ item }">
+                    {{ conv.capitalizeString(item.nombre.split(" - ")[1]) }}
+                  </template>
                 </v-select>
 
                 <v-text-field
@@ -361,6 +364,7 @@ export default {
       this.loadingEmail = true;
       let formEmail = {
         accion: "2",
+        producto: this.formData.producto.nombre.split(" - ")[1],
         clien_s_id: this.userLogged.id_cliente,
         dap_tipo_deposito: this.formData.producto.nombre,
         dap_dias_plazo: this.resultado.dias_plazo_real,

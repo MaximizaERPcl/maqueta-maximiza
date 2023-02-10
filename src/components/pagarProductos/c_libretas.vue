@@ -1,39 +1,35 @@
 <template>
   <v-data-table
-    v-if="capital"
-    :headers="cabecera.capital"
-    :items="indexedCapital"
-    v-model="selectedCapital"
-    :no-data-text="
-      capital.length == 0
-        ? 'No hay abonos capital por pagar'
-        : 'No puede hacer abonos capital si mantiene un crédito castigado'
-    "
+    v-if="libretas"
+    :headers="cabecera.libretas"
+    :items="indexedAhorro"
+    v-model="selectedLibreta"
     dense
     hide-default-footer
     show-select
-    single-select
     class="mx-1 mb-4 elevation-1"
-    @item-selected="selectItem($event, 'selectedCapital')"
   >
-    <template v-slot:item.vigente="{}"> Abono Pactado </template>
-    <template v-slot:item.abono_pactado="{ item }">
-      <div v-if="!selectedItem(item.id, selectedCapital)">
-        {{ conv.formatMonto(item.abono_pactado, true) }}
+    <template v-slot:item.nombre="{ item }">
+      {{ conv.capitalizeString(item.nombre) }}
+    </template>
+    <template v-slot:item.saldo="{ item }"> ${{ item.saldo }} </template>
+    <template v-slot:item.amount="{ item }">
+      <div v-if="!selectedItem(item.id, selectedLibreta)">
+        {{ conv.formatMonto(item.abono_minimo, true) }}
       </div>
       <div v-else>
-        <v-form v-model="validCapital">
+        <v-form v-model="validAhorro">
           <v-text-field
             required
             dense
             hide-details="auto"
             single-line
             v-mask="currencyMask"
-            v-model="selectedCapitalAux[item.id].abono_pactado"
-            @input="formatAmountCap()"
+            v-model="selectedLibreta[findIdx(item.id, selectedLibreta)].amount"
+            @input="formatRealValue(item.id)"
             :rules="[
               rules.required,
-              (v) => !!v && revisarMontoCapital(item.id),
+              (v) => !!v && revisarMonto(findIdx(item.id, selectedLibreta)),
             ]"
           >
             <template v-slot:append-outer>
@@ -41,7 +37,7 @@
                 <template v-slot:activator="{ on }">
                   <v-icon small v-on="on" color="warning"> mdi-pencil </v-icon>
                 </template>
-                Abono
+                Abono Cuenta de Ahorro
               </v-tooltip>
             </template>
           </v-text-field>
@@ -51,7 +47,7 @@
     <template v-slot:top>
       <v-system-bar flat outlined dense :color="colorCabeceras" height="35">
         <v-toolbar-title class="flex text-center cabecera"
-          >Capital</v-toolbar-title
+          >Cuentas de ahorro</v-toolbar-title
         >
       </v-system-bar>
     </template>
@@ -68,9 +64,8 @@ export default {
       cabecera: cabeceras,
       loading: true,
       colorCabeceras: "secondary",
-      selectedCapital: [],
-      validCapital: true,
-      selectedCapitalAux: [],
+      selectedLibreta: [],
+      validAhorro: true,
       currencyMask: createNumberMask({
         prefix: "$",
         includeThousandsSeparator: true,
@@ -83,36 +78,27 @@ export default {
     }; //return
   }, //data
   methods: {
+    findIdx(id, arr) {
+      return arr.findIndex((e) => e.id == id);
+    },
     selectedItem(id, array) {
       return array.findIndex((item) => item.id == id) >= 0 ? true : false;
     },
-    selectItem(event, array) {
-      let item = event.item;
-      let value = event.value;
-
-      if (value) {
-        let temp_item = JSON.parse(JSON.stringify(item));
-        this[array].push(temp_item);
-        this[array + "Aux"] = JSON.parse(JSON.stringify(this[array]));
-      } else {
-        this[array].pop();
-        this[array + "Aux"].pop();
-      }
-    },
-    formatAmountCap() {
-      let current = this.selectedCapitalAux[0].abono_pactado;
+    formatRealValue(id) {
+      let itemId = this.selectedLibreta.findIndex((item) => item.id == id);
+      let current = this.selectedLibreta[itemId].amount;
       if (current && current != "$")
-        this.selectedCapital[0].abono_pactado = this.desmonetizar(current);
-      else this.selectedCapital[0].abono_pactado = 0;
+        this.selectedLibreta[itemId].monto = this.desmonetizar(current);
+      else this.selectedLibreta[itemId].monto = 0;
     },
     desmonetizar(monto) {
       return monto.replace("$", "").split(".").join("");
     },
-    revisarMontoCapital(idx) {
-      let monto = parseInt(this.selectedCapital[idx].abono_pactado);
-      let min = parseInt(this.indexedCapital[idx].abono_pactado);
-      let max = parseInt(this.indexedCapital[idx].abono_maximo);
-
+    revisarMonto(idx) {
+      let monto = parseInt(this.selectedLibreta[idx].monto);
+      let min = parseInt(this.indexedAhorro[idx].abono_minimo);
+      let max = parseInt(this.indexedAhorro[idx].abono_maximo);
+      if (max == 0) max = monto + 1;
       if (monto < min)
         return false || "Monto mínimo: " + conv.formatMonto(min, true);
       else if (monto > max)
@@ -124,23 +110,28 @@ export default {
     conv() {
       return conv;
     },
-    indexedCapital() {
-      return this.capital.map((item, index) => ({
+    indexedAhorro() {
+      return this.libretas.map((item, index) => ({
         id: index,
+        amount: item.abono_minimo,
+        monto: item.abono_minimo,
         ...item,
       }));
     },
   }, //computed
   watch: {
-    selectedCapital: function () {
-      this.$root.$emit("enviarCapital", this.selectedCapital);
+    selectedLibreta: {
+      handler() {
+        this.$root.$emit("enviarAhorro", this.selectedLibreta);
+      },
+      deep: true,
     },
-    validCapital: function () {
-      this.$root.$emit("validCapital", this.validCapital);
+    validAhorro: function () {
+      this.$root.$emit("validAhorro", this.validAhorro);
     },
   },
   props: {
-    capital: null,
+    libretas: null,
   }, //props
 }; //export default
 </script>

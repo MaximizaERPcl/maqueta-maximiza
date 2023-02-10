@@ -20,21 +20,18 @@ export default {
     return axios.post(URL_API + "login", data);
   },
   async setUserLogged(userLogged) {
-    //var expireTime = new Date(new Date().getTime() + 14.95 * 60 * 1000);
-    //sessionStorage.setItem("userImageMxz", userLogged.imagen_b64);
-    //delete userLogged.imagen_b64;
+    var expireTime = new Date(new Date().getTime() + 14.95 * 60 * 1000);
+    sessionStorage.setItem("userImageMxz", userLogged.imagen_b64);
+    delete userLogged.imagen_b64;
     var usuarioEncriptado = CryptoJS.AES.encrypt(
       JSON.stringify(userLogged),
       process.env.VUE_APP_CRYPT_KEY
     ).toString();
-    Cookies.set(
-      "userLoggedMxz",
-      usuarioEncriptado /*, {
+    Cookies.set("userLoggedMxz", usuarioEncriptado, {
       expires: expireTime,
-    }*/
-    );
+    });
     //store.dispatch("updateBits");
-    //Cookies.set("userLoggedExpired", expireTime);
+    Cookies.set("userLoggedExpired", expireTime);
   },
 
   getUserLogged() {
@@ -47,10 +44,14 @@ export default {
     return JSON.parse(usuario);
   },
   cerrarSesion() {
+    Cookies.remove("userLoggedExpired");
     Cookies.remove("userLoggedMxz");
   },
   isAuthenticated() {
     return Cookies.get("userLoggedMxz") !== undefined;
+  },
+  isExpireSet() {
+    return Cookies.get("userLoggedExpired") !== undefined;
   },
 
   userInfo(id_cliente) {

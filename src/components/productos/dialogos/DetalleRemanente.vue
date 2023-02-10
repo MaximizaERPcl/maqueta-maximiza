@@ -41,7 +41,9 @@
 
               <v-list-item-content>
                 <v-list-item-subtitle>Nombre</v-list-item-subtitle>
-                <v-list-item-title>{{ dialog.user.nombre }}</v-list-item-title>
+                <v-list-item-title>{{
+                  conv.capitalizeString(dialog.user.nombre)
+                }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider></v-divider>
@@ -55,7 +57,7 @@
               <v-list-item-content>
                 <v-list-item-subtitle>Producto</v-list-item-subtitle>
                 <v-list-item-title>{{
-                  dialog.data.Producto
+                  conv.capitalizeString(dialog.data.Producto)
                 }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
@@ -144,6 +146,11 @@
           :search="search"
         >
           <template v-slot:item.monto="{ item }">
+            <v-icon v-if="parseInt(item.monto) > 0" color="success" left>
+              mdi-arrow-bottom-left
+            </v-icon>
+            <v-icon v-else color="error" left>mdi-arrow-top-right</v-icon>
+
             {{ conv.formatMonto(item.monto, true) }}
           </template>
           <template v-slot:item.saldo="{ item }">
@@ -172,20 +179,33 @@ import socio from "@/services/socio";
 import conv from "@/services/conversores";
 import pdf from "@/services/pdfGenerator";
 import { formatterRut } from "chilean-formatter";
+import funciones from "@/services/funciones";
 
 export default {
   props: ["dialog"],
   data() {
     return {
       cabeceras: [
-        { text: "Fecha", align: "start", sortable: true, value: "fecha" },
+        {
+          text: "Fecha",
+          align: "start",
+          sortable: true,
+          value: "fecha",
+          sort: (a, b) => funciones.compareFn(a, b),
+        },
         {
           text: "Tipo",
           align: "start",
           sortable: true,
           value: "tipo",
         },
-        { text: "Monto", align: "start", sortable: true, value: "monto" },
+        {
+          text: "Monto",
+          align: "start",
+          sortable: true,
+          value: "monto",
+          sort: (a, b) => funciones.compareValue(a, b),
+        },
         { text: "Saldo", align: "start", sortable: true, value: "saldo" },
       ],
       detalles: [],

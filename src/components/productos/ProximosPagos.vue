@@ -143,43 +143,6 @@ export default {
         })
         .catch((error) => console.log(error));
     },
-    getPagosCercanos() {
-      //No se usa, pero la dejo porque le puse empeño :(, filtra por un rango de fechas
-      const hoy = new Date(Date.now());
-      const meses = [
-        "Enero",
-        "Febrero",
-        "Marzo",
-        "Abril",
-        "Mayo",
-        "Junio",
-        "Julio",
-        "Agosto",
-        "Septiembre",
-        "Octubre",
-        "Noviembre",
-        "Diciembre",
-      ];
-      const mes1 = new Date(hoy.setMonth(hoy.getMonth() + 1));
-      const mes2 = new Date(hoy.setMonth(hoy.getMonth() + 1));
-      const mes3 = new Date(hoy.setMonth(hoy.getMonth() + 1));
-
-      this.cabeceras[0].text = meses[mes1.getMonth()];
-      this.cabeceras[1].text = meses[mes2.getMonth()];
-      this.cabeceras[2].text = meses[mes3.getMonth()];
-
-      const start = new Date(mes1.getFullYear(), mes1.getMonth(), 1);
-      const end = new Date(mes3.getFullYear(), mes3.getMonth() + 1, 0);
-
-      var pagosFiltrados = this.items.filter((item) => {
-        var dateParts = item.fecha_venc.split("/");
-        var date = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]);
-        return date >= start && date <= end;
-      });
-      this.pagos[0].mes1 = parseInt(pagosFiltrados[0].valor_cuota);
-      this.pagos[0].mes2 = parseInt(pagosFiltrados[1].valor_cuota);
-      this.pagos[0].mes3 = parseInt(pagosFiltrados[2].valor_cuota);
-    },
   },
   computed: {
     conv() {

@@ -251,6 +251,7 @@ import socio from "@/services/socio";
 import conv from "@/services/conversores";
 import { formatterRut } from "chilean-formatter";
 import pdf from "@/services/pdfGenerator";
+import funciones from "@/services/funciones";
 
 export default {
   props: ["dialog"],
@@ -263,6 +264,7 @@ export default {
           align: "start",
           sortable: true,
           value: "fecha_venc",
+          sort: (a, b) => funciones.compareFn(a, b),
         },
         { text: "Estado", align: "start", sortable: true, value: "estado" },
         {
@@ -299,12 +301,14 @@ export default {
       return formatterRut(rut);
     },
     async getSocioCredito() {
+      let form = {
+        clien_s_id: this.dialog.user.id_cliente,
+        creme_s_id: this.dialog.data.credito,
+      };
       await socio
-        .getCreditos(this.dialog.user.id_cliente)
+        .getCreditos(form)
         .then((response) => {
-          this.credito = response.data.filter(
-            (credito) => credito.credito === this.dialog.data.credito
-          )[0];
+          this.credito = response.data[0];
         })
         .catch((error) => console.log(error));
     },
@@ -324,6 +328,7 @@ export default {
     },
     exportPDF() {
       let dialog = JSON.parse(JSON.stringify(this.dialog));
+      dialog.credito = this.credito;
       pdf.exportToPdfCredito(
         this.cabeceras,
         this.detalles,

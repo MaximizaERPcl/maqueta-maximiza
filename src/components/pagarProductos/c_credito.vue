@@ -1,7 +1,7 @@
 <template>
-  <div v-if="pagos">
+  <div v-if="creditos">
+    {{ /*v-if="&& userLogged.b_paga_credito === '1'"*/ }}
     <v-data-table
-      v-if="pagos.credito.length > 0 /*&& userLogged.b_paga_credito === '1'*/"
       v-model="selected"
       dense
       :headers="cabecera.credito"
@@ -171,7 +171,7 @@ export default {
   }, //methods
   computed: {
     indexedItems() {
-      return this.pagos.credito.map((item, index) => ({
+      return this.creditos.map((item, index) => ({
         id: index,
         ...item,
       }));
@@ -192,7 +192,7 @@ export default {
     },
   }, //watch
   props: {
-    pagos: null,
+    creditos: null,
   }, //props
 }; //dafault
 </script>

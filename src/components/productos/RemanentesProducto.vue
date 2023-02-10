@@ -8,6 +8,7 @@
             dark
             flat
             tile
+            dense
             class="mb-4 primaryGradient"
           >
             <v-toolbar-title class="flex text-center titulo"
@@ -36,6 +37,9 @@
             <app-no-datos v-if="noDatos" v-bind:msg="msg"></app-no-datos>
             <v-container v-else>
               <v-data-table :headers="cabeceras.general" :items="remanentes">
+                <template v-slot:item.Producto="{ item }">
+                  {{ conv.capitalizeString(item.Producto) }}
+                </template>
                 <template v-slot:item.vistd_m_monto="{ item }">
                   {{ conv.formatMonto(item.vistd_m_monto, true) }}
                 </template>
@@ -73,6 +77,7 @@ import NoDataVue from "../app/NoDataApp.vue";
 import DetalleRemanenteVue from "./dialogos/DetalleRemanente.vue";
 import conv from "@/services/conversores";
 import cabecerasRemanente from "@/assets/json/cabecerasRemanente.json";
+import funciones from "@/services/funciones";
 
 export default {
   metaInfo: {
@@ -85,6 +90,7 @@ export default {
   data: function () {
     return {
       cabeceras: cabecerasRemanente,
+      cabeceraGeneral: [],
       remanentes: [],
       noDatos: false,
       msg: "NO POSEE REMANENTES ASOCIADOS",
@@ -119,6 +125,12 @@ export default {
         })
         .catch((error) => console.log(error));
     },
+    //funcion para inicializar cabeceras de un remanente
+    initCabeceraGeneral() {
+      let cabeceraGeneral = this.cabeceras.general;
+      cabeceraGeneral[3].sort = (a, b) => funciones.compareFn(a, b);
+    },
+
     mostrarDetalle(item) {
       this.dialog.data = item;
       this.dialog.user = this.userLogged;
@@ -134,12 +146,6 @@ export default {
 </script>
 
 <style scoped lang="css">
-.titulo {
-  font-size: 30px;
-  line-height: 30px;
-  word-break: normal;
-  font-weight: 300;
-}
 .cabecera {
   color: white;
   font-weight: 300;

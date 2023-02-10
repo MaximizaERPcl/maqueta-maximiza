@@ -96,7 +96,6 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  console.log("to", to);
   //Lógica que se ejecuta antes de renderizar la ruta a la vista respectiva
   //Primero se debe validar si la ruta requiere autenticación
   if (to.matched.some((record) => record.meta.requiresAuth)) {

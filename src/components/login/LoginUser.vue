@@ -84,7 +84,12 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["mostrarAlerta", "cerrarAlerta", "mostrarDialogoMora"]),
+    ...mapActions([
+      "mostrarAlerta",
+      "cerrarAlerta",
+      "mostrarDialogoMora",
+      "set_timeout",
+    ]),
     validate() {
       this.$refs.form.validate();
       if (this.valid) {
@@ -100,18 +105,12 @@ export default {
           let payload = {};
 
           if (data.codigo == 1) {
-            let id_cliente = data.rut.split("-")[0];
-            await auth
-              .userInfo(id_cliente)
-              .then(async (response) => {
-                data.info = response.data[0];
-              })
-              .catch((error) => console.log(error));
-            if (data.b_mora !== "0") {
+            /* if (data.b_mora !== "0") {
               await this.mostrarDialogoMora(true);
-            }
+            }*/
             await auth.setUserLogged(data);
-            this.$router.push("/maximiza_vue/ingresa");
+            this.set_timeout();
+            this.$router.push("/inicio");
             payload = {
               mensaje: data.msg,
               color: "success",

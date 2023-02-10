@@ -175,11 +175,16 @@
           :items-per-page="5"
           :search="search"
         >
-          <template v-slot:item.monto="{ item }">
-            {{ conv.formatMonto(item.monto, true) }}
-          </template>
           <template v-slot:item.saldo="{ item }">
             {{ conv.formatMonto(item.saldo, true) }}
+          </template>
+          <template v-slot:item.monto="{ item }">
+            <v-icon v-if="parseInt(item.monto) > 0" color="success" left>
+              mdi-arrow-bottom-left
+            </v-icon>
+            <v-icon v-else color="error" left>mdi-arrow-top-right</v-icon>
+
+            {{ conv.formatMonto(item.monto, true) }}
           </template>
         </v-data-table>
 
@@ -204,20 +209,33 @@ import socio from "@/services/socio";
 import conv from "@/services/conversores";
 import pdf from "@/services/pdfGenerator";
 import { formatterRut } from "chilean-formatter";
+import funciones from "@/services/funciones";
 
 export default {
   props: ["dialog"],
   data() {
     return {
       cabeceras: [
-        { text: "Fecha", align: "start", sortable: true, value: "fecha" },
+        {
+          text: "Fecha",
+          align: "start",
+          sortable: true,
+          value: "fecha",
+          sort: (a, b) => funciones.compareFn(a, b),
+        },
         {
           text: "Tipo",
           align: "start",
           sortable: true,
           value: "tipo",
         },
-        { text: "Monto", align: "start", sortable: true, value: "monto" },
+        {
+          text: "Monto",
+          align: "start",
+          sortable: true,
+          value: "monto",
+          sort: (a, b) => funciones.compareValue(a, b),
+        },
         { text: "Saldo", align: "start", sortable: true, value: "saldo" },
       ],
       detalles: [],

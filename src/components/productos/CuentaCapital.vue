@@ -8,6 +8,7 @@
             dark
             flat
             tile
+            dense
             class="mb-4 primaryGradient"
           >
             <v-toolbar-title class="flex text-center titulo"
@@ -128,7 +129,7 @@ export default {
 
       detalleCta: [],
       cuenta_capital: {},
-      noDatos: false,
+      noDatos: true,
       msg: "NO POSEE CUENTAS CAPITALES ASOCIADAS",
       loading: true,
       loadingDetalle: true,
@@ -212,23 +213,23 @@ export default {
   },
   async mounted() {
     this.loading = true;
-    if (this.userLogged.info.cuenta_capital != "0") {
-      this.noDatos = false;
-      this.initCabeceras();
-      await this.getCuentaCapital();
-    } else this.noDatos = true;
-
+    //get info user from auth
+    await auth
+      .userInfo(this.userLogged.id_cliente)
+      .then(async (response) => {
+        let user = response.data[0];
+        if (user.cuenta_capital != "0") {
+          this.noDatos = false;
+          this.initCabeceras();
+          await this.getCuentaCapital();
+        } else this.noDatos = true;
+      })
+      .catch((error) => console.log(error));
     this.loading = false;
   },
 };
 </script>
 <style scoped lang="css">
-.titulo {
-  font-size: 30px;
-  line-height: 30px;
-  word-break: normal;
-  font-weight: 300;
-}
 .cabecera {
   color: white;
   font-weight: 300;

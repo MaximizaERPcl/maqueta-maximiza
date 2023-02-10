@@ -8,6 +8,7 @@
             dark
             flat
             tile
+            dense
             class="mb-4 primaryGradient"
           >
             <v-toolbar-title class="flex text-center titulo"
@@ -137,11 +138,18 @@ export default {
   },
   async mounted() {
     this.loading = true;
-    if (this.userLogged.info.dap != "0") {
-      this.noDatos = false;
-      this.initCabecera();
-      await this.getDap();
-    } else this.noDatos = true;
+
+    await auth
+      .userInfo(this.userLogged.id_cliente)
+      .then(async (response) => {
+        let user = response.data[0];
+        if (user.dap != "0") {
+          this.noDatos = false;
+          this.initCabecera();
+          await this.getDap();
+        } else this.noDatos = true;
+      })
+      .catch((error) => console.log(error));
 
     this.loading = false;
   },
@@ -149,12 +157,6 @@ export default {
 </script>
 
 <style scoped lang="css">
-.titulo {
-  font-size: 30px;
-  line-height: 30px;
-  word-break: normal;
-  font-weight: 300;
-}
 .cabecera {
   color: white;
   font-weight: 300;

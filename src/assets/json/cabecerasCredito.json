@@ -1,17 +1,5 @@
 {
   "creditos": [
-    {
-      "text": "N°",
-      "align": "start",
-      "sortable": true,
-      "value": "credito"
-    },
-    {
-      "text": "Tipo de crédito",
-      "align": "start",
-      "sortable": true,
-      "value": "tipo_credito"
-    },
     { "text": "Cuotas", "align": "start", "sortable": true, "value": "cuotas" },
     {
       "text": "Valor Cuota",
@@ -55,10 +43,10 @@
   ],
   "morosas": [
     {
-      "text": "Tipo de crédito",
+      "text": "Crédito",
       "align": "start",
       "sortable": true,
-      "value": "tipo_credito"
+      "value": "credito"
     },
     {
       "text": "Cuota N°",

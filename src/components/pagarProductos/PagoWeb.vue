@@ -42,20 +42,34 @@
             <div v-else>
               <app-no-datos
                 v-if="noPago"
-                v-bind:msg="userLogged.msg_nopago"
+                v-bind:msg="/*userLogged.msg_nopago*/ noPagoMsg"
               ></app-no-datos>
 
               <v-container v-else>
                 <v-row dense>
                   <v-col cols="12" md="8">
                     <!-- -----------------------Pago Capital ----------------------------------->
-                    <c_capital :pagos="pagos" />
+                    <c_capital :capital="pagos.capital" />
                     <!-- ------------------------ Pago creditos -------------------------- -->
-                    <c_credito :pagos="pagos" />
+                    <c_credito
+                      v-if="pagos.credito.length > 0"
+                      :creditos="pagos.credito"
+                    />
                     <!---------------------- Pago creditos castigados---------------------------->
-                    <c_credito_castigado :pagos="pagos" />
+                    <c_credito_castigado
+                      :castigados="pagos.credito_castigado"
+                    />
+
+                    <!-- -----------------------Pago Capital ----------------------------------->
+                    <c_libretas
+                      v-if="pagos.libretas.length > 0"
+                      :libretas="pagos.libretas"
+                    />
                     <!---------------------- Pago comisión creditos---------------------------->
-                    <c_comision :pagos="pagos" />
+                    <c_comision
+                      v-if="pagos.comision_credito.length > 0"
+                      :comision_credito="pagos.comision_credito"
+                    />
                   </v-col>
                   <!---------------------------------Calculo Totales --------------------------------->
                   <c_total_pagar
@@ -84,7 +98,7 @@
 import auth from "@/auth/auth";
 import pago from "@/services/pago";
 import conv from "@/services/conversores";
-import { mapActions, mapMutations } from "vuex";
+import { mapActions } from "vuex";
 import PagoResultVue from "./PagoResult.vue";
 import NoDataVue from "../app/NoDataApp.vue";
 
@@ -93,6 +107,7 @@ import c_credito from "./c_credito.vue";
 import c_credito_castigado from "./c_credito_castigado.vue";
 import c_comision from "./c_comision.vue";
 import c_total_pagar from "./c_total_pagar.vue";
+import c_libretas from "./c_libretas.vue";
 export default {
   components: {
     "pago-resultado": PagoResultVue,
@@ -102,6 +117,7 @@ export default {
     c_credito_castigado: c_credito_castigado,
     c_comision: c_comision,
     c_total_pagar: c_total_pagar,
+    c_libretas: c_libretas,
   },
   data() {
     return {
@@ -109,6 +125,7 @@ export default {
       prePago: null,
       loadingPago: false,
       noPago: false,
+      noPagoMsg: "",
       token_ws: "",
       token_ws_returned: "",
       url_ws: "",
@@ -116,6 +133,7 @@ export default {
       total: 0,
       selected: [],
       selectedCastigados: [],
+      selectedAhorro: [],
       selectedCapital: [],
       selectedComCre: [],
       retorno_cupon: null,
@@ -130,8 +148,31 @@ export default {
     };
   },
   methods: {
-    ...mapMutations(["close_timeout", "set_timeout"]),
-    ...mapActions(["mostrarAlerta"]),
+    ...mapActions(["mostrarAlerta", "close_timeout", "set_timeout"]),
+    async getInfoProductos() {
+      let data = {
+        rut: this.userLogged.rut,
+        web_token: this.userLogged.token,
+      };
+      await pago
+        .info_producto(data)
+        .then((response) => {
+          let data = response.data;
+          console.log(data);
+          if (data.codigo === "1") this.pagos = response.data;
+          else {
+            this.mostrarAlerta({
+              mensaje: data.msg,
+              color: "error",
+              mostrar: true,
+            });
+            this.noPago = true;
+            this.noPagoMsg =
+              "No se ha podido obtener la información de los productos a pagar.";
+          }
+        })
+        .catch((error) => console.log(error));
+    },
     async getTokenTB() {
       await pago
         .obtener_token_tb(this.prePago)
@@ -144,6 +185,7 @@ export default {
     },
     async generarCuponPago() {
       let credito = [];
+      let libreta = [];
       let castigado = [];
       let capital = [];
       let comCre = [];
@@ -156,6 +198,11 @@ export default {
         monto: item.valor_cuota,
       }));
 
+      libreta = this.selectedAhorro.map((item) => ({
+        cuenta: item.id_libreta,
+        monto: item.monto,
+      }));
+
       capital = this.selectedCapital.map((item) => ({
         abono_pactado: item.abono_pactado,
       }));
@@ -166,6 +213,7 @@ export default {
       }));
 
       credito = credito.concat(castigado);
+
       if (capital.length == 0) capital.push({ abono_pactado: 0 });
 
       let finalObject = {
@@ -176,6 +224,7 @@ export default {
           credito: credito,
           capital: capital[0],
           comision_cre: comCre[0],
+          libreta: libreta,
         },
         monto_pagar: this.total,
       };
@@ -216,19 +265,7 @@ export default {
           this.mostrarAlerta(payload);
         });
     },
-    async getInfoProductos() {
-      let data = {
-        rut: this.userLogged.rut,
-        web_token: this.userLogged.token,
-      };
-      await pago
-        .info_producto(data)
-        .then((response) => {
-          console.log(response.data);
-          this.pagos = response.data;
-        })
-        .catch((error) => console.log(error));
-    },
+
     async pagar() {
       this.loadingPago = true;
       await this.generarCuponPago();
@@ -244,7 +281,10 @@ export default {
         window.location.origin + process.env.BASE_URL + "pago-web";
       await this.getInfoProductos();
       this.loading = false;
-      if (this.verifyData) this.noPago = true;
+      if (this.verifyData) {
+        this.noPago = true;
+        this.noPagoMsg = "No se han encontrado productos a pagar";
+      }
 
       if (localStorage.getItem("token_ws") != null) {
         this.close_timeout();
@@ -285,13 +325,15 @@ export default {
       return auth.getUserLogged();
     },
     verifyData() {
-      let pagos = this.pagos;
-      return (
-        pagos.credito.length == 0 &&
-        pagos.credito_castigado.length == 0 &&
-        pagos.capital.length == 0 &&
-        pagos.comision_credito.length == 0
-      );
+      if (this.pagos) {
+        let pagos = this.pagos;
+        return (
+          pagos.credito.length == 0 &&
+          pagos.credito_castigado.length == 0 &&
+          pagos.capital.length == 0 &&
+          pagos.comision_credito.length == 0
+        );
+      } else return false;
     },
   },
   async mounted() {
@@ -312,6 +354,9 @@ export default {
     this.$root.$on("enviarCredito", (item) => {
       this.selected = item;
     }); //enviarCredito
+    this.$root.$on("enviarAhorro", (data) => {
+      this.selectedAhorro = data;
+    }); //enviarCapital
     this.$root.$on("enviarCastigados", (item) => {
       this.selectedCastigados = item;
     }); //enviarCredito

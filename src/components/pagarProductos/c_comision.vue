@@ -1,7 +1,6 @@
 <template>
-  <div v-if="pagos">
+  <div v-if="comision_credito">
     <v-data-table
-      v-if="indexedItemsComCre.length > 0"
       v-model="selectedComCre"
       show-select
       single-select
@@ -44,14 +43,12 @@ export default {
   }, //data
   computed: {
     indexedItemsComCre() {
-      if (this.pagos.comision_credito.length >= 0) {
-        let indexedArray = this.pagos.comision_credito.map((item, index) => ({
-          id: index,
-          ...item,
-        }));
-        this.$root.$emit("enviarComision", this.pagos.comision_credito);
-        return indexedArray;
-      } else return [];
+      let indexedArray = this.comision_credito.map((item, index) => ({
+        id: index,
+        ...item,
+      }));
+      this.$root.$emit("enviarComision", this.comision_credito);
+      return indexedArray;
     }, //indexedItemsComCre
     conv() {
       return conv;
@@ -61,9 +58,9 @@ export default {
     selectedComCre: function () {
       this.$root.$emit("enviarComision", this.selectedComCre);
     },
-  },//watch
-  props:{
-    pagos:null,
-  },//props
+  }, //watch
+  props: {
+    comision_credito: null,
+  }, //props
 }; //default
 </script>

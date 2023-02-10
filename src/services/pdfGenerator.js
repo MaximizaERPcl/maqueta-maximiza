@@ -86,32 +86,33 @@ export default {
       margin: { top: 120 },
       theme: "grid",
     });
+    if (detalles.length > 0) {
+      //Se definen las cabeceras para las tablas
+      var cabeceras = [];
+      cab.forEach((item) => {
+        cabeceras.push({ title: item.text, dataKey: item.value });
+      });
 
-    //Se definen las cabeceras para las tablas
-    var cabeceras = [];
-    cab.forEach((item) => {
-      cabeceras.push({ title: item.text, dataKey: item.value });
-    });
-
-    let temp = true;
-    //Se insertan la tabla con sus respectivos datos
-    doc.autoTable({
-      columns: cabeceras,
-      body: detalles,
-      didDrawPage: function (data) {
-        if (temp)
-          doc.text(
-            "Detalles de renovaciones:",
-            data.settings.margin.left,
-            data.settings.startY - 5
-          );
-        temp = false;
-      },
-      margin: { top: 10 },
-      startY: doc.lastAutoTable.finalY + 30,
-      theme: "grid",
-      headStyles: { fillColor: COLOR_PRINCIPAL, lineWidth: 1 },
-    });
+      let temp = true;
+      //Se insertan la tabla con sus respectivos datos
+      doc.autoTable({
+        columns: cabeceras,
+        body: detalles,
+        didDrawPage: function (data) {
+          if (temp)
+            doc.text(
+              "Detalles de renovaciones:",
+              data.settings.margin.left,
+              data.settings.startY - 5
+            );
+          temp = false;
+        },
+        margin: { top: 10 },
+        startY: doc.lastAutoTable.finalY + 30,
+        theme: "grid",
+        headStyles: { fillColor: COLOR_PRINCIPAL, lineWidth: 1 },
+      });
+    }
     doc.save(
       "dap_" +
         cleanRut(obj.user.rut, true) +
@@ -132,10 +133,10 @@ export default {
     });
 
     //Se genera el documento
-    var doc = new jsPDF("p", "pt");
+    let doc = new jsPDF("p", "pt");
 
     //Se inserta el logo
-    var img = new Image();
+    let img = new Image();
     img.src = require("@/assets/logos/logo.png");
     doc.addImage(img, "png", 40, 5, 142, 55);
 
@@ -148,9 +149,19 @@ export default {
     //Se modifican los datos tipo objeto para adaptarlos al PDF
 
     doc.setFontSize(13);
-    var datos = [];
-    datos.push(["Nombre", obj.user.nombre, "Rut", formatterRut(obj.user.rut)]);
-    datos.push(["Producto", obj.data.tipo_credito, "Estado", obj.data.estado]);
+    let datos = [];
+    datos.push([
+      "Nombre",
+      conv.capitalizeString(obj.user.nombre),
+      "Rut",
+      formatterRut(obj.user.rut),
+    ]);
+    datos.push([
+      "Producto",
+      obj.data.tipo_credito.split(" - ")[1],
+      "Estado",
+      obj.data.estado,
+    ]);
     datos.push([
       "Fecha Otorgamiento",
       obj.data.fecha_otorgamiento,
@@ -188,34 +199,34 @@ export default {
         );
       },
       margin: { top: 120 },
-      theme: "grid",
     });
+    if (detalles.length > 0) {
+      //Se definen las cabeceras para las tablas
+      let cabeceras = [];
+      cab.forEach((item) => {
+        cabeceras.push({ title: item.text, dataKey: item.value });
+      });
 
-    //Se definen las cabeceras para las tablas
-    var cabeceras = [];
-    cab.forEach((item) => {
-      cabeceras.push({ title: item.text, dataKey: item.value });
-    });
-
-    let temp = true;
-    //Se insertan la tabla con sus respectivos datos
-    doc.autoTable({
-      columns: cabeceras,
-      body: detalles,
-      didDrawPage: function (data) {
-        if (temp)
-          doc.text(
-            "Detalles de amortización:",
-            data.settings.margin.left,
-            data.settings.startY - 5
-          );
-        temp = false;
-      },
-      startY: doc.lastAutoTable.finalY + 30,
-      margin: { top: 10 },
-      theme: "grid",
-      headStyles: { fillColor: COLOR_PRINCIPAL, lineWidth: 1 },
-    });
+      let temp = true;
+      //Se insertan la tabla con sus respectivos datos
+      doc.autoTable({
+        columns: cabeceras,
+        body: detalles,
+        didDrawPage: function (data) {
+          if (temp)
+            doc.text(
+              "Detalles de amortización:",
+              data.settings.margin.left,
+              data.settings.startY - 5
+            );
+          temp = false;
+        },
+        startY: doc.lastAutoTable.finalY + 30,
+        margin: { top: 10 },
+        theme: "grid",
+        headStyles: { fillColor: COLOR_PRINCIPAL, lineWidth: 1 },
+      });
+    }
     doc.save(
       "cred_" +
         cleanRut(obj.user.rut, true) +
@@ -235,10 +246,10 @@ export default {
     });
 
     //Se genera el documento
-    var doc = new jsPDF("p", "pt");
+    let doc = new jsPDF("p", "pt");
 
     //Se inserta el logo
-    var img = new Image();
+    let img = new Image();
     img.src = require("@/assets/logos/logo.png");
     doc.addImage(img, "png", 40, 5, 142, 55);
 
@@ -251,7 +262,7 @@ export default {
 
     doc.setFontSize(13);
     //Se modifican los datos tipo objeto para adaptarlos al PDF
-    var datos = [];
+    let datos = [];
     datos.push(["Nombre", obj.user.nombre, "Rut", formatterRut(obj.user.rut)]);
     datos.push(["Producto", obj.data.nombre, "Estado", obj.data.estado]);
     datos.push([
@@ -274,10 +285,9 @@ export default {
       },
       body: datos,
       margin: { top: 120 },
-      theme: "grid",
     });
 
-    var datos2 = [];
+    let datos2 = [];
     datos2.push(["Forma de pago", obj.data.forma_pago]);
     datos2.push([
       "Monto de abono pactado",
@@ -296,34 +306,35 @@ export default {
       body: datos2,
       startY: doc.lastAutoTable.finalY + 30,
       margin: { top: 10 },
-      theme: "grid",
     });
 
     //Se definen las cabeceras para las tablas
-    var cabeceras = [];
-    cab.forEach((item) => {
-      cabeceras.push({ title: item.text, dataKey: item.value });
-    });
+    if (detalles.length > 0) {
+      let cabeceras = [];
+      cab.forEach((item) => {
+        cabeceras.push({ title: item.text, dataKey: item.value });
+      });
 
-    let temp = true;
-    //Se insertan la tabla con sus respectivos datos
-    doc.autoTable({
-      columns: cabeceras,
-      body: detalles,
-      didDrawPage: function (data) {
-        if (temp)
-          doc.text(
-            "Detalles de giros y abonos:",
-            data.settings.margin.left,
-            data.settings.startY - 5
-          );
-        temp = false;
-      },
-      margin: { top: 10 },
-      startY: doc.lastAutoTable.finalY + 30,
-      theme: "grid",
-      headStyles: { fillColor: COLOR_PRINCIPAL, lineWidth: 1 },
-    });
+      let temp = true;
+      //Se insertan la tabla con sus respectivos datos
+      doc.autoTable({
+        columns: cabeceras,
+        body: detalles,
+        didDrawPage: function (data) {
+          if (temp)
+            doc.text(
+              "Detalles de giros y abonos:",
+              data.settings.margin.left,
+              data.settings.startY - 5
+            );
+          temp = false;
+        },
+        margin: { top: 10 },
+        startY: doc.lastAutoTable.finalY + 30,
+        theme: "grid",
+        headStyles: { fillColor: COLOR_PRINCIPAL, lineWidth: 1 },
+      });
+    }
     doc.save(
       "lib_" +
         cleanRut(obj.user.rut, true) +
@@ -343,10 +354,10 @@ export default {
     });
 
     //Se genera el documento
-    var doc = new jsPDF("p", "pt");
+    let doc = new jsPDF("p", "pt");
 
     //Se inserta el logo
-    var img = new Image();
+    let img = new Image();
     img.src = require("@/assets/logos/logo.png");
     doc.addImage(img, "png", 40, 5, 142, 55);
 
@@ -359,9 +370,19 @@ export default {
 
     doc.setFontSize(13);
     //Se modifican los datos tipo objeto para adaptarlos al PDF
-    var datos = [];
-    datos.push(["Nombre", obj.user.nombre, "Rut", formatterRut(obj.user.rut)]);
-    datos.push(["Producto", obj.data.Producto, "N° Cuenta", obj.data.Cuenta]);
+    let datos = [];
+    datos.push([
+      "Nombre",
+      conv.capitalizeString(obj.user.nombre),
+      "Rut",
+      formatterRut(obj.user.rut),
+    ]);
+    datos.push([
+      "Producto",
+      conv.capitalizeString(obj.data.Producto),
+      "N° Cuenta",
+      obj.data.Cuenta,
+    ]);
     datos.push([
       "Estado",
       obj.data.estado,
@@ -385,34 +406,34 @@ export default {
         );
       },
       margin: { top: 120 },
-      theme: "grid",
     });
+    if (detalles.length > 0) {
+      //Se definen las cabeceras para las tablas
+      let cabeceras = [];
+      cab.forEach((item) => {
+        cabeceras.push({ title: item.text, dataKey: item.value });
+      });
 
-    //Se definen las cabeceras para las tablas
-    var cabeceras = [];
-    cab.forEach((item) => {
-      cabeceras.push({ title: item.text, dataKey: item.value });
-    });
-
-    let temp = true;
-    //Se insertan la tabla con sus respectivos datos
-    doc.autoTable({
-      columns: cabeceras,
-      body: detalles,
-      didDrawPage: function (data) {
-        if (temp)
-          doc.text(
-            "Detalles de giros y abonos:",
-            data.settings.margin.left,
-            data.settings.startY - 5
-          );
-        temp = false;
-      },
-      margin: { top: 10 },
-      startY: doc.lastAutoTable.finalY + 30,
-      theme: "grid",
-      headStyles: { fillColor: COLOR_PRINCIPAL, lineWidth: 1 },
-    });
+      let temp = true;
+      //Se insertan la tabla con sus respectivos datos
+      doc.autoTable({
+        columns: cabeceras,
+        body: detalles,
+        didDrawPage: function (data) {
+          if (temp)
+            doc.text(
+              "Detalles de giros y abonos:",
+              data.settings.margin.left,
+              data.settings.startY - 5
+            );
+          temp = false;
+        },
+        margin: { top: 10 },
+        startY: doc.lastAutoTable.finalY + 30,
+        theme: "grid",
+        headStyles: { fillColor: COLOR_PRINCIPAL, lineWidth: 1 },
+      });
+    }
     doc.save(
       "rem_" +
         cleanRut(obj.user.rut, true) +
@@ -423,25 +444,34 @@ export default {
   },
 
   //SIMULACION CREDITO
-  exportToPdfSimCredito(cab, tab, solicitud, resultado) {
+  exportToPdfSimCredito(/*cab, tab,*/ solicitud, resultado) {
     //Se formatean los datos para la tabla
-    let detalles = JSON.parse(JSON.stringify(tab));
+    /*let detalles = JSON.parse(JSON.stringify(tab));
 
     detalles.forEach((item) => {
       item.gascr_m_valor = "$" + item.gascr_m_valor;
-    });
+    });*/
 
     //Se genera el documento
-    var doc = new jsPDF("p", "pt");
+    let doc = new jsPDF("p", "pt");
 
     //Se inserta el logo
-    var img = new Image();
+    let img = new Image();
     img.src = require("@/assets/logos/logo.png");
     doc.addImage(img, "png", 40, 5, 142, 55);
 
     //Se inserta el titulo'
-    doc.text("Simulación de Crédito", 200, 90);
-
+    doc.setFont("Times", "bold");
+    doc.setFontSize(14);
+    doc.text(
+      "SIMULACIÓN DE CRÉDITO",
+      doc.internal.pageSize.getWidth() / 2,
+      80,
+      {
+        align: "center",
+      }
+    );
+    doc.setFont("Times", "normal");
     //Se inserta fecha
     doc.setFontSize(8);
     doc.text(conv.formatFecha(Date.now()), 40, 70);
@@ -449,7 +479,7 @@ export default {
 
     //Datos Solicitud
     doc.setFontSize(13);
-    var datos = [];
+    let datos = [];
     datos.push([
       "Solicitante",
       solicitud.nombre,
@@ -460,7 +490,7 @@ export default {
       "Fecha",
       conv.formatFecha(Date.now()),
       "Producto",
-      solicitud.producto.nombre,
+      conv.capitalizeString(solicitud.producto.nombre.split(" - ")[1]),
     ]);
     datos.push([
       "Monto Solicitado",
@@ -480,6 +510,7 @@ export default {
       head: [],
       body: datos,
       didDrawPage: function (data) {
+        doc.setTextColor(66, 133, 244);
         doc.text(
           "Datos Solicitante",
           data.settings.margin.left,
@@ -487,11 +518,14 @@ export default {
         );
       },
       margin: { top: 120 },
-      theme: "grid",
+      styles: { font: "Roboto-Regular" },
+      alternateRowStyles: {
+        fillColor: [240, 248, 255],
+      },
     });
 
     //Datos Simulacion
-    var datos2 = [];
+    let datos2 = [];
     datos2.push(["Valor Cuota", conv.formatMonto(resultado.valor_cuota, true)]);
     datos2.push(["Interés", conv.formatPorcentaje2(resultado.tasa_visible)]);
     datos2.push(["Monto Solicitado", "$" + solicitud.monto]);
@@ -510,6 +544,7 @@ export default {
     doc.autoTable({
       head: [],
       didDrawPage: function (data) {
+        doc.setTextColor(66, 133, 244);
         doc.text(
           "Datos de la simulación",
           data.settings.margin.left,
@@ -519,33 +554,38 @@ export default {
       body: datos2,
       startY: doc.lastAutoTable.finalY + 30,
       margin: { top: 10 },
-      theme: "grid",
-    });
-    //Se definen las cabeceras para las tablas
-    var cabeceras = [];
-    cab.forEach((item) => {
-      cabeceras.push({ title: item.text, dataKey: item.value });
-    });
-
-    let temp = true;
-    //Se insertan la tabla con sus respectivos datos
-    doc.autoTable({
-      columns: cabeceras,
-      body: detalles,
-      didDrawPage: function (data) {
-        if (temp)
-          doc.text(
-            "Detalle Gastos:",
-            data.settings.margin.left,
-            data.settings.startY - 5
-          );
-        temp = false;
+      styles: { font: "Roboto-Regular" },
+      alternateRowStyles: {
+        fillColor: [240, 248, 255],
       },
-      startY: doc.lastAutoTable.finalY + 30,
-      margin: { top: 10 },
-      theme: "grid",
-      headStyles: { fillColor: COLOR_PRINCIPAL, lineWidth: 1 },
     });
+    /*if (detalles.length > 0) {
+      //Se definen las cabeceras para las tablas
+      let cabeceras = [];
+      cab.forEach((item) => {
+        cabeceras.push({ title: item.text, dataKey: item.value });
+      });
+
+      let temp = true;
+      //Se insertan la tabla con sus respectivos datos
+      doc.autoTable({
+        columns: cabeceras,
+        body: detalles,
+        didDrawPage: function (data) {
+          if (temp)
+            doc.text(
+              "Detalle Gastos:",
+              data.settings.margin.left,
+              data.settings.startY - 5
+            );
+          temp = false;
+        },
+        startY: doc.lastAutoTable.finalY + 30,
+        margin: { top: 10 },
+        theme: "grid",
+        headStyles: { fillColor: COLOR_PRINCIPAL, lineWidth: 1 },
+      });
+    }*/
     doc.save(
       "simCred_" +
         cleanRut(solicitud.rut, true) +
@@ -558,15 +598,25 @@ export default {
   //SIMULACION DAP
   exportToPdfSimDAP(solicitud, resultado) {
     //Se genera el documento
-    var doc = new jsPDF("p", "pt");
+    let doc = new jsPDF("p", "pt");
 
     //Se inserta el logo
-    var img = new Image();
+    let img = new Image();
     img.src = require("@/assets/logos/logo.png");
     doc.addImage(img, "png", 40, 5, 142, 55);
 
     //Se inserta el titulo'
-    doc.text("Simulación de Depósito a Plazo", 200, 90);
+    doc.setFont("Times", "bold");
+    doc.setFontSize(14);
+    doc.text(
+      "SIMULACIÓN DE DEPÓSITO A PLAZO",
+      doc.internal.pageSize.getWidth() / 2,
+      80,
+      {
+        align: "center",
+      }
+    );
+    doc.setFont("Times", "normal");
 
     //Se inserta fecha
     doc.setFontSize(8);
@@ -575,7 +625,7 @@ export default {
 
     //Datos Solicitud
     doc.setFontSize(13);
-    var datos = [];
+    let datos = [];
     datos.push([
       "Solicitante",
       solicitud.nombre,
@@ -600,6 +650,7 @@ export default {
       head: [],
       body: datos,
       didDrawPage: function (data) {
+        doc.setTextColor(66, 133, 244);
         doc.text(
           "Datos Solicitante",
           data.settings.margin.left,
@@ -607,11 +658,14 @@ export default {
         );
       },
       margin: { top: 120 },
-      theme: "grid",
+      styles: { font: "Roboto-Regular" },
+      alternateRowStyles: {
+        fillColor: [240, 248, 255],
+      },
     });
 
     //Datos Simulacion
-    var datos2 = [];
+    let datos2 = [];
     datos2.push(["Tipo de depósito", solicitud.producto.nombre]);
     datos2.push(["Días Plazo", resultado.dias_plazo_real + " días"]);
     datos2.push(["Moneda", resultado.nombre_moneda]);
@@ -628,6 +682,7 @@ export default {
     doc.autoTable({
       head: [],
       didDrawPage: function (data) {
+        doc.setTextColor(66, 133, 244);
         doc.text(
           "Datos de la simulación",
           data.settings.margin.left,
@@ -637,7 +692,10 @@ export default {
       body: datos2,
       startY: doc.lastAutoTable.finalY + 30,
       margin: { top: 10 },
-      theme: "grid",
+      styles: { font: "Roboto-Regular" },
+      alternateRowStyles: {
+        fillColor: [240, 248, 255],
+      },
     });
     doc.save(
       "simDAP_" +
@@ -659,10 +717,10 @@ export default {
     });
 
     //Se genera el documento
-    var doc = new jsPDF("p", "pt");
+    let doc = new jsPDF("p", "pt");
 
     //Se inserta el logo
-    var img = new Image();
+    let img = new Image();
     img.src = require("@/assets/logos/logo.png");
     doc.addImage(img, "png", 40, 5, 142, 55);
 
@@ -675,7 +733,7 @@ export default {
     //Se modifican los datos tipo objeto para adaptarlos al PDF
 
     doc.setFontSize(13);
-    var datos = [];
+    let datos = [];
     datos.push([
       "Titular",
       conv.capitalizeString(obj.nombre),
@@ -702,34 +760,137 @@ export default {
       },
       margin: { top: 120 },
     });
+    if (detalles.length > 0) {
+      //Se definen las cabeceras para las tablas
+      let cabeceras = [];
+      cab.forEach((item) => {
+        cabeceras.push({ title: item.text, dataKey: item.value });
+      });
 
-    //Se definen las cabeceras para las tablas
-    var cabeceras = [];
-    cab.forEach((item) => {
-      cabeceras.push({ title: item.text, dataKey: item.value });
-    });
-
-    let temp = true;
-    //Se insertan la tabla con sus respectivos datos
-    doc.autoTable({
-      columns: cabeceras,
-      body: detalles,
-      didDrawPage: function (data) {
-        if (temp)
-          doc.text(
-            "Detalles:",
-            data.settings.margin.left,
-            data.settings.startY - 5
-          );
-        temp = false;
-      },
-      startY: doc.lastAutoTable.finalY + 30,
-      margin: { top: 10 },
-      theme: "grid",
-      headStyles: { fillColor: COLOR_PRINCIPAL, lineWidth: 1 },
-    });
+      let temp = true;
+      //Se insertan la tabla con sus respectivos datos
+      doc.autoTable({
+        columns: cabeceras,
+        body: detalles,
+        didDrawPage: function (data) {
+          if (temp)
+            doc.text(
+              "Detalles:",
+              data.settings.margin.left,
+              data.settings.startY - 5
+            );
+          temp = false;
+        },
+        startY: doc.lastAutoTable.finalY + 30,
+        margin: { top: 10 },
+        theme: "grid",
+        headStyles: { fillColor: COLOR_PRINCIPAL, lineWidth: 1 },
+      });
+    }
     doc.save(
       "cartola_capital_" +
+        cleanRut(obj.rut, true) +
+        "_" +
+        conv.fechaNombreDocs() +
+        ".pdf"
+    );
+  },
+  exportToPdfComprobantePago(obj, comision, productos, title) {
+    //Se genera el documento
+    var doc = new jsPDF("p", "pt");
+
+    //Se inserta el logo
+    var img = new Image();
+    img.src = require("@/assets/logos/logo.png");
+    doc.addImage(img, "png", 40, 5, 142, 55);
+
+    //Se inserta el titulo'
+    doc.text(title, 200, 90);
+
+    //Se inserta fecha
+    doc.setFontSize(8);
+    doc.text(conv.formatFechaHora(Date.now()), 40, 70);
+    //Se modifican los datos tipo objeto para adaptarlos al PDF
+
+    doc.setFontSize(13);
+    var datos = [];
+    datos.push([{ content: "Nombre", styles: { cellWidth: 150 } }, obj.nombre]);
+    datos.push([
+      { content: "Rut", styles: { cellWidth: 150 } },
+      formatterRut(obj.rut),
+    ]);
+    datos.push([
+      { content: "Nº de comprobante", colSpan: 1 },
+      obj.numero_comprobante,
+    ]);
+    datos.push([
+      { content: "Monto", styles: { cellWidth: 150 } },
+      conv.formatMonto(obj.monto, true),
+    ]);
+    datos.push([
+      { content: "Fecha", styles: { cellWidth: 150 } },
+      conv.formatFecha2(obj.fecha, "YYYYMMDD") + " " + obj.hora,
+    ]);
+
+    //Se escriben los datos del objeto en el PDF
+    doc.autoTable({
+      head: [],
+      body: datos,
+      didDrawPage: function (data) {
+        doc.text(
+          "Datos de la transacción",
+          data.settings.margin.left,
+          data.settings.margin.top - 5
+        );
+      },
+      margin: { top: 120 },
+    });
+
+    doc.text("Productos Pagados", 40, doc.lastAutoTable.finalY + 25);
+    //Se escriben los productos
+    productos.forEach((producto) => {
+      let datos_producto = [];
+      datos_producto.push([
+        { content: "Producto", styles: { cellWidth: 150 } },
+        producto.producto + " Nº " + producto.numero_producto,
+      ]);
+      datos_producto.push([
+        { content: "Monto", styles: { cellWidth: 150 } },
+        conv.formatMonto(producto.monto_pagado1, true),
+      ]);
+      if (producto.cuota !== "-")
+        datos_producto.push(["Cuota", producto.cuota]);
+
+      //Se escriben los datos del objeto en el PDF
+      doc.autoTable({
+        head: [],
+        body: datos_producto,
+        startY: doc.lastAutoTable.finalY + 30,
+      });
+    });
+
+    let comision_transbank = [];
+    comision_transbank.push([
+      { content: "Monto:", styles: { cellWidth: 150 } },
+      conv.formatMonto(comision.monto_pagado1, true),
+    ]);
+    //Se escriben los datos del objeto en el PDF
+    doc.autoTable({
+      head: [],
+      body: comision_transbank,
+      margin: { top: 5 },
+      startY: doc.lastAutoTable.finalY + 40,
+      didDrawPage: function (data) {
+        doc.text(
+          "Comisión Web por uso de Transbank",
+          data.settings.margin.left,
+          data.settings.startY - 5
+        );
+      },
+    });
+
+    doc.save(
+      "comprobante_pago" +
         cleanRut(obj.rut, true) +
         "_" +
         conv.fechaNombreDocs() +

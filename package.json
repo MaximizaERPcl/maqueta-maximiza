@@ -21,6 +21,7 @@
     "js-cookie": "^3.0.1",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.5.25",
+    "lodash": "^4.17.21",
     "mdi": "^2.2.43",
     "mdi-icons": "^1.0.1",
     "moment": "^2.29.4",

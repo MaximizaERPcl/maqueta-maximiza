@@ -2,7 +2,7 @@
   <v-container class="py-0">
     <v-row justify="center" no-gutters>
       <v-col cols="11">
-        <v-card elevation="10">
+        <v-card elevation="10" class="darkGlass">
           <v-toolbar
             color="primary"
             dark

@@ -1,12 +1,11 @@
 <template>
   <v-container>
     <v-row justify="center">
-      <v-col cols="12" sm="11" md="10">
+      <v-col v-if="convenio" cols="12" sm="11" md="10">
         <v-stepper v-model="etapa" vertical>
           <v-stepper-step step="1"> Simular Crédito </v-stepper-step>
-
           <v-stepper-content step="1">
-            <v-card outlined class="py-4 px-4">
+            <v-card outlined class="py-4 px-4 darkGlass">
               <v-form ref="form" v-model="valid">
                 <v-select
                   v-model="formData.producto"
@@ -241,13 +240,13 @@
           </v-stepper-content>
         </v-stepper>
       </v-col>
-      <!--v-col v-else cols="11" class="py-8">
+      <v-col v-else cols="11" class="py-8">
         <v-card height="120px" class="px-12 py-6">
           <v-alert outlined type="warning" dense prominent class="mx-1 mb-1">
             {{ userLogged.msg_institucion }}
           </v-alert>
         </v-card>
-      </v-col-->
+      </v-col>
     </v-row>
   </v-container>
 </template>
@@ -454,17 +453,17 @@ export default {
   },
 
   async mounted() {
-    // if (this.userLogged.institucion) {
-    this.convenio = true;
-    await this.getProductos(1);
-    if (this.$route.params.preSelect) {
-      let preselect = this.$route.params.preSelect;
-      let index = this.productos.findIndex((prod) => prod.id === preselect);
-      if (index >= 0) this.formData.producto = this.productos[index];
-      else this.$router.replace("/simulador-creditos");
-    }
-    this.vencMin = this.sumarDiasFecha(30);
-    //} else this.convenio = false;
+    if (this.userLogged.institucion) {
+      this.convenio = true;
+      await this.getProductos(1);
+      if (this.$route.params.preSelect) {
+        let preselect = this.$route.params.preSelect;
+        let index = this.productos.findIndex((prod) => prod.id === preselect);
+        if (index >= 0) this.formData.producto = this.productos[index];
+        else this.$router.replace("/simulador-creditos");
+      }
+      this.vencMin = this.sumarDiasFecha(30);
+    } else this.convenio = false;
   },
   computed: {
     set_campanias() {

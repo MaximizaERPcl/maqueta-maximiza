@@ -23,12 +23,41 @@
           </v-simple-table>
         </v-card-text>
         <v-divider />
-        <v-card-actions class="justify-center">
-          <form :action="url_ws" method="POST" id="pagoWebpay">
+        <v-subheader class="mt-2 my-0" style="height: 30px"
+          >Seleccione el medio de pago</v-subheader
+        >
+        <v-card-actions class="ml-4 pa-0">
+          <v-radio-group v-model="payType" class="mt-0">
+            <v-radio
+              v-for="(pay, i) in payments"
+              :key="i"
+              :label="pay.tipo"
+              :value="pay.value"
+              :ripple="false"
+            >
+              <template v-slot:label>
+                <div>
+                  <v-img
+                    :aspect-ratio="16 / 9"
+                    :width="100"
+                    contain
+                    :src="require('@/assets/' + pay.img)"
+                  ></v-img>
+                </div>
+              </template>
+            </v-radio>
+          </v-radio-group>
+        </v-card-actions>
+        <v-card-actions class="justify-center" v-if="payType != 0">
+          <form
+            :action="url_pago"
+            :method="payType == 1 ? 'POST' : 'GET'"
+            id="pago_form"
+          >
             <input
               ref="token"
-              :value="token_ws"
-              name="token_ws"
+              :value="token"
+              :name="payType == 1 ? 'token_ws' : 'token'"
               type="hidden"
             />
             <v-btn
@@ -73,6 +102,7 @@ export default {
   data() {
     return {
       total: 0,
+      payType: 0,
       selectedCapital: [],
       selected: [],
       selectedCastigados: [],
@@ -86,6 +116,10 @@ export default {
         { tipo: "Cargo por Tarjeta de Crédito", monto: 0 },
         { tipo: "Cuenta de ahorro", monto: 0 },
         { tipo: "Cargo por servicio", monto: 0 },
+      ],
+      payments: [
+        { tipo: "Transbank", value: 1, img: "pay/tbk.png" },
+        { tipo: "Flow", value: 2, img: "pay/flow.svg" },
       ],
     }; //return
   }, //data
@@ -151,15 +185,15 @@ export default {
       this.total = totalCom;
     },
     pagar() {
-      this.$emit("pagar");
+      this.$emit("pagar", this.payType);
     },
   }, //methods
   props: {
     pagos: null,
     selectedComCre: null,
     loadingPago: null,
-    url_ws: null,
-    token_ws: null,
+    url_pago: null,
+    token: null,
   }, //props
   beforeMount() {
     this.$root.$on("enviarCapital", (data) => {

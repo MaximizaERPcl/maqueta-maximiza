@@ -1,7 +1,7 @@
 <template>
   <div v-if="castigados">
     <v-data-table
-      v-if="castigados.length > 0 /*&& userLogged.b_paga_credito === '1'*/"
+      v-if="castigados.length > 0"
       v-model="selectedCastigados"
       dense
       :headers="cabecera.credito_castigado"

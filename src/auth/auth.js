@@ -60,22 +60,12 @@ export default {
     });
     return axios.post(URL_API + "info_cliente", data);
   },
-  guardarDatosPersonales(rut, direc_s_id, form) {
-    form.rut = rut;
-    form.direc_s_id = direc_s_id;
-    form.accion = 10;
-    let data = qs.stringify(form);
-    return axios.post(URL_API + "datos_cliente_actualizar", data);
-  },
-  guardarDatosBancarios(rut, direc_s_id /*, form*/) {
+  info_campanias(id_cliente) {
     let data = qs.stringify({
-      rut: rut,
-      direc_s_id: direc_s_id,
-      accion: 11,
+      id_cliente: id_cliente,
     });
-    return axios.post(URL_API + "datos_cliente_actualizar_bancario", data);
+    return axios.post(URL_API + "info_campanias", data);
   },
-
   datosCliente(form) {
     let data = qs.stringify(form);
     //const user = { rut, password };

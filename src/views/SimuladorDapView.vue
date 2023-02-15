@@ -6,7 +6,7 @@
           <v-stepper-step step="1"> Simular Depósito </v-stepper-step>
 
           <v-stepper-content step="1">
-            <v-card outlined class="py-4 px-4">
+            <v-card outlined class="py-4 px-4 darkGlass">
               <v-form ref="form" v-model="valid">
                 <v-select
                   v-model="formData.producto"

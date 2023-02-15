@@ -18,6 +18,7 @@ export default new Vuex.Store({
     },
     drawer: true,
     dialogoMora: false,
+    dialogoCampania: false,
   },
   getters: {
     drawer: (state) => {
@@ -39,6 +40,9 @@ export default new Vuex.Store({
     },
     SET_DIALOGO_MORA(state, value) {
       state.dialogoMora = value;
+    },
+    SET_DIALOGO_CAMPANIA(state, value) {
+      state.dialogoCampania = value;
     },
     SET_TIMEOUT(state, remaining) {
       state.expireTimeout = setTimeout(function () {
@@ -81,6 +85,9 @@ export default new Vuex.Store({
     },
     mostrarDialogoMora({ commit }, value) {
       commit("SET_DIALOGO_MORA", value);
+    },
+    mostrarDialogoCampania({ commit }, value) {
+      commit("SET_DIALOGO_CAMPANIA", value);
     },
     set_timeout({ commit }) {
       let current = new Date().getTime();

@@ -2,7 +2,7 @@
   <v-container class="py-0">
     <v-row justify="center">
       <v-col cols="12">
-        <v-card elevation="10" v-if="!token_ws_returned">
+        <v-card elevation="10" v-if="!token_ws_returned" class="darkGlass">
           <v-toolbar
             color="primary"
             dark
@@ -52,11 +52,18 @@
                     <c_capital :capital="pagos.capital" />
                     <!-- ------------------------ Pago creditos -------------------------- -->
                     <c_credito
-                      v-if="pagos.credito.length > 0"
+                      v-if="
+                        pagos.credito.length > 0 &&
+                        userLogged.b_paga_credito === '1'
+                      "
                       :creditos="pagos.credito"
                     />
                     <!---------------------- Pago creditos castigados---------------------------->
                     <c_credito_castigado
+                      v-if="
+                        pagos.credito_castigado.length > 0 &&
+                        userLogged.b_paga_credito === '1'
+                      "
                       :castigados="pagos.credito_castigado"
                     />
 
@@ -75,10 +82,10 @@
                   <c_total_pagar
                     :pagos="pagos"
                     :selectedComCre="selectedComCre"
-                    :url_ws="url_ws"
+                    :url_pago="url_pago"
                     :loadingPago="loadingPago"
-                    :token_ws="token_ws"
-                    @pagar="pagar()"
+                    :token="token"
+                    @pagar="pagar"
                   />
                 </v-row>
               </v-container>
@@ -126,9 +133,9 @@ export default {
       loadingPago: false,
       noPago: false,
       noPagoMsg: "",
-      token_ws: "",
+      token: "",
       token_ws_returned: "",
-      url_ws: "",
+      url_pago: "",
       returl_url: "",
       total: 0,
       selected: [],
@@ -178,8 +185,8 @@ export default {
         .obtener_token_tb(this.prePago)
         .then(async (response) => {
           let data = response.data;
-          this.token_ws = await data.token;
-          this.url_ws = await data.url;
+          this.token = await data.token;
+          this.url_pago = await data.url;
         })
         .catch((error) => console.log(error));
     },
@@ -233,7 +240,6 @@ export default {
         .generar_pago(finalObject)
         .then((response) => {
           let data = response.data[0];
-          console.log(data);
           this.retorno_cupon = data;
           if (data.codigo === "1") {
             this.prePago = {
@@ -265,13 +271,23 @@ export default {
           this.mostrarAlerta(payload);
         });
     },
+    test() {
+      this.token = "ECF186F04A8B34E1022E68E3493B46F1482B151B";
+      this.url_pago = "https://sandbox.flow.cl/app/web/pay.php";
+    },
 
-    async pagar() {
+    async pagar(type) {
       this.loadingPago = true;
+      console.log(type);
       await this.generarCuponPago();
       if (this.retorno_cupon.codigo === "1") {
-        await this.getTokenTB();
-        await document.getElementById("pagoWebpay").submit();
+        if (type == 1) {
+          await this.getTokenTB();
+          await document.getElementById("pago_form").submit();
+        } else {
+          await this.test();
+          await document.getElementById("pago_form").submit();
+        }
       }
       this.loadingPago = false;
     },

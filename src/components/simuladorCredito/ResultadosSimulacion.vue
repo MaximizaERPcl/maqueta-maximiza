@@ -126,7 +126,7 @@
       <v-icon left>mdi-email</v-icon>
       Enviar Correo
     </v-btn>
-    <v-btn
+    <!-- <v-btn
       v-if="!prod"
       color="success"
       class="mx-2 my-2"
@@ -136,7 +136,7 @@
     >
       <v-icon left>mdi-send-circle</v-icon>
       Solicitar Crédito
-    </v-btn>
+    </v-btn> -->
   </v-card>
 </template>
 

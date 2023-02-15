@@ -189,4 +189,11 @@ export default {
   -webkit-box-shadow: inset 0 0 6px #424242;
   background-color: #424242;
 }
+.darkGlass {
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.9);
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(10px) !important;
+}
 </style>

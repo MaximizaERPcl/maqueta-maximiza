@@ -87,6 +87,7 @@ export default {
     ...mapActions([
       "mostrarAlerta",
       "cerrarAlerta",
+      "mostrarDialogoCampanias",
       "mostrarDialogoMora",
       "set_timeout",
     ]),
@@ -105,9 +106,18 @@ export default {
           let payload = {};
 
           if (data.codigo == 1) {
-            /* if (data.b_mora !== "0") {
+            await auth
+              .info_campanias(data.id_cliente)
+              .then(async (response) => {
+                data.campanias = response.data;
+                if (data.campanias.length > 0)
+                  await this.mostrarDialogoCampanias(true);
+              })
+              .catch((error) => console.log(error));
+
+            if (data.b_mora !== "0") {
               await this.mostrarDialogoMora(true);
-            }*/
+            }
             await auth.setUserLogged(data);
             this.set_timeout();
             this.$router.push("/inicio");

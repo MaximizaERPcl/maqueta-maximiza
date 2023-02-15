@@ -2,13 +2,14 @@
   <v-container>
     <v-row justify="center">
       <v-col cols="11" sm="11" md="7 ">
-        <v-card class="elevation-2 pb-8">
+        <v-card class="elevation-2 pb-8 darkGlass">
           <v-toolbar
             color="primary"
             dark
             flat
             class="mb-8 primaryGradient"
             tile
+            dense
           >
             <v-toolbar-title class="flex text-center titulo"
               >Cambio de clave</v-toolbar-title
@@ -17,11 +18,13 @@
           <v-row justify="center">
             <v-col cols="10">
               <v-alert
-                text
                 outlined
-                color="success"
-                style="font-size: 18px"
-                class="text-center mb-8"
+                border="left"
+                type="success"
+                dense
+                prominent
+                style="font-size: 19px"
+                class="mb-8"
               >
                 Recuerde que solo se permiten <b>números</b> y su clave debe
                 tener <b>6 dígitos</b>.

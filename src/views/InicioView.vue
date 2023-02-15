@@ -2,7 +2,7 @@
   <v-container>
     <v-row justify="center">
       <v-col cols="11">
-        <v-card elevation="10">
+        <v-card elevation="10" class="darkGlass">
           <v-toolbar class="primaryGradient" dark flat tile :height="height">
             <v-toolbar-title class="titulo"
               >Bienvenido/a
@@ -54,7 +54,7 @@
             </v-col>
           </v-row>
           <div v-else>
-            <v-list>
+            <v-list color="transparent">
               <v-list-item>
                 <v-list-item-icon>
                   <v-icon color="primary"> mdi-map-marker </v-icon>
@@ -131,7 +131,7 @@
       <v-col cols="11">
         <v-row justify="center" align="stretch">
           <v-col v-for="product in products" :key="product.type">
-            <v-card height="100px" elevation="10">
+            <v-card height="100px" elevation="10" class="darkGlass">
               <v-toolbar color="secondary" dark flat tile dense height="36px">
                 <v-icon left>{{ product.icon }}</v-icon>
                 <v-toolbar-title class="cabecera">{{
@@ -306,6 +306,8 @@ export default {
     },
   },
   async mounted() {
+    let searchURL = new URL(window.location);
+    console.log(searchURL);
     if (process.env.NODE_ENV !== "production") console.log(this.userLogged);
     this.loading = true;
     await this.getUserInfo();

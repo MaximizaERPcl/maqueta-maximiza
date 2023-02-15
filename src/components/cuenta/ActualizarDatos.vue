@@ -2,11 +2,15 @@
   <v-container>
     <v-row justify="center">
       <v-col cols="11">
-        <v-card class="elevation-2 pb-8">
-          <!--template slot="progress">
-          <v-progress-linear color="primary" height="10" indeterminate></v-progress-linear>
-        </template-->
-          <v-toolbar color="primary" dark flat class="mb-8" tile>
+        <v-card class="elevation-2 pb-8 darkGlass">
+          <v-toolbar
+            dense
+            color="primary"
+            dark
+            flat
+            class="mb-8 primaryGradient"
+            tile
+          >
             <v-toolbar-title class="flex text-center titulo"
               >Actualizar Datos</v-toolbar-title
             >
@@ -31,19 +35,21 @@
           </v-row>
           <div v-else>
             <v-row justify="center">
-              <v-col cols="11">
+              <v-col cols="12" sm="10" md="8">
                 <v-alert
                   outlined
-                  text
-                  color="success"
-                  style="font-size: 18px"
-                  class="text-center mb-8"
+                  border="left"
+                  type="success"
+                  dense
+                  prominent
+                  style="font-size: 19px"
                 >
-                  Algunos de los campos son <b>obligatorios</b>.
+                  Procure completar todos los campos para poder actualizar sus
+                  datos.
                 </v-alert>
               </v-col>
             </v-row>
-            <v-form ref="form" v-model="valid">
+            <v-form ref="form_persona" v-model="valid_persona">
               <v-row justify="center" class="px-4" no-gutters>
                 <v-col cols="12">
                   <v-subheader>Información Personal</v-subheader>
@@ -60,6 +66,8 @@
                     item-value="tipdr_s_id"
                     readonly
                     style="pointer-events: none"
+                    required
+                    :rules="[reglas.required]"
                   >
                     <template v-slot:prepend>
                       <v-icon color="primary"> mdi-map-marker-account </v-icon>
@@ -87,6 +95,8 @@
                         v-bind="attrs"
                         v-on="on"
                         @click:clear="date = null"
+                        required
+                        :rules="[reglas.required]"
                       >
                         <template v-slot:prepend>
                           <v-icon color="primary"> mdi-calendar </v-icon>
@@ -111,6 +121,8 @@
                     class="mx-4"
                     item-text="tipca_c_nombre"
                     item-value="tipca_s_id"
+                    required
+                    :rules="[reglas.required]"
                   >
                     <template v-slot:prepend>
                       <v-icon color="primary"> mdi-road-variant </v-icon>
@@ -127,6 +139,8 @@
                     class="mx-4"
                     item-text="tipvi_c_nombre"
                     item-value="tipvi_s_id"
+                    required
+                    :rules="[reglas.required]"
                   >
                     <template v-slot:prepend>
                       <v-icon color="primary"> mdi-home-city </v-icon>
@@ -140,11 +154,11 @@
                     label="Calle"
                     dense
                     outlined
-                    required
                     persistent-hint
-                    :rules="[(v) => !!v || 'Campo requerido']"
                     type="text"
                     class="mx-4"
+                    required
+                    :rules="[reglas.required]"
                   >
                     <template v-slot:prepend>
                       <v-icon color="primary"> mdi-home-map-marker </v-icon>
@@ -158,11 +172,11 @@
                     label="Número"
                     dense
                     outlined
-                    required
                     persistent-hint
-                    :rules="[(v) => !!v || 'Campo requerido']"
                     type="text"
                     class="mx-4"
+                    required
+                    :rules="[reglas.required]"
                   >
                     <template v-slot:prepend>
                       <v-icon color="primary"> mdi-numeric </v-icon>
@@ -180,6 +194,8 @@
                     item-text="regio_c_nombre"
                     item-value="regio_s_id"
                     @change="(provincias = []), (comunas = [])"
+                    required
+                    :rules="[reglas.required]"
                   >
                     <template v-slot:prepend>
                       <v-icon color="primary"> mdi-map-marker </v-icon>
@@ -200,6 +216,8 @@
                     no-data-text="Debe seleccionar una región"
                     @click="getProvincias()"
                     @change="comunas = []"
+                    required
+                    :rules="[reglas.required]"
                   >
                     <template v-slot:prepend>
                       <v-icon color="primary"> mdi-sign-real-estate </v-icon>
@@ -219,6 +237,8 @@
                     item-value="comun_s_id"
                     no-data-text="Debe seleccionar una región"
                     @click="getComunas()"
+                    required
+                    :rules="[reglas.required]"
                   >
                     <template v-slot:prepend>
                       <v-icon color="primary"> mdi-sign-real-estate </v-icon>
@@ -233,9 +253,9 @@
                     outlined
                     required
                     persistent-hint
-                    :rules="[(v) => !!v || 'Campo requerido']"
                     type="text"
                     class="mx-4"
+                    :rules="[reglas.required]"
                   >
                     <template v-slot:prepend>
                       <v-icon color="primary"> mdi-phone </v-icon>
@@ -249,11 +269,11 @@
                     label="Celular"
                     dense
                     outlined
-                    required
                     persistent-hint
-                    :rules="[(v) => !!v || 'Campo requerido']"
                     type="text"
                     class="mx-4"
+                    required
+                    :rules="[reglas.required]"
                   >
                     <template v-slot:prepend>
                       <v-icon color="primary"> mdi-cellphone </v-icon>
@@ -267,9 +287,9 @@
                     label="Correo Electrónico"
                     dense
                     outlined
-                    required
                     persistent-hint
-                    :rules="[(v) => !!v || 'Campo requerido']"
+                    required
+                    :rules="[reglas.required, reglas.email]"
                     type="text"
                     class="mx-4"
                   >
@@ -278,7 +298,21 @@
                     </template>
                   </v-text-field>
                 </v-col>
+
+                <v-col cols="12" class="d-flex justify-end">
+                  <v-btn
+                    color="primary"
+                    :loading="loading1"
+                    @click="validate(1)"
+                    class="mx-4"
+                  >
+                    <v-icon left>mdi-content-save</v-icon>
+                    Actualizar Información Personal
+                  </v-btn>
+                </v-col>
               </v-row>
+            </v-form>
+            <v-form ref="form_banco" v-model="valid_banco">
               <!--v-subheader>Datos Bancarios</v-subheader-->
               <v-row justify="center" class="px-4" no-gutters>
                 <v-col cols="12">
@@ -286,7 +320,7 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <v-select
-                    v-model="form.proba_s_id"
+                    v-model="bancoForm.banco_s_id"
                     :items="bancos"
                     label="Banco"
                     dense
@@ -303,7 +337,7 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <v-select
-                    v-model="form.tippb_s_id"
+                    v-model="bancoForm.tippb_s_id"
                     :items="cuentas"
                     label="Tipo de cuenta"
                     dense
@@ -314,13 +348,13 @@
                     item-value="tippb_s_id"
                   >
                     <template v-slot:prepend>
-                      <v-icon color="primary"> mdi-briefcase-account </v-icon>
+                      <v-icon color="primary"> mdi-bank-transfer </v-icon>
                     </template>
                   </v-select>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <v-text-field
-                    v-model="form.numero_cuenta_bco"
+                    v-model="bancoForm.numero_cuenta_bco"
                     label="Número de cuenta"
                     dense
                     outlined
@@ -336,9 +370,14 @@
                   </v-text-field>
                 </v-col>
                 <v-col cols="12" class="d-flex justify-end">
-                  <v-btn large color="primary" @click="validate()" class="mx-4">
-                    <v-icon left>mdi-content-save</v-icon>
-                    Actualizar Información
+                  <v-btn
+                    color="primary"
+                    @click="validate(2)"
+                    :loading="loading2"
+                    class="mx-4"
+                  >
+                    <v-icon left>mdi-bank-check</v-icon>
+                    Actualizar Información Bancaria
                   </v-btn>
                 </v-col>
               </v-row>
@@ -350,9 +389,10 @@
   </v-container>
 </template>
 <script>
-import { mapState } from "vuex";
+import { mapActions, mapState } from "vuex";
 import auth from "@/auth/auth";
 import moment from "moment";
+import { omit } from "lodash";
 export default {
   components: {
     //
@@ -362,6 +402,11 @@ export default {
       alert: false,
       alertMsg: "",
       menu: false,
+      baseForm: {
+        accion: -1,
+        direc_s_id: "",
+        rut: "",
+      },
       form: {
         regio_s_id: "",
         ciuda_s_id: "",
@@ -376,13 +421,16 @@ export default {
         direc_c_email: "",
         perso_c_movil: "",
         perso_f_nacimiento: "",
-
-        //Datos Bancarios
+      },
+      //Datos Bancarios
+      bancoForm: {
         tippb_s_id: "",
         numero_cuenta_bco: "",
         proba_s_id: "",
+        banco_s_id: "",
       },
-      valid: true,
+      valid_persona: true,
+      valid_banco: true,
       direcciones: [],
       calles: [],
       viviendas: [],
@@ -392,7 +440,17 @@ export default {
       cuentas: [],
       provincias: [],
       comunas: [],
+      reglas: {
+        required: (value) => !!value || "Campo Requerido.",
+        email: (value) => {
+          const pattern =
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+          return pattern.test(value) || "Ingrese un correo válido.";
+        },
+      },
       loading: true,
+      loading1: false,
+      loading2: false,
     };
   },
   computed: {
@@ -407,59 +465,76 @@ export default {
     },
   },
   methods: {
-    validate() {
-      this.$refs.form.validate();
-      this.guardarCambios();
-      if (this.valid) {
-        //this.login()
+    ...mapActions(["mostrarAlerta"]),
+    validate(i) {
+      if (i == 1) {
+        this.$refs.form_persona.validate();
+        if (this.valid_persona) {
+          this.guardarDatosCliente();
+        }
+      } else {
+        this.$refs.form_banco.validate();
+        if (this.valid_banco) {
+          this.guardarDatosBancarios();
+        }
       }
     },
-    guardarCambios() {
-      let data = JSON.parse(JSON.stringify(this.form));
-
-      data.accion = 10;
-      data.adicional = "";
-      data.direc_s_id = this.userLogged.direc_s_id;
-      data.rut = this.userLogged.rut;
-      data.perso_f_nacimiento = moment(data.perso_f_nacimiento).format(
-        "DD/MM/YYYY"
-      );
-      data.tipca_s_id = data.dipca_s_id;
-
-      this.updateDatosCliente(data);
-    },
-    async guardarDatosBancarios(data) {
-      await (
-        await auth.guardarDatosBancarios(
-          this.userLogged.rut,
-          this.userLogged.direc_s_id,
-          data
-        )
-      )
+    async guardarDatosBancarios() {
+      this.loading2 = true;
+      let data = { ...this.baseForm, ...this.bancoForm };
+      data.accion = 11;
+      await auth
+        .datosCliente(data)
         .then((response) => {
-          console.log(response);
+          let data = response.data[0];
+          let rv = parseInt(data.return_value);
+          if (rv > 0) {
+            this.mostrarAlerta({
+              color: "success",
+              mensaje: "Datos bancarios actualizados correctamente",
+              mostrar: true,
+            });
+          } else if (rv == 0) {
+            this.mostrarAlerta({
+              color: "warning",
+              mensaje: data.return_msg,
+              mostrar: true,
+            });
+          } else {
+            this.mostrarAlerta({
+              color: "error",
+              mensaje: "Error al actualizar datos bancarios",
+              mostrar: true,
+            });
+          }
         })
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          console.log(error);
+          this.mostrarAlerta({
+            color: "error",
+            text: "Error al actualizar datos bancarios",
+          });
+        });
+      this.loading2 = false;
     },
-    async getDatosClientes(accion, add) {
-      let form = {
-        accion: accion,
-        rut: this.userLogged.rut,
-        direc_s_id: this.userLogged.direc_s_id,
-        adicional: add,
-      };
+    async getDatosClientes(accion, form) {
+      form.accion = accion;
       await auth
         .datosCliente(form)
         .then((response) => {
-          //console.log(accion+' ', response.data)
           switch (accion) {
             case 1: {
-              //Datos de cliente
-              this.form = response.data[0];
-              for (const prop in this.form) {
-                if (this.form[prop] == null) this.form[prop] = "";
+              let data = response.data[0];
+              for (const prop in data) {
+                if (data[prop] == null) data[prop] = "";
               }
-              console.log(this.form.perso_f_nacimiento);
+              this.form = omit(data, [
+                "numero_cuenta_bco",
+                "tippb_s_id",
+                "proba_s_id",
+                "banco_s_id",
+              ]);
+
               let date = moment(
                 this.form.perso_f_nacimiento,
                 "DD/MM/YYYY"
@@ -473,6 +548,10 @@ export default {
                 this.form.ciudad = "";
                 this.form.comuna = "";
               }
+              this.bancoForm.numero_cuenta_bco = data.numero_cuenta_bco;
+              this.bancoForm.tippb_s_id = data.tippb_s_id;
+              this.bancoForm.proba_s_id = data.proba_s_id;
+              this.bancoForm.banco_s_id = data.banco_s_id;
               break;
             }
             case 2: //Tipos de direccion
@@ -507,14 +586,46 @@ export default {
           console.log(error);
         });
     },
-    async updateDatosCliente(data) {
-      console.log(data);
+    async guardarDatosCliente() {
+      this.loading1 = true;
+      let data = { ...this.baseForm, ...this.form };
+      data.tipca_s_id = data.dipca_s_id;
+      data.accion = 10;
       await auth
         .datosCliente(data)
         .then((response) => {
-          console.log(response.data[0]);
+          let data = response.data[0];
+          let rv = parseInt(data.return_value);
+          if (rv > 0) {
+            this.mostrarAlerta({
+              color: "success",
+              mensaje: data.return_msg,
+              mostrar: true,
+            });
+          } else if (rv == -1) {
+            this.mostrarAlerta({
+              color: "warning",
+              mensaje: data.return_msg,
+              mostrar: true,
+            });
+          } else {
+            this.mostrarAlerta({
+              color: "error",
+              mensaje: data.return_msg,
+              mostrar: true,
+            });
+          }
         })
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          console.log(error);
+          this.mostrarAlerta({
+            color: "error",
+            mensaje:
+              "Ha ocurrido un error al guardar los datos, si el error persiste contacte al administrador del sistema",
+            mostrar: true,
+          });
+        });
+      this.loading1 = false;
     },
     getProvincias() {
       if (
@@ -522,7 +633,10 @@ export default {
         this.form.regio_s_id !== null &&
         this.form.regio_s_id !== ""
       ) {
-        this.getDatosClientes(6, this.form.regio_s_id);
+        this.getDatosClientes(6, {
+          regio_s_id: this.form.regio_s_id,
+          ...this.baseForm,
+        });
       }
     },
     getComunas() {
@@ -531,17 +645,25 @@ export default {
         this.form.ciuda_s_id !== null &&
         this.form.ciuda_s_id !== ""
       ) {
-        this.getDatosClientes(7, this.form.ciuda_s_id);
+        this.getDatosClientes(7, {
+          ciuda_s_id: this.form.ciuda_s_id,
+          ...this.baseForm,
+        });
       }
     },
   },
   async mounted() {
     this.loading = true;
+
+    this.baseForm.direc_s_id = this.userLogged.direc_s_id;
+    this.baseForm.rut = this.userLogged.rut;
+
     for (let i = 1; i <= 5; i++) {
-      await this.getDatosClientes(i, "");
+      await this.getDatosClientes(i, this.baseForm);
     }
-    await this.getDatosClientes(8, "");
-    await this.getDatosClientes(9, "");
+    await this.getDatosClientes(8, this.baseForm);
+    await this.getDatosClientes(9, this.baseForm);
+
     this.loading = false;
   },
 };

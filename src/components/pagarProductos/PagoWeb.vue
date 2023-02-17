@@ -95,6 +95,7 @@
         <pago-resultado
           v-else
           :token="token_ws_returned"
+          :type="type_returned"
           @return="returnPago"
         />
       </v-col>
@@ -115,6 +116,7 @@ import c_credito_castigado from "./c_credito_castigado.vue";
 import c_comision from "./c_comision.vue";
 import c_total_pagar from "./c_total_pagar.vue";
 import c_libretas from "./c_libretas.vue";
+
 export default {
   components: {
     "pago-resultado": PagoResultVue,
@@ -135,6 +137,7 @@ export default {
       noPagoMsg: "",
       token: "",
       token_ws_returned: "",
+      type_returned: "",
       url_pago: "",
       returl_url: "",
       total: 0,
@@ -165,7 +168,6 @@ export default {
         .info_producto(data)
         .then((response) => {
           let data = response.data;
-          console.log(data);
           if (data.codigo === "1") this.pagos = response.data;
           else {
             this.mostrarAlerta({
@@ -190,7 +192,37 @@ export default {
         })
         .catch((error) => console.log(error));
     },
-    async generarCuponPago() {
+    async getTokenFlow(correo) {
+      let url_pago =
+        process.env.NODE_ENV === "production"
+          ? window.location.protocol +
+            "//" +
+            window.location.host +
+            process.env.VUE_APP_API_URL_PAGO
+          : process.env.VUE_APP_API_URL_PAGO;
+      let data = {
+        subject: "Pago de productos Maximiza",
+        amount: this.total,
+        email: correo,
+        commerceOrder: this.retorno_cupon.id_pago,
+        urlConfirmation: url_pago + "flow_confirmar_pago",
+        urlReturn: url_pago + "flow_redirect_result",
+        optional: JSON.stringify({
+          rut: this.userLogged.rut,
+          origen: this.returl_url,
+        }),
+      };
+      await pago
+        .flow_obtener_token(data)
+        .then(async (response) => {
+          let data = response.data;
+          console.log(data);
+          this.token = await data.token;
+          this.url_pago = await data.url;
+        })
+        .catch((error) => console.log(error));
+    },
+    async generarCuponPago(type) {
       let credito = [];
       let libreta = [];
       let castigado = [];
@@ -226,7 +258,7 @@ export default {
       let finalObject = {
         web_token: this.userLogged.token,
         rut: this.userLogged.rut,
-
+        tipo: type,
         producto_pagar: {
           credito: credito,
           capital: capital[0],
@@ -242,6 +274,8 @@ export default {
           let data = response.data[0];
           this.retorno_cupon = data;
           if (data.codigo === "1") {
+            this.returl_url =
+              window.location.origin + process.env.BASE_URL + "pago-web";
             this.prePago = {
               buy_order: data.id_pago,
               session_id: this.userLogged.token,
@@ -251,7 +285,10 @@ export default {
             payload = {
               mensaje:
                 data.msg +
-                ". Será redirigido a Transbank para completar la transacción",
+                ". Será redirigido a " +
+                (type == 1
+                  ? "Transbank"
+                  : "Flow" + " para completar la transacción"),
               color: "success",
               mostrar: true,
             };
@@ -271,21 +308,17 @@ export default {
           this.mostrarAlerta(payload);
         });
     },
-    test() {
-      this.token = "ECF186F04A8B34E1022E68E3493B46F1482B151B";
-      this.url_pago = "https://sandbox.flow.cl/app/web/pay.php";
-    },
 
-    async pagar(type) {
+    async pagar(type, correo) {
       this.loadingPago = true;
-      console.log(type);
-      await this.generarCuponPago();
+      await this.generarCuponPago(type);
+
       if (this.retorno_cupon.codigo === "1") {
         if (type == 1) {
           await this.getTokenTB();
           await document.getElementById("pago_form").submit();
         } else {
-          await this.test();
+          await this.getTokenFlow(correo);
           await document.getElementById("pago_form").submit();
         }
       }
@@ -293,8 +326,7 @@ export default {
     },
     async init() {
       this.loading = true;
-      this.returl_url =
-        window.location.origin + process.env.BASE_URL + "pago-web";
+
       await this.getInfoProductos();
       this.loading = false;
       if (this.verifyData) {
@@ -302,10 +334,12 @@ export default {
         this.noPagoMsg = "No se han encontrado productos a pagar";
       }
 
-      if (localStorage.getItem("token_ws") != null) {
+      if (localStorage.getItem("pay_token") != null) {
         this.close_timeout();
-        this.token_ws_returned = localStorage.getItem("token_ws");
-        localStorage.removeItem("token_ws");
+        this.token_ws_returned = localStorage.getItem("pay_token");
+        this.type_returned = localStorage.getItem("pay_type");
+        localStorage.removeItem("pay_token");
+        localStorage.removeItem("pay_type");
       } else if (localStorage.getItem("cancel_pay") != null) {
         let cancel_pay = JSON.parse(localStorage.getItem("cancel_pay"));
         let payload = {};

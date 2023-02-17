@@ -27,7 +27,7 @@
           >Seleccione el medio de pago</v-subheader
         >
         <v-card-actions class="ml-4 pa-0">
-          <v-radio-group v-model="payType" class="mt-0">
+          <v-radio-group v-model="payType" class="my-0" hide-details>
             <v-radio
               v-for="(pay, i) in payments"
               :key="i"
@@ -47,6 +47,24 @@
               </template>
             </v-radio>
           </v-radio-group>
+        </v-card-actions>
+        <v-card-actions class="mx-4 pa-0" v-if="payType == 2">
+          <v-form ref="correo_form" v-model="correo_valid" style="width: 100%">
+            <v-text-field
+              v-model="correo"
+              label="Correo de envío comprobante"
+              placeholder="Ingrese su correo"
+              required
+              :rules="[reglas.required, reglas.email]"
+              outlined
+              dense
+              hide-details="auto"
+            >
+              <template v-slot:prepend>
+                <v-icon left color="primary"> mdi-email </v-icon>
+              </template>
+            </v-text-field>
+          </v-form>
         </v-card-actions>
         <v-card-actions class="justify-center" v-if="payType != 0">
           <form
@@ -102,13 +120,25 @@ export default {
   data() {
     return {
       total: 0,
-      payType: 0,
+
+      payType: 1,
+      comision: 1,
+      correo: "",
+      correo_valid: true,
       selectedCapital: [],
       selected: [],
       selectedCastigados: [],
       selectedAhorro: [],
       validCapital: true,
       validCredito: true,
+      reglas: {
+        required: (value) => !!value || "Campo Requerido.",
+        email: (value) => {
+          const pattern =
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+          return pattern.test(value) || "Ingrese un correo válido.";
+        },
+      },
       totales: [
         { tipo: "Cuotas", monto: 0 },
         { tipo: "Castigado", monto: 0 },
@@ -129,6 +159,12 @@ export default {
     },
   }, //computed
   watch: {
+    payType(newValue) {
+      if (newValue == 1)
+        this.comision = parseFloat(this.pagos.comision_web[0].tbk);
+      else this.comision = parseFloat(this.pagos.comision_web[0].flow);
+      this.sumAll();
+    },
     selected: {
       handler() {
         this.calculateSum("selected", 0, "monto");
@@ -177,15 +213,18 @@ export default {
       this.totales.forEach((item) => {
         tempSuma += item.monto;
       });
-      let totalCom = Math.round(
-        tempSuma / ((100 - this.pagos.tasa_web[0].tasa_tbk) / 100)
-      );
+      let totalCom = Math.round(tempSuma / ((100 - this.comision) / 100));
       let cargo = totalCom - tempSuma;
       this.totales[5].monto = cargo;
       this.total = totalCom;
     },
     pagar() {
-      this.$emit("pagar", this.payType);
+      if (this.payType == 2) {
+        this.$refs.correo_form.validate();
+        if (this.correo_valid) {
+          this.$emit("pagar", this.payType, this.correo);
+        }
+      } else this.$emit("pagar", this.payType);
     },
   }, //methods
   props: {
@@ -195,6 +234,9 @@ export default {
     url_pago: null,
     token: null,
   }, //props
+  mounted() {
+    this.comision = this.pagos.comision_web[0].tbk;
+  },
   beforeMount() {
     this.$root.$on("enviarCapital", (data) => {
       this.selectedCapital = data;

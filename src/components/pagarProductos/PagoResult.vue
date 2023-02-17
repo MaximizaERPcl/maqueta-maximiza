@@ -121,7 +121,7 @@
                     <v-list-item-content>
                       <v-list-item-subtitle>Producto</v-list-item-subtitle>
                       <v-list-item-title
-                        >{{ prod.producto }} Nº
+                        >{{ conv.capitalizeString(prod.producto) }} Nº
                         {{ prod.numero_producto }}</v-list-item-title
                       >
                     </v-list-item-content>
@@ -162,7 +162,8 @@
             </div>
           </v-row>
           <v-subheader class="mt-4"
-            >Comisión Web por uso de Transbank</v-subheader
+            >Comisión Web por uso de
+            {{ type == 1 ? "Transbank" : "Flow" }}</v-subheader
           >
           <v-divider></v-divider>
           <v-row no-gutters>
@@ -218,6 +219,9 @@ export default {
     token: {
       type: String,
     },
+    type: {
+      type: String,
+    },
   },
   data() {
     return {
@@ -228,7 +232,6 @@ export default {
       finalResult: null,
       resultado_tb: null,
       sesion_pago: null,
-      web_token: null,
     };
   },
   computed: {
@@ -237,13 +240,14 @@ export default {
     },
     comision() {
       let pagados = [...this.finalResult.productos_pagados];
-      let comision = pagados.find((prod) => prod.numero_producto === "4004");
+      let comision = pagados.pop();
       return comision;
     },
     productos_pagados() {
       let pagados = [...this.finalResult.productos_pagados];
-      let idx = pagados.findIndex((prod) => prod.numero_producto === "4004");
-      pagados.splice(idx, 1);
+      pagados.pop();
+      //let idx = pagados.findIndex((prod) => prod.numero_producto === "4004");
+      //pagados.splice(idx, 1);
       return pagados;
     },
     conv() {
@@ -256,16 +260,16 @@ export default {
       await pago
         .obtener_estado_tb({ token: this.token })
         .then((response) => {
-          console.log("1. Estado Transacción", response.data);
           this.resultado_tb = response.data;
-          this.web_token = response.data.session_id;
+          this.id_pago = response.data.buy_order;
         })
         .catch((error) => console.log(error));
     },
     async pagarCrono() {
       let detalle_tb = JSON.stringify(this.resultado_tb);
       let form = {
-        web_token: this.web_token,
+        web_token: this.userLogged.token,
+        token_tbk: this.token,
         rut: this.userLogged.rut,
         id_pago: this.resultado_tb.buy_order,
         detalle_transbank: detalle_tb,
@@ -278,7 +282,6 @@ export default {
         .pagar_producto(form)
         .then(async (response) => {
           let data = response.data[0];
-          console.log("2. Pagar Producto", data);
           if (data.codigo === "1") {
             payload = {
               mensaje: data.msg,
@@ -297,7 +300,6 @@ export default {
             await pago
               .reversar_pago(form_reversar)
               .then((response) => {
-                console.log("2.1. Anular pago", data);
                 let type = response.data.type;
                 if (type === "REVERSED") {
                   alertMsg += ". Se ha reversado el pago correctamente";
@@ -331,14 +333,13 @@ export default {
     },
     async detallePago() {
       let form = {
-        web_token: this.web_token,
+        web_token: this.userLogged.token,
         rut: this.userLogged.rut,
-        id_pago: this.resultado_tb.buy_order,
+        id_pago: this.id_pago,
       };
       await pago
         .detalle_pago(form)
         .then((response) => {
-          console.log("3. Detalle pago", response.data);
           this.finalResult = response.data;
           this.loading = false;
         })
@@ -364,15 +365,21 @@ export default {
   },
   async mounted() {
     this.loading = true;
-    await this.estadoTransaccion();
-    if (
-      this.resultado_tb.response_code == 0 &&
-      this.resultado_tb.status === "AUTHORIZED"
-    ) {
-      await this.pagarCrono();
+    if (this.type === "TBK") {
+      await this.estadoTransaccion();
+      if (
+        this.resultado_tb.response_code == 0 &&
+        this.resultado_tb.status === "AUTHORIZED"
+      ) {
+        await this.pagarCrono();
+      } else {
+        this.loading = false;
+        this.error = true;
+      }
     } else {
-      this.loading = false;
-      this.error = true;
+      this.id_pago = localStorage.getItem("id_pago");
+      localStorage.removeItem("id_pago");
+      await this.detallePago();
     }
   },
 };

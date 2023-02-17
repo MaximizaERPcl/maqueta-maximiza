@@ -113,7 +113,8 @@ router.beforeEach((to, from, next) => {
         //Si la ruta es de pago web se valida si se está accediendo directamente o es retorno de transbank para determinar que mostrar
         if (to.name === "pagoweb") {
           if (to.query.token_ws) {
-            localStorage.setItem("token_ws", to.query.token_ws);
+            localStorage.setItem("pay_token", to.query.token_ws);
+            localStorage.setItem("pay_type", "TBK");
             next({
               path: "/pago-web",
               replace: true,
@@ -127,6 +128,15 @@ router.beforeEach((to, from, next) => {
             if (to.query.TBK_TOKEN) cancel_pay.TBK_TOKEN = to.query.TBK_TOKEN;
 
             localStorage.setItem("cancel_pay", JSON.stringify(cancel_pay));
+            next({
+              path: "/pago-web",
+              replace: true,
+            });
+            return;
+          } else if (to.query.token_fl && to.query.type) {
+            localStorage.setItem("pay_token", to.query.token_fl);
+            localStorage.setItem("pay_type", to.query.type);
+            localStorage.setItem("id_pago", to.query.id_pago);
             next({
               path: "/pago-web",
               replace: true,

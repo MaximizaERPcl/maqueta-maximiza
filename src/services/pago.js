@@ -27,10 +27,6 @@ export default {
     let data = qs.stringify(form);
     return axios.post(URL_API_PAGO + "resultado_tb", data);
   },
-  rescata_sesion_pago(form) {
-    let data = qs.stringify(form);
-    return axios.post(URL_API_PAGO + "rescata_sesion_pago", data);
-  },
   detalle_pago(form) {
     let data = qs.stringify(form);
     return axios.post(URL_API_PAGO + "detalle_pago", data);
@@ -42,5 +38,10 @@ export default {
   reversar_pago(form) {
     let data = qs.stringify(form);
     return axios.post(URL_API_PAGO + "anular_pago_transbank", data);
+  },
+  //Flow
+  flow_obtener_token(form) {
+    let data = qs.stringify(form);
+    return axios.post(URL_API_PAGO + "flow_obtener_token", data);
   },
 };

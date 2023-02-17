@@ -306,8 +306,6 @@ export default {
     },
   },
   async mounted() {
-    let searchURL = new URL(window.location);
-    console.log(searchURL);
     if (process.env.NODE_ENV !== "production") console.log(this.userLogged);
     this.loading = true;
     await this.getUserInfo();

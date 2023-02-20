@@ -87,7 +87,7 @@ export default {
     ...mapActions([
       "mostrarAlerta",
       "cerrarAlerta",
-      "mostrarDialogoCampanias",
+      "mostrarDialogoCampania",
       "mostrarDialogoMora",
       "set_timeout",
     ]),

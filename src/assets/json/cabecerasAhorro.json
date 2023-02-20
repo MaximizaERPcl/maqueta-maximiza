@@ -13,6 +13,12 @@
       "value": "nombre"
     },
     {
+      "text": "Destinatario",
+      "align": "start",
+      "sortable": true,
+      "value": "destinatario"
+    },
+    {
       "text": "Fecha Apertura",
       "align": "start",
       "sortable": true,

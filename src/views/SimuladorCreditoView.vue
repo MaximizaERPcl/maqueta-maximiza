@@ -317,11 +317,11 @@ export default {
       await simulador
         .getProductosCreditos(form)
         .then((response) => {
-          console.log(response.data);
           if (accion == 1) this.productos = response.data;
           else {
-            this.gasto_fijo = parseInt(response.data[0].gasto_fijo);
-            //console.log(this.gasto_fijo);
+            this.gasto_fijo = 0;
+            if (response.data[0].gasto_fijo)
+              this.gasto_fijo = parseInt(response.data[0].gasto_fijo);
           }
         })
         .catch((error) => console.log(error));
@@ -364,6 +364,7 @@ export default {
         let formatedValue = parseInt(value.split(".").join(""));
         let min = 0;
         let max = 0;
+        console.log(this.formData.campania);
         if (this.formData.campania && this.formData.campania.id) {
           min = parseInt(this.formData.campania.monto_minimo) + this.gasto_fijo;
           max = parseInt(this.formData.campania.monto_maximo);

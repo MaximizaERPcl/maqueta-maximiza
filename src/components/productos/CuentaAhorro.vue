@@ -37,6 +37,9 @@
             <app-no-datos v-if="noDatos" v-bind:msg="msg"></app-no-datos>
             <v-container v-else>
               <v-data-table :headers="cabeceras.general" :items="ctaAhorro">
+                <template v-slot:item.nombre="{ item }">
+                  {{ conv.capitalizeString(item.nombre) }}
+                </template>
                 <template v-slot:item.saldo="{ item }">
                   ${{ item.saldo }}
                 </template>

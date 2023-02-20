@@ -30,6 +30,9 @@
                   <template v-slot:item="{ item }">
                     {{ conv.capitalizeString(item.nombre.split(" - ")[1]) }}
                   </template>
+                  <template v-slot:selection="{ item }">
+                    {{ conv.capitalizeString(item.nombre.split(" - ")[1]) }}
+                  </template>
                 </v-select>
 
                 <v-text-field
@@ -37,8 +40,8 @@
                   ref="amountField"
                   dense
                   label="Monto del depósito"
-                  v-mask="currencyMask"
-                  :hint="formData.producto !== '' ? ayudaMonto : ''"
+                  v-mask="formData.monto ? currencyMask : ''"
+                  :hint="formData.producto ? ayudaMonto : ''"
                   persistent-hint
                   outlined
                   required
@@ -84,7 +87,7 @@
           </v-stepper-step>
 
           <v-stepper-content step="2">
-            <v-card outlined v-if="resultado != null">
+            <v-card outlined v-if="formData.producto && resultado != null">
               <v-list>
                 <v-list-item>
                   <v-list-item-icon>
@@ -208,6 +211,7 @@
                 @click="
                   etapa = 1;
                   sended = false;
+                  reset();
                 "
                 class="mx-2 my-2"
               >
@@ -289,7 +293,7 @@ export default {
             await simulador
               .getProductosDapsDetalle(producto.codigo, 2)
               .then((response) => {
-                var productoCompleto = Object.assign(
+                let productoCompleto = Object.assign(
                   {},
                   producto,
                   response.data[0]
@@ -297,6 +301,7 @@ export default {
                 this.productos.push(productoCompleto);
               });
           });
+          console.log(this.productos);
         })
         .catch((error) => console.log(error));
     },
@@ -314,19 +319,51 @@ export default {
       }
     },
     revisarMonto(value) {
-      if (this.formData.producto !== "") {
+      if (this.formData.producto) {
         let formatedValue = parseInt(value.split(".").join(""));
+        let msgMax = "";
+        let msgMin = "";
         let min = parseInt(this.formData.producto.monto_minimo);
         let max = parseInt(this.formData.producto.monto_maximo);
+
+        let peso_min = this.formData.producto.mon_min === "1";
+        let peso_max = this.formData.producto.mon_max === "1";
+
+        if (!peso_min) {
+          msgMin =
+            " (" +
+            conv.formatMonto(
+              this.formData.producto.monto_minimo_original,
+              false
+            ) +
+            " " +
+            this.formData.producto.mon_min_nombre +
+            ")";
+        }
+        if (!peso_max) {
+          msgMax =
+            " (" +
+            conv.formatMonto(
+              this.formData.producto.monto_maximo_original,
+              false
+            ) +
+            " " +
+            this.formData.producto.mon_max_nombre +
+            ")";
+        }
         if (formatedValue < min)
           return (
             false ||
-            "El monto debe ser superior a " + conv.formatMonto(min, true)
+            "El monto debe ser superior a " +
+              conv.formatMonto(min, true) +
+              msgMin
           );
         else if (formatedValue > max)
           return (
             false ||
-            "El monto debe ser inferior a " + conv.formatMonto(max, true)
+            "El monto debe ser inferior a " +
+              conv.formatMonto(max, true) +
+              msgMax
           );
         else return true;
       }
@@ -343,6 +380,7 @@ export default {
         procm_s_id: datosFormulario.producto.codigo,
         dias_plazo: datosFormulario.plazo.split(" ")[0],
         monto_deposito: parseInt(datosFormulario.monto.split(".").join("")),
+        moneda: datosFormulario.producto.mon_dap,
       };
       simulador
         .simularDap(data)
@@ -418,17 +456,52 @@ export default {
       let msg = "";
       let min = parseInt(parseFloat(this.formData.producto.monto_minimo));
       let max = parseInt(parseFloat(this.formData.producto.monto_maximo));
+      let msgMax = "";
+      let msgMin = "";
+      let peso_min = this.formData.producto.mon_min === "1";
+      let peso_max = this.formData.producto.mon_max === "1";
 
-      if (max == 0 || max >= 999999999)
+      if (!peso_min) {
+        msgMin =
+          " (" +
+          conv.formatMonto(
+            this.formData.producto.monto_minimo_original,
+            false
+          ) +
+          " " +
+          this.formData.producto.mon_min_nombre +
+          ")";
+      }
+      if (!peso_max) {
+        msgMax =
+          " (" +
+          conv.formatMonto(
+            this.formData.producto.monto_maximo_original,
+            false
+          ) +
+          " " +
+          this.formData.producto.mon_max_nombre +
+          ")";
+      }
+
+      if (max == 0 || max >= 9999999999)
         msg =
           "El monto ingresado debe ser superior a " +
-          conv.formatMonto(min, true);
+          conv.formatMonto(min, true) +
+          msgMin;
+      else if (min == 0 || min <= 0)
+        msg =
+          "El monto ingresado debe ser inferior a " +
+          conv.formatMonto(max, true) +
+          msgMax;
       else
         msg =
           "El monto ingresado debe ser superior a " +
           conv.formatMonto(min, true) +
+          msgMin +
           " e inferior a " +
-          conv.formatMonto(max, true);
+          conv.formatMonto(max, true) +
+          msgMax;
       return msg;
     },
     conv() {

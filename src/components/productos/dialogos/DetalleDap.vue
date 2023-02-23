@@ -149,7 +149,7 @@
               <v-list-item-content>
                 <v-list-item-subtitle>Custodia digital</v-list-item-subtitle>
                 <v-list-item-title>{{
-                  dialog.data.custodia_digital
+                  conv.capitalizeFirtsString(dialog.data.custodia_digital)
                 }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
@@ -399,6 +399,7 @@ export default {
     },
   },
   mounted() {
+    console.log(this.dialog.data);
     this.getDetalle();
   },
 };

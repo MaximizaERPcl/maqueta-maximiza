@@ -309,6 +309,7 @@ export default {
         .getCreditos(form)
         .then((response) => {
           this.credito = response.data[0];
+          console.log(this.credito);
         })
         .catch((error) => console.log(error));
     },

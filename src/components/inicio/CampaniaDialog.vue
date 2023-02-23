@@ -3,7 +3,7 @@
     v-model="dialogoCampania"
     width="460px"
     transition="dialog-top-transition"
-    @click:outside="mostrarDialogoCampanias(false)"
+    @click:outside="mostrarDialogoCampania(false)"
     :fullscreen="$vuetify.breakpoint.xsOnly"
   >
     <v-card height="100%">
@@ -48,7 +48,7 @@
         </v-hover>
       </v-card-text>
       <v-card-actions class="justify-end">
-        <v-btn color="error" @click="mostrarDialogoCampanias(false)"
+        <v-btn color="error" @click="mostrarDialogoCampania(false)"
           >Cerrar</v-btn
         >
       </v-card-actions>
@@ -71,7 +71,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["mostrarDialogoCampanias"]),
+    ...mapActions(["mostrarDialogoCampania"]),
   },
 };
 </script>

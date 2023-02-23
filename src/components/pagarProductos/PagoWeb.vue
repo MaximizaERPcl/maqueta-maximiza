@@ -77,6 +77,16 @@
                       v-if="pagos.comision_credito.length > 0"
                       :comision_credito="pagos.comision_credito"
                     />
+                    <v-alert
+                      dismissible
+                      type="warning"
+                      dense
+                      class="mx-1 mb-1"
+                      width="auto"
+                    >
+                      Si posee créditos en estado de renegociación estos no
+                      estarán disponibles para el pago en línea.
+                    </v-alert>
                   </v-col>
                   <!---------------------------------Calculo Totales --------------------------------->
                   <c_total_pagar

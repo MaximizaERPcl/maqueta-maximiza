@@ -151,7 +151,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["mostrarAlerta"]),
+    ...mapActions(["mostrarAlerta", "close_timeout"]),
     validate() {
       this.$refs.form.validate();
       if (this.valid) {
@@ -173,10 +173,13 @@ export default {
 
           if (data.return_value == 1) {
             payload = {
-              mensaje: data.msg,
+              mensaje: data.msg + ". Por su seguridad, se cerrará la sesión",
               color: "success",
               mostrar: true,
             };
+            this.close_timeout();
+            auth.cerrarSesion();
+            this.$router.push({ name: "login" });
           } else {
             payload = {
               mensaje: data.msg,

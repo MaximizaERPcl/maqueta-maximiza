@@ -14,13 +14,14 @@ export default {
   },
   formatPorcentaje(valor) {
     valor = valor.replace(/,/g, ".");
-    var num = parseFloat(valor);
-    var preRedondeo = Number((Math.abs(num) * 100).toPrecision(15));
-    var final = (Math.round(preRedondeo) / 100) * Math.sign(num);
-    return final + "%";
+    let num = parseFloat(valor);
+    /*let preRedondeo = Number((Math.abs(num) * 100).toPrecision(15));
+    console.log("preRedondeo", preRedondeo);
+    let final = (Math.round(preRedondeo) / 100) * Math.sign(num);*/
+    return num.toFixed(3) + "%";
   },
   formatPorcentaje2(valor) {
-    var num = parseFloat(valor) * 100;
+    let num = parseFloat(valor) * 100;
     return num.toFixed(2) + "%";
   },
   formatDias(valor) {

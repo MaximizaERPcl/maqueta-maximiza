@@ -111,7 +111,7 @@ export default {
               .then(async (response) => {
                 data.campanias = response.data;
                 if (data.campanias.length > 0)
-                  await this.mostrarDialogoCampanias(true);
+                  await this.mostrarDialogoCampania(true);
               })
               .catch((error) => console.log(error));
 

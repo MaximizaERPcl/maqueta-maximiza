@@ -63,7 +63,7 @@
       <v-divider></v-divider>
 
       <!-- INICIO MENÚ DE PRINCIPAL -->
-      <v-list nav>
+      <v-list nav :disabled="userLogged.b_cambiar_clave == '1'">
         <div v-for="(item, i) in principal" :key="i">
           <v-list-item
             :disabled="userLogged.b_cambiar_clave == '1'"
@@ -89,6 +89,7 @@
 
           <v-list-group
             v-else-if="item.subgroup"
+            :disabled="userLogged.b_cambiar_clave == '1'"
             link
             :to="{ name: item.to }"
             no-action
@@ -96,12 +97,24 @@
             color="white"
           >
             <template v-slot:activator>
-              <v-list-item-icon style="margin: 15px 25px 15px 0 !important">
-                <v-icon color="primary">{{ item.icon }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-title style="font-size: 0.85rem !important">{{
-                item.name
-              }}</v-list-item-title>
+              <v-list-item v-if="userLogged.b_cambiar_clave == '1'" disabled>
+                <v-list-item-icon
+                  style="margin: 15px 25px 15px -8px !important"
+                >
+                  <v-icon color="primary">{{ item.icon }}</v-icon>
+                </v-list-item-icon>
+                <v-list-item-title style="font-size: 0.85rem !important">{{
+                  item.name
+                }}</v-list-item-title>
+              </v-list-item>
+              <template v-else>
+                <v-list-item-icon style="margin: 15px 25px 15px 0px !important">
+                  <v-icon color="primary">{{ item.icon }}</v-icon>
+                </v-list-item-icon>
+                <v-list-item-title style="font-size: 0.85rem !important">{{
+                  item.name
+                }}</v-list-item-title>
+              </template>
             </template>
 
             <v-list-item

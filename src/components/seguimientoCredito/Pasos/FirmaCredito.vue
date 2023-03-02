@@ -12,35 +12,42 @@
       >
         {{ alert.msg }}
       </v-alert>
-      <v-btn
-        raised
-        width="310px"
-        v-if="estado_firma && estado_firma.codigo === '1'"
-        :loading="loadingFirma"
-        :disabled="loadingFirma"
-        color="success"
-        @click="generarLink()"
-      >
-        Firmar Online
-        <v-icon right>mdi-draw</v-icon>
-        <template v-slot:loader>
-          <span>Preparando Documentación </span>
-          <v-progress-circular
-            class="ml-4"
-            indeterminate
-            color="grey"
-            size="18"
-            width="2"
-          ></v-progress-circular>
-        </template>
-      </v-btn>
+      <div v-if="estado_firma && estado_firma.codigo === '1'">
+        <v-btn
+          raised
+          width="310px"
+          :loading="loadingFirma"
+          :disabled="loadingFirma || !correo"
+          color="success"
+          @click="generarLink()"
+        >
+          Firmar Online
+          <v-icon right>mdi-draw</v-icon>
+          <template v-slot:loader>
+            <span>Preparando Documentación </span>
+            <v-progress-circular
+              class="ml-4"
+              indeterminate
+              color="grey"
+              size="18"
+              width="2"
+            ></v-progress-circular>
+          </template>
+        </v-btn>
+        <v-alert v-if="!correo" dense text type="error" class="mt-2 subtitle-2">
+          No puede firmar ya que posee datos pendientes de actualización, por
+          favor comunicarse con la cooperativa
+        </v-alert>
+      </div>
     </div>
   </v-container>
 </template>
 <script>
 import creditos from "@/services/creditos";
 import auth from "@/auth/auth";
+import funciones from "@/services/funciones";
 import CargandoApp from "../../app/CargandoApp.vue";
+import { mapActions } from "vuex";
 export default {
   components: {
     "cargando-app": CargandoApp,
@@ -54,6 +61,7 @@ export default {
       estado_firma: null,
       loadingResponse: false,
       alert: null,
+      correo: false,
     };
   },
   computed: {
@@ -62,7 +70,19 @@ export default {
     },
   },
   methods: {
+    ...mapActions(["mostrarAlerta", "close_timeout"]),
+    async getUserInfo() {
+      //get info user from auth
+      await auth
+        .userInfo(this.userLogged.id_cliente)
+        .then((response) => {
+          let user = response.data[0];
+          this.correo = funciones.validateEmail(user.email_personal);
+        })
+        .catch((error) => console.log(error));
+    },
     async generarLink() {
+      this.close_timeout();
       this.loadingFirma = true;
       await this.documentos_firmar(2);
       this.loadingFirma = false;
@@ -72,7 +92,7 @@ export default {
       let form = {
         accion: accion,
         clien_s_id: this.userLogged.id_cliente,
-        wdfen_s_id_producto: this.estado.creme_s_id,
+        creme_s_id: this.estado.creme_s_id,
       };
       await creditos
         .documentos_firmar(form)
@@ -85,6 +105,7 @@ export default {
             else this.alert = { msg: data.msg, type: "warning" };
           } else {
             if (data.return_value === "1") {
+              this.close_timeout();
               payload = {
                 mensaje:
                   "Será redirigido a la página de ECERT para completar el proceso de firma online",
@@ -116,12 +137,8 @@ export default {
   },
   async mounted() {
     this.loadingResponse = true;
+    await this.getUserInfo();
     await this.documentos_firmar(1);
   },
-  // watch:{
-  //   estado_firma(){
-  //     console.log('watch',this.estado_firma)
-  //   }
-  // }
 };
 </script>

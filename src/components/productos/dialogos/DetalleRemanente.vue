@@ -229,7 +229,6 @@ export default {
       socio
         .getDetalleRemanente(this.dialog.data.Cuenta)
         .then((response) => {
-          console.log(response.data);
           if (response.data.length == 0) this.noData = true;
           else {
             this.noData = false;

@@ -15,6 +15,7 @@
                   color="primary"
                   @click="
                     e6 = -1;
+                    estado = null;
                     estado_credito(7);
                   "
                   class="mt-2"
@@ -38,7 +39,7 @@
               <v-stepper-content step="1">
                 <cargando-app v-if="loading" />
                 <formulario-docs
-                  v-if="!loading && docs_subir"
+                  v-if="!loading && docs_subir && e6 == 1"
                   :docs_subir="docs_subir"
                   :creme_s_id="estado.creme_s_id"
                   @reload="estado_credito(7)"
@@ -51,6 +52,7 @@
 
               <v-stepper-content step="2">
                 <v-alert
+                  v-if="e6 == 2"
                   text
                   :type="alert.type"
                   dense
@@ -66,14 +68,18 @@
               </v-stepper-step>
 
               <v-stepper-content step="3">
-                <detalle-credito :estado="estado" @reload="estado_credito(7)" />
+                <detalle-credito
+                  v-if="e6 == 3"
+                  :estado="estado"
+                  @reload="estado_credito(7)"
+                />
               </v-stepper-content>
 
               <v-stepper-step :complete="e6 > 4" step="4">
                 Firma electrónica de documentos
               </v-stepper-step>
               <v-stepper-content step="4">
-                <firma-credito :estado="estado" />
+                <firma-credito v-if="e6 == 4" :estado="estado" />
               </v-stepper-content>
 
               <v-stepper-step :complete="e6 > 5" step="5">
@@ -81,10 +87,21 @@
               </v-stepper-step>
 
               <v-stepper-content step="5">
-                <documentos-firmados :estado="estado" />
+                <documentos-firmados v-if="e6 == 5" :estado="estado" />
               </v-stepper-content>
             </v-stepper>
+            <div v-else>
+              <v-col cols="12" sm="10" md="6">
+                <v-skeleton-loader
+                  v-for="i in 3"
+                  :key="i"
+                  type="article"
+                  class="ml-2"
+                ></v-skeleton-loader>
+              </v-col>
+            </div>
           </div>
+
           <div v-else class="pa-8">
             <v-alert
               outlined
@@ -104,6 +121,7 @@
     <v-dialog v-model="loading" hide-overlay persistent width="300">
       <v-card flat class="pt-4">
         <v-card-text class="text-center">
+          Cargando Información
           <v-progress-linear
             indeterminate
             rounded
@@ -163,7 +181,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["mostrarAlerta"]),
+    ...mapActions(["mostrarAlerta", "set_timeout", "close_timeout"]),
     async estado_credito(accion) {
       this.loading = true;
       let data = {
@@ -246,23 +264,36 @@ export default {
     },
   },
   async mounted() {
-    await this.estado_credito(7);
-    if (localStorage.getItem("firma") != null && this.e6 == 5) {
-      localStorage.removeItem("firma");
-      this.mostrarAlerta({
-        mostrar: true,
-        mensaje: "Firma realizada correctamente",
-        color: "success",
-        icon: "",
-      });
-    } else if (localStorage.getItem("firma") != null && this.e6 != 5) {
-      this.mostrarAlerta({
-        mostrar: true,
-        mensaje:
-          "Ocurrió un error al realizar la firma electrónica, recargue la información del crédito e intente firmar nuevamente, si el error persiste comúniquese con un administrador",
-        color: "error",
-        icon: "",
-      });
+    this.loading = true;
+    if (localStorage.getItem("firma") != null) {
+      let vm = this;
+      this.close_timeout();
+      setTimeout(async function () {
+        await vm.estado_credito(7);
+
+        if (vm.e6 == 5) {
+          vm.mostrarAlerta({
+            mostrar: true,
+            mensaje: "Firma realizada correctamente",
+            color: "success",
+            icon: "",
+          });
+        } else if (vm.e6 != 5) {
+          vm.mostrarAlerta({
+            mostrar: true,
+            mensaje:
+              "Ocurrió un error al realizar la firma electrónica, recargue la información del crédito e intente firmar nuevamente, si el error persiste comúniquese con un administrador",
+            color: "error",
+            icon: "",
+          });
+        }
+        setTimeout(function () {
+          vm.set_timeout();
+        }, 10000);
+        localStorage.removeItem("firma");
+      }, 2000);
+    } else {
+      await this.estado_credito(7);
     }
   },
 };

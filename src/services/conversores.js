@@ -15,9 +15,6 @@ export default {
   formatPorcentaje(valor) {
     valor = valor.replace(/,/g, ".");
     let num = parseFloat(valor);
-    /*let preRedondeo = Number((Math.abs(num) * 100).toPrecision(15));
-    console.log("preRedondeo", preRedondeo);
-    let final = (Math.round(preRedondeo) / 100) * Math.sign(num);*/
     return num.toFixed(3) + "%";
   },
   formatPorcentaje2(valor) {

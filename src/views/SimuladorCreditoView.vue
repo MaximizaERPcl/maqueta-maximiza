@@ -364,7 +364,6 @@ export default {
         let formatedValue = parseInt(value.split(".").join(""));
         let min = 0;
         let max = 0;
-        console.log(this.formData.campania);
         if (this.formData.campania && this.formData.campania.id) {
           min = parseInt(this.formData.campania.monto_minimo) + this.gasto_fijo;
           max = parseInt(this.formData.campania.monto_maximo);

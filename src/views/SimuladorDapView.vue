@@ -98,7 +98,9 @@
                       >Tipo de depósito</v-list-item-subtitle
                     >
                     <v-list-item-title>{{
-                      formData.producto.nombre
+                      conv.capitalizeString(
+                        formData.producto.nombre.split(" - ")[1]
+                      )
                     }}</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
@@ -301,7 +303,6 @@ export default {
                 this.productos.push(productoCompleto);
               });
           });
-          console.log(this.productos);
         })
         .catch((error) => console.log(error));
     },
@@ -385,7 +386,6 @@ export default {
       simulador
         .simularDap(data)
         .then((response) => {
-          console.log(response.data);
           this.resultado = response.data[0];
         })
         .catch((error) => console.log(error));
@@ -404,6 +404,7 @@ export default {
         accion: "2",
         producto: this.formData.producto.nombre.split(" - ")[1],
         clien_s_id: this.userLogged.id_cliente,
+        procm_s_id: this.formData.producto.codigo,
         dap_tipo_deposito: this.formData.producto.nombre,
         dap_dias_plazo: this.resultado.dias_plazo_real,
         dap_moneda: this.resultado.nombre_moneda,
@@ -435,7 +436,6 @@ export default {
               mostrar: true,
             };
           }
-          console.log(response);
         })
         .catch((error) => console.log(error));
       this.loadingEmail = false;

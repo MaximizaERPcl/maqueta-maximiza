@@ -15,7 +15,7 @@
               >Pago de productos</v-toolbar-title
             >
           </v-toolbar>
-          <div v-if="userLogged.b_pago === '0'">
+          <div v-if="userBits.b_pago === '0'">
             <app-no-datos
               v-bind:msg="'En estos momentos el sistema se encuentra ejecutando procesos nocturnos, por favor intente más tarde'"
             ></app-no-datos>
@@ -54,7 +54,7 @@
                     <c_credito
                       v-if="
                         pagos.credito.length > 0 &&
-                        userLogged.b_paga_credito === '1'
+                        userBits.b_pago_credito === '1'
                       "
                       :creditos="pagos.credito"
                     />
@@ -62,7 +62,7 @@
                     <c_credito_castigado
                       v-if="
                         pagos.credito_castigado.length > 0 &&
-                        userLogged.b_paga_credito === '1'
+                        userBits.b_pago_credito === '1'
                       "
                       :castigados="pagos.credito_castigado"
                     />
@@ -116,7 +116,7 @@
 import auth from "@/auth/auth";
 import pago from "@/services/pago";
 import conv from "@/services/conversores";
-import { mapActions } from "vuex";
+import { mapActions, mapState } from "vuex";
 import PagoResultVue from "./PagoResult.vue";
 import NoDataVue from "../app/NoDataApp.vue";
 
@@ -226,7 +226,6 @@ export default {
         .flow_obtener_token(data)
         .then(async (response) => {
           let data = response.data;
-          console.log(data);
           this.token = await data.token;
           this.url_pago = await data.url;
         })
@@ -378,6 +377,7 @@ export default {
     },
   },
   computed: {
+    ...mapState(["userBits"]),
     conv() {
       return conv;
     },

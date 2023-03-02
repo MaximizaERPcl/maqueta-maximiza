@@ -19,6 +19,11 @@ export default new Vuex.Store({
     drawer: true,
     dialogoMora: false,
     dialogoCampania: false,
+    userBits: {
+      b_creditos_firmar: "0",
+      b_pago: "0",
+      b_pago_credito: "0",
+    },
   },
   getters: {
     drawer: (state) => {
@@ -55,6 +60,9 @@ export default new Vuex.Store({
     },
     CLOSE_TIMEOUT(state) {
       clearTimeout(state.expireTimeout);
+    },
+    SET_BITS(state, value) {
+      state.userBits = value;
     },
   },
   actions: {
@@ -107,6 +115,18 @@ export default new Vuex.Store({
     },
     close_timeout({ commit }) {
       commit("CLOSE_TIMEOUT");
+    },
+    async updateBits({ commit }, value) {
+      if (process.env.NODE_ENV === "development") {
+        console.log("Actualizando bits");
+      }
+      await auth
+        .bitsCliente(value)
+        .then((response) => {
+          let bits = response.data;
+          commit("SET_BITS", bits);
+        })
+        .catch((error) => console.log(error));
     },
   },
   modules: {},

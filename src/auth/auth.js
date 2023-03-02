@@ -89,4 +89,10 @@ export default {
     });
     return axios.post(URL_API + "cambiar_clave", data);
   },
+  bitsCliente(id_cliente) {
+    let data = qs.stringify({
+      clien_s_id: id_cliente,
+    });
+    return axios.post(URL_API + "bits_cliente", data);
+  },
 };

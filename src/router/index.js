@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import Inicio from "../views/InicioView.vue";
 import auth from "../auth/auth";
+import store from "../store";
 
 Vue.use(VueRouter);
 
@@ -36,10 +37,7 @@ const routes = [
   {
     path: "/simulador-creditos/:preSelect?",
     name: "creditos",
-    component: () =>
-      import(
-        /* webpackChunkName: "about" */ "../views/SimuladorCreditoView.vue"
-      ),
+    component: () => import("../views/SimuladorCreditoView.vue"),
     meta: {
       requiresAuth: true,
     },
@@ -80,6 +78,15 @@ const routes = [
     },
   },
   {
+    path: "/seguimiento-credito",
+    name: "seguimiento",
+    component: () => import("../views/SeguimientoCreditoView.vue"),
+    meta: {
+      requiresAuth: true,
+      requiresCredit: true,
+    },
+  },
+  {
     path: "/",
     redirect: "/inicio",
   },
@@ -95,12 +102,13 @@ const router = new VueRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   //Lógica que se ejecuta antes de renderizar la ruta a la vista respectiva
   //Primero se debe validar si la ruta requiere autenticación
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     //Si la ruta requiere autenticación se valida si el usuario está autenticado
     if (auth.isAuthenticated()) {
+      await store.dispatch("updateBits", auth.getUserLogged().id_cliente);
       //Si el usuario está autenticado se valida si el usuario debe cambiar su clave
       let cambio_clave = auth.getUserLogged().b_cambiar_clave;
       if (parseInt(cambio_clave)) {
@@ -147,8 +155,8 @@ router.beforeEach((to, from, next) => {
           return;
         }
         //Si la ruta es de simulador de créditos se valida si el usuario tiene créditos por firmar
-        /*else if (to.name === "seguimiento") {
-          if (auth.getUserLogged().b_creditos_firmar === "1") {
+        else if (to.name === "seguimiento") {
+          if (store.state.userBits.b_creditos_firmar === "1") {
             if (to.query.firma === "ok") {
               localStorage.setItem("firma", "1");
               next({
@@ -163,7 +171,7 @@ router.beforeEach((to, from, next) => {
             next("/inicio");
             return;
           }
-        }*/
+        }
         //Si la ruta no tiene que validar condiciones especiales se redirige a la ruta solicitada
         else {
           next();

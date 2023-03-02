@@ -121,7 +121,6 @@ export default {
         .getProximosPagos(this.userLogged.id_cliente, 2)
         .then((response) => {
           let items = response.data[0];
-          //console.log(items);
           let suma = 0;
           var i = 0;
           for (const property in items) {

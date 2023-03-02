@@ -136,8 +136,8 @@ export default {
           let payload = {};
           this.loading = true;
 
-          if (data.error_codigo == 1) {
-            this.$router.push("/maximiza_vue/");
+          if (parseInt(data.codigo) == 1) {
+            this.$router.push("/login");
             payload = {
               mensaje: data.msg,
               color: "success",
@@ -161,12 +161,6 @@ export default {
   mounted() {
     this.id_cliente = this.$route.params.id_cliente;
   },
-  /*watch: {
-        "$route.params.id_cliente"(value) {
-          console.log(value)
-          this.id_cliente = value;
-        }
-      }*/
 };
 </script>
 <style scoped lang="css">

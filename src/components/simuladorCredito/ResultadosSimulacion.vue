@@ -126,7 +126,7 @@
       <v-icon left>mdi-email</v-icon>
       Enviar Correo
     </v-btn>
-    <!-- <v-btn
+    <v-btn
       v-if="!prod"
       color="success"
       class="mx-2 my-2"
@@ -136,7 +136,7 @@
     >
       <v-icon left>mdi-send-circle</v-icon>
       Solicitar Crédito
-    </v-btn> -->
+    </v-btn>
   </v-card>
 </template>
 
@@ -253,22 +253,22 @@ export default {
         creme_m_valor_cuota: this.resultado.valor_cuota,
         creme_n_cantidad_cuota: this.resultado.cuota,
         campe_s_id: this.formData.campania ? this.formData.campania.id : "",
+        gascr_s_id_s: this.resultado.gastos_ids,
+        cregt_m_gasto_s: this.resultado.gastos_montos,
         dir_email: "valentina.ligueno@maximizaerp.cl",
       };
       await simulador
         .solicitarCredito(form)
         .then((response) => {
           let data = response.data[0];
-          //console.log(response.data);
           if (data.return_value === "1") {
             payload = {
               mensaje: `Crédito registrado exitosamente. Puede revisar el estado de su solicitud en la barra lateral en 'Seguimiento Credito'`,
               color: "success",
               mostrar: true,
             };
-            let userEdit = this.userLogged;
-            userEdit.b_creditos_firmar = "1";
-            auth.updateUserLogged(userEdit);
+
+            this.updateBits(this.userLogged.id_cliente);
 
             //this.$router.push("/seguimiento-credito");
           } else {
@@ -287,8 +287,11 @@ export default {
             color: "error",
             mostrar: true,
           };
+        })
+        .finally(() => {
+          this.loadingSolicitar = false;
         });
-      this.loadingSolicitar = false;
+
       this.credSolicitado = true;
       this.mostrarAlerta(payload);
     },

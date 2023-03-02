@@ -18,6 +18,10 @@ export default {
     let formattedData = qs.stringify(data);
     return axios.post(URL_API + "simulador_credito_calculo", formattedData);
   },
+  solicitarCredito(data) {
+    let formattedData = qs.stringify(data);
+    return axios.post(URL_API + "simulador_credito_guardar", formattedData);
+  },
 
   getProductosDaps(rut) {
     let data = qs.stringify({

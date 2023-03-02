@@ -68,9 +68,9 @@
           <v-list-item
             :disabled="userLogged.b_cambiar_clave == '1'"
             v-if="
-              !item.subgroup /*&&
-              (item.bit ? sideBarMenuBits[item.bit] === '1' : true) &&
-              (item.dev ? (prod ? false : true) : true)*/
+              !item.subgroup &&
+              (item.bit ? userBits[item.bit] === '1' : true) &&
+              (item.dev ? (prod ? false : true) : true)
             "
             link
             :to="{
@@ -151,7 +151,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapMutations } from "vuex";
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import auth from "@/auth/auth";
 import { formatterRut } from "chilean-formatter";
 import conv from "@/services/conversores";
@@ -164,7 +164,7 @@ export default {
       //{ name: "Beneficiarios Seguro Capital", route: "benCapital" },
       { name: "Simulador de créditos", route: "creditos" },
       { name: "Pagar Productos", route: "pagoweb" },
-      //{ name: "Seguimiento de Crédito", route: "seguimiento" },
+      { name: "Seguimiento de Crédito", route: "seguimiento" },
       { name: "Simulador Dap", route: "dap" },
       { name: "Cuenta", route: "cuenta" },
     ],
@@ -189,6 +189,12 @@ export default {
           { name: "Próximos Pagos", param: "proximos-pagos" },
           //{name: 'Firma Legale', param:'firma'},
         ],
+      },
+      {
+        name: "Seguimiento de Crédito",
+        icon: "mdi-credit-card-clock",
+        to: "seguimiento",
+        bit: "b_creditos_firmar",
       },
       {
         name: "Simulador de créditos",
@@ -221,6 +227,7 @@ export default {
     finalItems: [{ name: "Atención Socios", icon: "mdi-phone" }],
   }),
   computed: {
+    ...mapState(["userBits"]),
     userRut() {
       return formatterRut(this.userLogged.rut);
     },
@@ -247,7 +254,7 @@ export default {
   },
   methods: {
     ...mapMutations(["cambiarRuta"]),
-    ...mapActions(["switchDrawer", "close_timeout"]),
+    ...mapActions(["switchDrawer", "close_timeout", "updateBits"]),
     logout() {
       this.close_timeout();
       auth.cerrarSesion();
@@ -264,6 +271,7 @@ export default {
   watch: {
     "$route.name": {
       handler(value) {
+        this.updateBits(this.userLogged.id_cliente);
         var indiceRuta = this.totalMenu.findIndex(
           (item) => item.route === value
         );

@@ -90,6 +90,7 @@ export default {
       "mostrarDialogoCampania",
       "mostrarDialogoMora",
       "set_timeout",
+      "updateBits",
     ]),
     validate() {
       this.$refs.form.validate();
@@ -119,6 +120,7 @@ export default {
               await this.mostrarDialogoMora(true);
             }
             await auth.setUserLogged(data);
+            await this.updateBits(data.id_cliente);
             this.set_timeout();
             this.$router.push("/inicio");
             payload = {

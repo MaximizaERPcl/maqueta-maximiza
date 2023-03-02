@@ -103,7 +103,12 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["mostrarAlerta", "cerrarAlerta", "set_timeout"]),
+    ...mapActions([
+      "mostrarAlerta",
+      "cerrarAlerta",
+      "set_timeout",
+      "updateBits",
+    ]),
     onidle() {
       auth.cerrarSesion();
       this.$router.push("/maximiza_vue/");
@@ -123,7 +128,6 @@ export default {
   mounted() {
     this.rutaActual = this.$route.name;
     if (auth.isAuthenticated()) {
-      //this.updateBits();
       if (auth.isExpireSet()) this.set_timeout();
       else {
         auth.cerrarSesion();

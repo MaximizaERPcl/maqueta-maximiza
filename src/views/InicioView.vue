@@ -108,20 +108,59 @@
                 </v-list-item-content>
               </v-list-item>
 
-              <v-list-item>
-                <v-list-item-icon>
-                  <v-icon color="primary"> mdi-email </v-icon>
-                </v-list-item-icon>
+              <template v-if="sameEmail">
+                <v-list-item>
+                  <v-list-item-icon>
+                    <v-icon color="primary"> mdi-email </v-icon>
+                  </v-list-item-icon>
 
-                <v-list-item-content>
-                  <v-list-item-subtitle>Correo</v-list-item-subtitle>
-                  <v-list-item-title
-                    v-if="user.email && user.email.trim().length > 0"
-                    >{{ user.email }}</v-list-item-title
-                  >
-                  <v-list-item-title v-else>No hay registro</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
+                  <v-list-item-content>
+                    <v-list-item-subtitle
+                      >Correo Personal - Notificaciones</v-list-item-subtitle
+                    >
+                    <v-list-item-title>
+                      {{ user.email_personal }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+              <template v-else>
+                <v-list-item>
+                  <v-list-item-icon>
+                    <v-icon color="primary"> mdi-email </v-icon>
+                  </v-list-item-icon>
+
+                  <v-list-item-content>
+                    <v-list-item-subtitle>Correo Personal</v-list-item-subtitle>
+                    <v-list-item-title
+                      v-if="func.validateEmail(user.email_personal)"
+                      >{{ user.email_personal }}</v-list-item-title
+                    >
+                    <v-list-item-title v-else
+                      >No hay registro</v-list-item-title
+                    >
+                  </v-list-item-content>
+                </v-list-item>
+
+                <v-list-item>
+                  <v-list-item-icon>
+                    <v-icon color="primary"> mdi-email-newsletter </v-icon>
+                  </v-list-item-icon>
+
+                  <v-list-item-content>
+                    <v-list-item-subtitle
+                      >Correo de Notificaciones</v-list-item-subtitle
+                    >
+                    <v-list-item-title
+                      v-if="func.validateEmail(user.email_recado)"
+                      >{{ user.email_recado }}</v-list-item-title
+                    >
+                    <v-list-item-title v-else
+                      >No hay registro</v-list-item-title
+                    >
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
             </v-list>
           </div>
         </v-card>
@@ -165,6 +204,7 @@
 import auth from "@/auth/auth";
 import socio from "@/services/socio";
 import conv from "@/services/conversores";
+import funciones from "@/services/funciones";
 import MoraDialog from "@/components/inicio/MoraDialog.vue";
 import { mapState } from "vuex";
 export default {
@@ -287,6 +327,18 @@ export default {
     },
     conv() {
       return conv;
+    },
+    func() {
+      return funciones;
+    },
+    sameEmail() {
+      let personal = this.user.email_personal;
+      let notificaciones = this.user.email_recado;
+      return (
+        funciones.validateEmail(personal) &&
+        funciones.validateEmail(notificaciones) &&
+        personal === notificaciones
+      );
     },
     height() {
       switch (this.$vuetify.breakpoint.name) {

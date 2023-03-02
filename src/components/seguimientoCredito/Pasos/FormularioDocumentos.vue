@@ -33,8 +33,19 @@
       @click="validate"
       :loading="loading"
       :disabled="disabled"
+      width="310px"
     >
       Subir Documentación
+      <template v-slot:loader>
+        <span>Subiendo Documentación </span>
+        <v-progress-circular
+          class="ml-4"
+          indeterminate
+          color="grey"
+          size="18"
+          width="2"
+        ></v-progress-circular>
+      </template>
     </v-btn>
   </v-container>
 </template>
@@ -120,22 +131,22 @@ export default {
                 color: "error",
                 mostrar: true,
               };
+              this.loading = false;
             });
         }
         if (index == this.docs_subidos.length - 1) {
           if (status == 1) this.$emit("reload");
           this.mostrarAlerta(payload);
+          this.loading = false;
         }
       });
-
-      this.loading = false;
     },
-    validate() {
+    async validate() {
       for (let i = 0; i < this.docs_subidos.length; i++) {
         this.$refs.form[i].validate();
       }
       if (this.valid) {
-        this.subir_documentacion();
+        await this.subir_documentacion();
       }
     },
   },

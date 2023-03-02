@@ -1,6 +1,5 @@
 <template>
   <div v-if="creditos">
-    {{ /*v-if="&& userLogged.b_paga_credito === '1'"*/ }}
     <v-data-table
       v-model="selected"
       dense

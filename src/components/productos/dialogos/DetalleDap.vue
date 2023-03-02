@@ -379,7 +379,6 @@ export default {
         .getDetalleDap(this.dialog.data.n_cuenta)
         .then((response) => {
           this.cargandoTabla = true;
-          console.log(response.data);
           if (response.data.length == 0) this.noData = true;
           else {
             this.noData = false;
@@ -399,7 +398,6 @@ export default {
     },
   },
   mounted() {
-    console.log(this.dialog.data);
     this.getDetalle();
   },
 };

@@ -16,7 +16,7 @@
             >
           </v-toolbar>
           <v-row
-            class="fill-height mb-4"
+            class="mb-4"
             align-content="center"
             justify="center"
             v-if="loading"

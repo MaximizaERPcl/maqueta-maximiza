@@ -36,10 +36,10 @@
           </v-toolbar>
 
           <v-row
-            class="fill-height"
             align-content="center"
             justify="center"
             v-if="loading"
+            class="my-1"
           >
             <v-col class="text-subtitle-1 text-center" cols="12">
               Cargando Datos

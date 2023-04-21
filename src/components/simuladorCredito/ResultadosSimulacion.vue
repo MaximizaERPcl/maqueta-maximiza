@@ -127,7 +127,6 @@
       Enviar Correo
     </v-btn>
     <v-btn
-      v-if="!prod"
       color="success"
       class="mx-2 my-2"
       :loading="loadingSolicitar"

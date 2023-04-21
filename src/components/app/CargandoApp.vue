@@ -1,5 +1,5 @@
 <template>
-  <v-row class="fill-height" align-content="center" justify="center">
+  <v-row align-content="center" justify="center">
     <v-col class="text-subtitle-1 text-center" cols="12">
       Cargando Documentos
     </v-col>

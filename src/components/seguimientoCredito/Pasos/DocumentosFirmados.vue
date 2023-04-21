@@ -38,7 +38,35 @@
           </v-card>
         </v-row>
       </template>
+      <template v-slot:no-data>
+        <div class="text-center">
+          <v-img
+            :src="require('@/assets/app/no-file.png')"
+            height="50"
+            width="50"
+            contain
+            class="mx-auto"
+          />
+          No se encontraron documentos firmados
+        </div>
+      </template>
     </v-data-iterator>
+    <div class="mt-6">
+      <v-alert
+        text
+        type="success"
+        dense
+        prominent
+        style="background: white !important"
+      >
+        <span v-if="estado.estado === '1'">
+          Su crédito está en proceso de autorización.
+        </span>
+        <span v-else-if="estado.estado === '2'">
+          Su crédito está en proceso de ser entregado.
+        </span>
+      </v-alert>
+    </div>
   </div>
 </template>
 <script>
@@ -70,6 +98,7 @@ export default {
       await creditos
         .listar_firmados(form)
         .then((response) => {
+          console.log(response.data);
           if (response.data[0].return_value === "1") this.docs = response.data;
         })
         .catch((error) => console.log(error));
